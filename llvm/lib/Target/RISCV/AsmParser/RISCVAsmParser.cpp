@@ -737,6 +737,12 @@ public:
   bool isUImm48() const { return isUImm<48>(); }
   bool isUImm64() const { return isUImm<64>(); }
 
+  // Tenstorrent Tensix immediate: must be < 0xC0000000 to ensure proper encoding
+  bool isTTensixImm32() const {
+    return isUImmPred(
+        [](int64_t Imm) { return Imm >= 0 && (uint64_t)Imm < 0xC0000000ULL; });
+  }
+
   bool isUImm5NonZero() const {
     return isUImmPred([](int64_t Imm) { return Imm != 0 && isUInt<5>(Imm); });
   }

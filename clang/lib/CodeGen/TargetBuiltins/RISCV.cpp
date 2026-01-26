@@ -1376,6 +1376,12 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   case RISCV::BI__builtin_riscv_nds_fcvt_bf16_s:
     return Builder.CreateFPTrunc(Ops[0], BFloatTy);
 
+  // XTTensix
+  case RISCV::BI__builtin_riscv_tt_insn: {
+    llvm::Function *F = CGM.getIntrinsic(llvm::Intrinsic::riscv_tt_insn);
+    return Builder.CreateCall(F, Ops);
+  }
+
     // Vector builtins are handled from here.
 #include "clang/Basic/riscv_vector_builtin_cg.inc"
 

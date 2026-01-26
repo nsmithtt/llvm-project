@@ -116,6 +116,10 @@ public:
   unsigned getRlistS0OpValue(const MCInst &MI, unsigned OpNo,
                              SmallVectorImpl<MCFixup> &Fixups,
                              const MCSubtargetInfo &STI) const;
+
+  uint64_t getTTensixImm32OpValue(const MCInst &MI, unsigned OpNo,
+                                  SmallVectorImpl<MCFixup> &Fixups,
+                                  const MCSubtargetInfo &STI) const;
 };
 } // end anonymous namespace
 
@@ -753,6 +757,18 @@ RISCVMCCodeEmitter::getRlistS0OpValue(const MCInst &MI, unsigned OpNo,
   auto Imm = MO.getImm();
   assert(Imm >= 4 && "EABI is currently not implemented");
   assert(Imm != RISCVZC::RA && "Rlist operand must include s0");
+  return Imm;
+}
+
+uint64_t
+RISCVMCCodeEmitter::getTTensixImm32OpValue(const MCInst &MI, unsigned OpNo,
+                                           SmallVectorImpl<MCFixup> &Fixups,
+                                           const MCSubtargetInfo &STI) const {
+  const MCOperand &MO = MI.getOperand(OpNo);
+  assert(MO.isImm() && "TTensix immediate operand must be immediate");
+  uint32_t Imm = MO.getImm();
+  // The encoding is the immediate rotated left by 2 bits.
+  // This is handled by the TableGen encoding, so just return the immediate.
   return Imm;
 }
 

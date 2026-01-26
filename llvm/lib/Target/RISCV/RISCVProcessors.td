@@ -643,6 +643,14 @@ def TENSTORRENT_ASCALON_D8 : RISCVProcessorModel<"tt-ascalon-d8",
                                                   TuneOptimizedZeroStrideLoad,
                                                   TunePostRAScheduler]>;
 
+def TENSTORRENT_TENSIX_BRISC : RISCVProcessorModel<"tt-tensix-brisc",
+                                                    NoSchedModel,
+                                                    [Feature32Bit,
+                                                     FeatureStdExtI,
+                                                     FeatureStdExtZicsr,
+                                                     FeatureStdExtM,
+                                                     FeatureVendorXTTensix]>;
+
 def VENTANA_VEYRON_V1 : RISCVProcessorModel<"veyron-v1",
                                             NoSchedModel,
                                             [Feature64Bit,

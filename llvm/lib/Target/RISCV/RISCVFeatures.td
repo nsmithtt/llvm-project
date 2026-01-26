@@ -1730,6 +1730,16 @@ def HasVendorXSMTVDot
       AssemblerPredicate<(all_of FeatureVendorXSMTVDot),
                          "'XSMTVDot' (SpacemiT Vector Dot Product Extension)">;
 
+// Tenstorrent Extensions
+
+def FeatureVendorXTTensix
+    : RISCVExperimentalExtension<0, 1,
+                                 "Tenstorrent Tensix accelerator interface">;
+def HasVendorXTTensix
+    : Predicate<"Subtarget->hasVendorXTTensix()">,
+      AssemblerPredicate<(all_of FeatureVendorXTTensix),
+                         "'XTTensix' (Tenstorrent Tensix accelerator interface)">;
+
 //===----------------------------------------------------------------------===//
 // LLVM specific features and extensions
 //===----------------------------------------------------------------------===//

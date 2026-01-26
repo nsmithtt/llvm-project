@@ -167,3 +167,8 @@ include "clang/Basic/BuiltinsRISCVXAndes.td"
 // MIPS extensions.
 //===----------------------------------------------------------------------===//
 include "clang/Basic/BuiltinsRISCVXMIPS.td"
+
+//===----------------------------------------------------------------------===//
+// Tenstorrent Tensix extensions.
+//===----------------------------------------------------------------------===//
+include "clang/Basic/BuiltinsRISCVXTTensix.td"

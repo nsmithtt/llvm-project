@@ -22,6 +22,7 @@
 // RISCV32-SAME: {{^}}, syntacore-scr3-rv32
 // RISCV32-SAME: {{^}}, syntacore-scr4-rv32
 // RISCV32-SAME: {{^}}, syntacore-scr5-rv32
+// RISCV32-SAME: {{^}}, tt-tensix-brisc
 // RISCV32-SAME: {{$}}
 
 // RUN: not %clang_cc1 -triple riscv64 -target-cpu not-a-cpu -fsyntax-only %s 2>&1 | FileCheck %s --check-prefix RISCV64
@@ -78,6 +79,7 @@
 // TUNE-RISCV32-SAME: {{^}}, syntacore-scr3-rv32
 // TUNE-RISCV32-SAME: {{^}}, syntacore-scr4-rv32
 // TUNE-RISCV32-SAME: {{^}}, syntacore-scr5-rv32
+// TUNE-RISCV32-SAME: {{^}}, tt-tensix-brisc
 // TUNE-RISCV32-SAME: {{^}}, andes-45-series
 // TUNE-RISCV32-SAME: {{^}}, generic
 // TUNE-RISCV32-SAME: {{^}}, generic-ooo

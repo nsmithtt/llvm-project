@@ -260,6 +260,17 @@
 // MCPU-TT-ASCALON-D8-SAME: "-target-feature" "+svnapot"
 // MCPU-TT-ASCALON-D8-SAME: "-target-feature" "+svpbmt"
 
+// RUN: %clang --target=riscv32 -### -c %s 2>&1 -mcpu=tt-tensix-brisc | FileCheck -check-prefix=MCPU-TT-TENSIX-BRISC %s
+// MCPU-TT-TENSIX-BRISC: "-target-cpu" "tt-tensix-brisc"
+// MCPU-TT-TENSIX-BRISC-SAME: "-target-feature" "+m"
+// MCPU-TT-TENSIX-BRISC-SAME: "-target-feature" "+zicsr"
+// MCPU-TT-TENSIX-BRISC-SAME: "-target-feature" "+zmmul"
+// MCPU-TT-TENSIX-BRISC-SAME: "-target-feature" "+experimental-xttensix"
+// MCPU-TT-TENSIX-BRISC-SAME: "-target-abi" "ilp32"
+
+// RUN: %clang --target=riscv32 -### -c %s 2>&1 -mtune=tt-tensix-brisc | FileCheck -check-prefix=MTUNE-TT-TENSIX-BRISC %s
+// MTUNE-TT-TENSIX-BRISC: "-tune-cpu" "tt-tensix-brisc"
+
 // RUN: %clang --target=riscv64 -### -c %s 2>&1 -mcpu=veyron-v1 | FileCheck -check-prefix=MCPU-VEYRON-V1 %s
 // MCPU-VEYRON-V1: "-target-cpu" "veyron-v1"
 // MCPU-VEYRON-V1: "-target-feature" "+m"

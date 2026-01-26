@@ -611,6 +611,19 @@ static DecodeStatus decodeXqccmpRlistS0(MCInst &Inst, uint32_t Imm,
   return decodeZcmpRlist(Inst, Imm, Address, Decoder);
 }
 
+static DecodeStatus decodeTTensixImm32Operand(MCInst &Inst, uint32_t Imm,
+                                              int64_t Address,
+                                              const MCDisassembler *Decoder) {
+  // Tensix immediates must be < 0xC0000000 (bits[31:30] != 0b11).
+  // In the encoded instruction, Inst[1:0] = imm[31:30], so if imm >= 0xC0000000
+  // the encoded instruction would have bits[1:0] == 0b11, colliding with
+  // standard RISC-V 32-bit instruction encoding.
+  if ((Imm >> 30) == 0x3)
+    return MCDisassembler::Fail;
+  Inst.addOperand(MCOperand::createImm(Imm));
+  return MCDisassembler::Success;
+}
+
 #include "RISCVGenDisassemblerTables.inc"
 
 namespace {
@@ -686,6 +699,8 @@ static constexpr FeatureBitset XAndesGroup = {
 
 static constexpr FeatureBitset XSMTGroup = {RISCV::FeatureVendorXSMTVDot};
 
+static constexpr FeatureBitset XTTensixGroup = {RISCV::FeatureVendorXTTensix};
+
 static constexpr DecoderListEntry DecoderList32[]{
     // Vendor Extensions
     {DecoderTableXCV32, XCVFeatureGroup, "CORE-V extensions"},
@@ -701,6 +716,7 @@ static constexpr DecoderListEntry DecoderList32[]{
     {DecoderTableXMIPS32, XMIPSGroup, "Mips extensions"},
     {DecoderTableXAndes32, XAndesGroup, "Andes extensions"},
     {DecoderTableXSMT32, XSMTGroup, "SpacemiT extensions"},
+    {DecoderTableXTTensix32, XTTensixGroup, "Tenstorrent Tensix extensions"},
     // Standard Extensions
     {DecoderTable32, {}, "standard 32-bit instructions"},
     {DecoderTableRV32Only32, {}, "RV32-only standard 32-bit instructions"},
@@ -827,6 +843,23 @@ DecodeStatus RISCVDisassembler::getInstruction(MCInst &MI, uint64_t &Size,
                                                uint64_t Address,
                                                raw_ostream &CS) const {
   CommentStream = &CS;
+
+  // XTTensix instructions are 32-bit but use the compressed instruction
+  // encoding space (bits[1:0] != 0b11). Try XTTensix decoding first when the
+  // feature is enabled and we have enough bytes.
+  if ((Bytes[0] & 0b11) != 0b11 && Bytes.size() >= 4 &&
+      STI.hasFeature(RISCV::FeatureVendorXTTensix)) {
+    uint32_t Insn =
+        support::endian::read32le(Bytes.data()) & 0xFFFFFFFF;
+    LLVM_DEBUG(dbgs() << "Trying XTTensix table (32 bit instruction)\n");
+    DecodeStatus Result = decodeInstruction(DecoderTableXTTensix32, MI, Insn,
+                                            Address, this, STI);
+    if (Result != MCDisassembler::Fail) {
+      Size = 4;
+      return Result;
+    }
+  }
+
   // It's a 16 bit instruction if bit 0 and 1 are not 0b11.
   if ((Bytes[0] & 0b11) != 0b11)
     return getInstruction16(MI, Size, Bytes, Address, CS);
