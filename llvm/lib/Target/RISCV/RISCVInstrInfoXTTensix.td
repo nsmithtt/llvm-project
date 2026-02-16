@@ -1796,7 +1796,303 @@ def TT_RMWCIB1 : TTInst<0xB4, (outs),
 //===----------------------------------------------------------------------===//
 
 let Predicates = [HasVendorXTTensix, IsRV32] in {
+  // Generic raw-immediate pattern (retained as fallback)
   def : Pat<(int_riscv_tt_insn timm:$imm), (TTINSN ttensix_imm32:$imm)>;
+
+  // Frontend/Control
+  def : Pat<(int_riscv_tt_nop), (TT_NOP)>;
+  def : Pat<(int_riscv_tt_mop timm:$a, timm:$b, timm:$c),
+            (TT_MOP timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_mop_cfg timm:$a),
+            (TT_MOP_CFG timm:$a)>;
+  def : Pat<(int_riscv_tt_replay timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_REPLAY timm:$a, timm:$b, timm:$c, timm:$d)>;
+
+  // Matrix Unit (FPU)
+  def : Pat<(int_riscv_tt_mvmul timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_MVMUL timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_elwmul timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
+            (TT_ELWMUL timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
+  def : Pat<(int_riscv_tt_elwadd timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g),
+            (TT_ELWADD timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
+  def : Pat<(int_riscv_tt_dotpv timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_DOTPV timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_elwsub timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g),
+            (TT_ELWSUB timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
+  def : Pat<(int_riscv_tt_gmpool timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_GMPOOL timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_gapool timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_GAPOOL timm:$a, timm:$b, timm:$c, timm:$d)>;
+
+  // Data Movement
+  def : Pat<(int_riscv_tt_movd2a timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_MOVD2A timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_movdbga2d timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_MOVDBGA2D timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_movd2b timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_MOVD2B timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_movb2a timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_MOVB2A timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_zeroacc timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_ZEROACC timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_zerosrc timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_ZEROSRC timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_mova2d timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_MOVA2D timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_movb2d timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g),
+            (TT_MOVB2D timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
+  def : Pat<(int_riscv_tt_trnspsrcb), (TT_TRNSPSRCB)>;
+  def : Pat<(int_riscv_tt_shiftxa timm:$a),
+            (TT_SHIFTXA timm:$a)>;
+  def : Pat<(int_riscv_tt_shiftxb timm:$a, timm:$b, timm:$c),
+            (TT_SHIFTXB timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_clrexphist), (TT_CLREXPHIST)>;
+
+  // Unpacker/Misc Matrix
+  def : Pat<(int_riscv_tt_gatesrcrst timm:$a),
+            (TT_GATESRCRST timm:$a)>;
+  def : Pat<(int_riscv_tt_cleardvalid timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_CLEARDVALID timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_setrwc timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
+             timm:$k, timm:$l, timm:$m),
+            (TT_SETRWC timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
+             timm:$k, timm:$l, timm:$m)>;
+  def : Pat<(int_riscv_tt_incrwc timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
+            (TT_INCRWC timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
+
+  // Packer/Unpacker
+  def : Pat<(int_riscv_tt_xmov), (TT_XMOV)>;
+  def : Pat<(int_riscv_tt_pacr timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g),
+            (TT_PACR timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
+  def : Pat<(int_riscv_tt_unpacr timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
+             timm:$k, timm:$l),
+            (TT_UNPACR timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
+             timm:$k, timm:$l)>;
+  def : Pat<(int_riscv_tt_unpacr_ctxinc timm:$a),
+            (TT_UNPACR_CTXINC timm:$a)>;
+  def : Pat<(int_riscv_tt_unpacr_flush timm:$a, timm:$b),
+            (TT_UNPACR_FLUSH timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_unpacr_nop), (TT_UNPACR_NOP)>;
+  def : Pat<(int_riscv_tt_pacr_setreg timm:$a, timm:$b, timm:$c),
+            (TT_PACR_SETREG timm:$a, timm:$b, timm:$c)>;
+
+  // Configuration
+  def : Pat<(int_riscv_tt_setdmareg timm:$a, timm:$b),
+            (TT_SETDMAREG_IMM timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_setdmareg_special timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_SETDMAREG_SPECIAL timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_reg2flop timm:$a, timm:$b, timm:$c),
+            (TT_REG2FLOP_CFG timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_reg2flop_adc timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i),
+            (TT_REG2FLOP_ADC timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i)>;
+  def : Pat<(int_riscv_tt_loadind timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_LOADIND timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_setadc timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
+            (TT_SETADC timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
+  def : Pat<(int_riscv_tt_setadcxy timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
+             timm:$k, timm:$l),
+            (TT_SETADCXY timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
+             timm:$k, timm:$l)>;
+  def : Pat<(int_riscv_tt_incadcxy timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h),
+            (TT_INCADCXY timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h)>;
+  def : Pat<(int_riscv_tt_addrcrxy timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
+             timm:$k, timm:$l),
+            (TT_ADDRCRXY timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
+             timm:$k, timm:$l)>;
+  def : Pat<(int_riscv_tt_setadczw timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
+             timm:$k, timm:$l),
+            (TT_SETADCZW timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
+             timm:$k, timm:$l)>;
+  def : Pat<(int_riscv_tt_incadczw timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h),
+            (TT_INCADCZW timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h)>;
+  def : Pat<(int_riscv_tt_addrcrzw timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
+             timm:$k, timm:$l),
+            (TT_ADDRCRZW timm:$a, timm:$b, timm:$c, timm:$d,
+             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
+             timm:$k, timm:$l)>;
+  def : Pat<(int_riscv_tt_setdvalid timm:$a, timm:$b),
+            (TT_SETDVALID timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_setadcxx timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_SETADCXX timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+
+  // DMA Register Arithmetic
+  def : Pat<(int_riscv_tt_adddmareg timm:$a, timm:$b, timm:$c),
+            (TT_ADDDMAREG timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_adddmaregi timm:$a, timm:$b, timm:$c),
+            (TT_ADDDMAREGi timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_subdmareg timm:$a, timm:$b, timm:$c),
+            (TT_SUBDMAREG timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_subdmaregi timm:$a, timm:$b, timm:$c),
+            (TT_SUBDMAREGi timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_muldmareg timm:$a, timm:$b, timm:$c),
+            (TT_MULDMAREG timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_muldmaregi timm:$a, timm:$b, timm:$c),
+            (TT_MULDMAREGi timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_bitwopdmareg timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_BITWOPDMAREG timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_bitwopdmaregi timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_BITWOPDMAREGi timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_shiftdmareg timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SHIFTDMAREG timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_shiftdmaregi timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SHIFTDMAREGi timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_cmpdmareg timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_CMPDMAREG timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_cmpdmaregi timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_CMPDMAREGi timm:$a, timm:$b, timm:$c, timm:$d)>;
+
+  // DMA/Sync
+  def : Pat<(int_riscv_tt_flushdma timm:$a),
+            (TT_FLUSHDMA timm:$a)>;
+  def : Pat<(int_riscv_tt_dmanop), (TT_DMANOP)>;
+
+  // Atomic
+  def : Pat<(int_riscv_tt_atincget timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_ATINCGET timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_atincgetptr timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
+            (TT_ATINCGETPTR timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
+  def : Pat<(int_riscv_tt_atswap timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_ATSWAP timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_atcas timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_ATCAS timm:$a, timm:$b, timm:$c, timm:$d)>;
+
+  // Indirect Memory
+  def : Pat<(int_riscv_tt_storeind_l1 timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_STOREIND_L1 timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_storeind_src timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_STOREIND_SRC timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_storeind_mmio timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_STOREIND_MMIO timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_storereg timm:$a, timm:$b),
+            (TT_STOREREG timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_loadreg timm:$a, timm:$b),
+            (TT_LOADREG timm:$a, timm:$b)>;
+
+  // SFPU Vector Unit
+  def : Pat<(int_riscv_tt_sfpload timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SFPLOAD timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_sfploadi timm:$a, timm:$b, timm:$c),
+            (TT_SFPLOADI timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sfpstore timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SFPSTORE timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_sfplut timm:$a, timm:$b),
+            (TT_SFPLUT timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_sfpmuli timm:$a, timm:$b, timm:$c),
+            (TT_SFPMULI timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sfpaddi timm:$a, timm:$b, timm:$c),
+            (TT_SFPADDI timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sfpdivp2 timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SFPDIVP2 timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_sfpexexp timm:$a, timm:$b, timm:$c),
+            (TT_SFPEXEXP timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sfpexman timm:$a, timm:$b, timm:$c),
+            (TT_SFPEXMAN timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sfpiadd timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SFPIADD timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_sfpshft timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SFPSHFT timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_sfpsetcc timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SFPSETCC timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_sfpmov timm:$a, timm:$b, timm:$c),
+            (TT_SFPMOV timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sfpabs timm:$a, timm:$b, timm:$c),
+            (TT_SFPABS timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sfpand timm:$a, timm:$b),
+            (TT_SFPAND timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_sfpor timm:$a, timm:$b),
+            (TT_SFPOR timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_sfpnot timm:$a, timm:$b),
+            (TT_SFPNOT timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_sfplz timm:$a, timm:$b, timm:$c),
+            (TT_SFPLZ timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sfpsetexp timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SFPSETEXP timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_sfpsetman timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SFPSETMAN timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_sfpmad timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_SFPMAD timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_sfpadd timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_SFPADD timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_sfpmul timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+            (TT_SFPMUL timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_sfppushc timm:$a),
+            (TT_SFPPUSHC timm:$a)>;
+  def : Pat<(int_riscv_tt_sfppopc timm:$a, timm:$b),
+            (TT_SFPPOPC timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_sfpsetsgn timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SFPSETSGN timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_sfpencc timm:$a, timm:$b, timm:$c),
+            (TT_SFPENCC timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sfpcompc timm:$a),
+            (TT_SFPCOMPC timm:$a)>;
+  def : Pat<(int_riscv_tt_sfptransp timm:$a),
+            (TT_SFPTRANSP timm:$a)>;
+  def : Pat<(int_riscv_tt_sfpxor timm:$a, timm:$b),
+            (TT_SFPXOR timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_sfpstochrnd timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SFPSTOCHRND timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_sfpstochrndi timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
+            (TT_SFPSTOCHRNDi timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
+  def : Pat<(int_riscv_tt_sfpnop), (TT_SFPNOP)>;
+  def : Pat<(int_riscv_tt_sfpcast timm:$a, timm:$b, timm:$c),
+            (TT_SFPCAST timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sfpconfig timm:$a, timm:$b, timm:$c),
+            (TT_SFPCONFIG timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sfpswap timm:$a, timm:$b, timm:$c),
+            (TT_SFPSWAP timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sfploadmacro timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
+            (TT_SFPLOADMACRO timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
+  def : Pat<(int_riscv_tt_sfpshft2 timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SFPSHFT2 timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_sfpshft2i timm:$a, timm:$b, timm:$c),
+            (TT_SFPSHFT2i timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sfplutfp32 timm:$a, timm:$b),
+            (TT_SFPLUTFP32 timm:$a, timm:$b)>;
+
+  // Sync/Semaphore
+  def : Pat<(int_riscv_tt_atgetm timm:$a),
+            (TT_ATGETM timm:$a)>;
+  def : Pat<(int_riscv_tt_atrelm timm:$a),
+            (TT_ATRELM timm:$a)>;
+  def : Pat<(int_riscv_tt_stallwait timm:$a, timm:$b),
+            (TT_STALLWAIT timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_seminit timm:$a, timm:$b, timm:$c),
+            (TT_SEMINIT timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_sempost timm:$a),
+            (TT_SEMPOST timm:$a)>;
+  def : Pat<(int_riscv_tt_semget timm:$a),
+            (TT_SEMGET timm:$a)>;
+  def : Pat<(int_riscv_tt_semwait timm:$a, timm:$b, timm:$c),
+            (TT_SEMWAIT timm:$a, timm:$b, timm:$c)>;
+
+  // Config Read/Write
+  def : Pat<(int_riscv_tt_wrcfg timm:$a, timm:$b, timm:$c),
+            (TT_WRCFG timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_rdcfg timm:$a, timm:$b),
+            (TT_RDCFG timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_setc16 timm:$a, timm:$b),
+            (TT_SETC16 timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_rmwcib0 timm:$a, timm:$b, timm:$c),
+            (TT_RMWCIB0 timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_rmwcib1 timm:$a, timm:$b, timm:$c),
+            (TT_RMWCIB1 timm:$a, timm:$b, timm:$c)>;
 } // Predicates
 
 //===----------------------------------------------------------------------===//
