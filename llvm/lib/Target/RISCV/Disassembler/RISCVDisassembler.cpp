@@ -611,19 +611,6 @@ static DecodeStatus decodeXqccmpRlistS0(MCInst &Inst, uint32_t Imm,
   return decodeZcmpRlist(Inst, Imm, Address, Decoder);
 }
 
-static DecodeStatus decodeTTensixImm32Operand(MCInst &Inst, uint32_t Imm,
-                                              int64_t Address,
-                                              const MCDisassembler *Decoder) {
-  // Tensix immediates must be < 0xC0000000 (bits[31:30] != 0b11).
-  // In the encoded instruction, Inst[1:0] = imm[31:30], so if imm >= 0xC0000000
-  // the encoded instruction would have bits[1:0] == 0b11, colliding with
-  // standard RISC-V 32-bit instruction encoding.
-  if ((Imm >> 30) == 0x3)
-    return MCDisassembler::Fail;
-  Inst.addOperand(MCOperand::createImm(Imm));
-  return MCDisassembler::Success;
-}
-
 #include "RISCVGenDisassemblerTables.inc"
 
 namespace {

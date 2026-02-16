@@ -731,7 +731,10 @@ public:
   bool isUImm9() const { return isUImm<9>(); }
   bool isUImm10() const { return isUImm<10>(); }
   bool isUImm11() const { return isUImm<11>(); }
+  bool isUImm12() const { return isUImm<12>(); }
+  bool isUImm15() const { return isUImm<15>(); }
   bool isUImm16() const { return isUImm<16>(); }
+  bool isUImm18() const { return isUImm<18>(); }
   bool isUImm20() const { return isUImm<20>(); }
   bool isUImm32() const { return isUImm<32>(); }
   bool isUImm48() const { return isUImm<48>(); }
@@ -1594,12 +1597,20 @@ bool RISCVAsmParser::matchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode,
     return generateImmOutOfRangeError(Operands, ErrorInfo, 0, (1 << 10) - 1);
   case Match_InvalidUImm11:
     return generateImmOutOfRangeError(Operands, ErrorInfo, 0, (1 << 11) - 1);
+  case Match_InvalidUImm12:
+    return generateImmOutOfRangeError(Operands, ErrorInfo, 0, (1 << 12) - 1);
   case Match_InvalidUImm14Lsb00:
     return generateImmOutOfRangeError(
         Operands, ErrorInfo, 0, (1 << 14) - 4,
         "immediate must be a multiple of 4 bytes in the range");
+  case Match_InvalidUImm15:
+    return generateImmOutOfRangeError(Operands, ErrorInfo, 0, (1 << 15) - 1);
+  case Match_InvalidUImm16:
+    return generateImmOutOfRangeError(Operands, ErrorInfo, 0, (1 << 16) - 1);
   case Match_InvalidUImm16NonZero:
     return generateImmOutOfRangeError(Operands, ErrorInfo, 1, (1 << 16) - 1);
+  case Match_InvalidUImm18:
+    return generateImmOutOfRangeError(Operands, ErrorInfo, 0, (1 << 18) - 1);
   case Match_InvalidSImm12:
     return generateImmOutOfRangeError(Operands, ErrorInfo, -(1 << 11),
                                       (1 << 11) - 1);
