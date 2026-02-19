@@ -3,7 +3,8 @@ ENTRY(_start)
 
 MEMORY {
     FLASH (rx)  : ORIGIN = 0x00000000, LENGTH = 64K     /* Program memory */
-    SRAM  (rw)  : ORIGIN = 0xFFB00000, LENGTH = 4K      /* SRAM for stack/data */
+    DATA (rw)   : ORIGIN = 0x00010000, LENGTH = 128K    /* Program data */
+    STACK  (rw) : ORIGIN = 0xFFB00000, LENGTH = 4K      /* STACK for stack/data */
 }
 
 SECTIONS {
@@ -16,13 +17,13 @@ SECTIONS {
     /* Data section in SRAM, loaded from FLASH if needed */
     .data : {
         *(.data*)
-    } > SRAM AT > FLASH
+    } > DATA
 
     .bss (NOLOAD) : {
         *(.bss*)
         *(COMMON)
-    } > SRAM
+    } > DATA
 
     /* Top of stack */
-    stack_top = ORIGIN(SRAM) + LENGTH(SRAM);
+    stack_top = ORIGIN(STACK) + LENGTH(STACK);
 }
