@@ -15,37 +15,30 @@ struct __llvm_libc_stdio_cookie __llvm_libc_stdin_cookie = {.fileno = 0};
 struct __llvm_libc_stdio_cookie __llvm_libc_stdout_cookie = {.fileno = 1};
 struct __llvm_libc_stdio_cookie __llvm_libc_stderr_cookie = {.fileno = 2};
 
-static ssize_t stdio_syscall(long const syscall, void *cookie, char *buf,
-                             size_t size) {
-  struct __llvm_libc_stdio_cookie const *stdio =
-      (struct __llvm_libc_stdio_cookie const *)cookie;
+static ssize_t syscall(long const num, long arg0, long arg1, long arg2) {
+  register long a0 __asm__("a0") = arg0;
+  register long a1 __asm__("a1") = arg1;
+  register long a2 __asm__("a2") = arg2;
+  register long a7 __asm__("a7") = num;
 
-  register long a0 __asm__("a0") = (long)stdio->fileno; // fd
-  register long a1 __asm__("a1") = (long)buf;           // buf
-  register long a2 __asm__("a2") = (long)size;          // size
-  register long a7 __asm__("a7") = syscall;
-
-  __asm__ volatile("ecall"
-                   : "+r"(a0) // a0 = return value (in-place)
-                   : "r"(a1), // a1 = buf
-                     "r"(a2), // a2 = size
-                     "r"(a7)  // a7 = syscall number
-                   : "memory");
+  __asm__ volatile("ecall" : "+r"(a0) : "r"(a1), "r"(a2), "r"(a7) : "memory");
 }
 
-ssize_t __llvm_libc_stdio_read(void *cookie, char *buf,
-                                          size_t size) {
-  return stdio_syscall(0, cookie, buf, size);
+ssize_t __llvm_libc_stdio_read(void *cookie, char *buf, size_t size) {
+  struct __llvm_libc_stdio_cookie const *stdio =
+      (struct __llvm_libc_stdio_cookie const *)cookie;
+  return syscall(63, (long)stdio->fileno, (long)buf, (long)size);
 }
 
 ssize_t __llvm_libc_stdio_write(void *cookie, const char *buf,
                                            size_t size) {
-  return stdio_syscall(1, cookie, buf, size);
+  struct __llvm_libc_stdio_cookie const *stdio =
+      (struct __llvm_libc_stdio_cookie const *)cookie;
+  return syscall(64, (long)stdio->fileno, (long)buf, (long)size);
 }
 
 [[noreturn]] void __llvm_libc_exit(int code) {
-  for (;;)
-    ;
+  syscall(93, 0, 0, 0);
   __builtin_unreachable();
 }
 
