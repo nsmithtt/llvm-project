@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int kernel_main() {
+int main() {
   printf("hello world\n");
   return 1;
 }

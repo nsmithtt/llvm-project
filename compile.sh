@@ -31,8 +31,9 @@ LD_FLAGS="-fuse-ld=lld -flto -nostdinc -nostdlib -Xlinker -T -Xlinker brisc.ld"
 
 ${CC} ${C_FLAGS} -c ${SOURCE} -o ${SOURCE}.o
 ${CC} ${C_FLAGS} -c rt.c -o rt.o
-${CC} ${C_FLAGS} -c brisc.S -o brisc.o
-${CC} ${LD_FLAGS} ${SOURCE}.o rt.o brisc.o ${LIBC_LIB} -o clang.out
+#${CC} ${C_FLAGS} -c brisc.S -o brisc.o
+${CC} ${LD_FLAGS} ${SOURCE}.o rt.o ${LIBC_LIB} ${ROOT}/runtimes/runtimes-riscv32-none-eabi-bins/libc/startup/baremetal/riscv/CMakeFiles/libc.startup.baremetal.riscv.crt1.dir/start.cpp.o -o clang.out
 ${OBJDUMP} -d clang.out
+${OBJDUMP} -d ${ROOT}/runtimes/runtimes-riscv32-none-eabi-bins/libc/startup/baremetal/riscv/CMakeFiles/libc.startup.baremetal.riscv.crt1.dir/start.cpp.o
 
 #/opt/tenstorrent/sfpi/compiler/bin/riscv32-tt-elf-objdump -d clang.out

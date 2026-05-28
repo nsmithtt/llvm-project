@@ -44,3 +44,6 @@ ssize_t __llvm_libc_stdio_write(void *cookie, const char *buf,
 
 int err = 0;
 int *__llvm_libc_errno() { return &err; }
+
+unsigned char _end = 0;
+unsigned char __llvm_libc_heap_limit = 0;

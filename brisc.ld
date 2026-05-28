@@ -2,9 +2,8 @@ OUTPUT_ARCH(riscv)
 ENTRY(_start)
 
 MEMORY {
-    FLASH (rx)  : ORIGIN = 0x00000000, LENGTH = 64K     /* Program memory */
-    DATA (rw)   : ORIGIN = 0x00010000, LENGTH = 128K    /* Program data */
-    STACK  (rw) : ORIGIN = 0xFFB00000, LENGTH = 4K      /* STACK for stack/data */
+    FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 64K     /* Program memory */
+    DATA  (rw) : ORIGIN = 0xFFB00000, LENGTH = 4K      /* STACK for stack/data */
 }
 
 SECTIONS {
@@ -15,15 +14,24 @@ SECTIONS {
     } > FLASH
 
     /* Data section in SRAM, loaded from FLASH if needed */
-    .data : {
+    .data : AT(ADDR(.text) + SIZEOF(.text)) {
+        __data_start = .;
         *(.data*)
+        __data_end = .;
     } > DATA
+
+    __data_source = LOADADDR(.data);
+    __data_size   = SIZEOF(.data);
 
     .bss (NOLOAD) : {
+        __bss_start = .;
         *(.bss*)
         *(COMMON)
+        __bss_end = .;
     } > DATA
 
+    __bss_size   = SIZEOF(.bss);
+
     /* Top of stack */
-    stack_top = ORIGIN(STACK) + LENGTH(STACK);
+    __stack = ORIGIN(DATA) + LENGTH(DATA);
 }
