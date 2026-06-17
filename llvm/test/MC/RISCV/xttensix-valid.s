@@ -47,9 +47,14 @@ tt.replay 1, 1, 15, 5
 # CHECK-ASM: encoding: [0x14,0x00,0x24,0x9a]
 tt.mvmul 5, 2, 1, 0, 1
 
-# CHECK-ASM: tt.elwmul 5, 2, 1, 1, 0, 1
-# CHECK-ASM: encoding: [0x14,0x00,0x64,0x9e]
-tt.elwmul 5, 2, 1, 1, 0, 1
+# CHECK-ASM: tt.elwmul 5, 2, 1, 1, 1, 0, 1
+# CHECK-ASM: encoding: [0x14,0x00,0xe4,0x9e]
+tt.elwmul 5, 2, 1, 1, 1, 0, 1
+
+# tt.gatesrcrst: reset_srca_gate_control, reset_srcb_gate_control.
+# CHECK-ASM: tt.gatesrcrst 1, 0
+# CHECK-ASM: encoding: [0x04,0x00,0x00,0xd4]
+tt.gatesrcrst 1, 0
 
 # CHECK-ASM: tt.elwadd 5, 2, 1, 1, 0, 0, 1
 # CHECK-ASM: encoding: [0x14,0x00,0x64,0xa2]

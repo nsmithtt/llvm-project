@@ -152,19 +152,21 @@ def TT_MVMUL : TTInst<0x26, (outs),
 
 def TT_ELWMUL : TTInst<0x27, (outs),
     (ins uimm10:$DstRow, uimm2:$AddrMod, uimm1:$BroadcastSrcBCol0,
-         uimm1:$BroadcastSrcBRow, uimm1:$FlipSrcA, uimm1:$FlipSrcB),
+         uimm1:$BroadcastSrcBRow, uimm1:$AddDst, uimm1:$FlipSrcA, uimm1:$FlipSrcB),
     "tt.elwmul",
-    "$DstRow, $AddrMod, $BroadcastSrcBCol0, $BroadcastSrcBRow, $FlipSrcA, $FlipSrcB"> {
+    "$DstRow, $AddrMod, $BroadcastSrcBCol0, $BroadcastSrcBRow, $AddDst, $FlipSrcA, $FlipSrcB"> {
   bits<10> DstRow;
   bits<2> AddrMod;
   bits<1> BroadcastSrcBCol0;
   bits<1> BroadcastSrcBRow;
+  bits<1> AddDst;
   bits<1> FlipSrcA;
   bits<1> FlipSrcB;
   let tt_opr{9-0} = DstRow;
   let tt_opr{16-15} = AddrMod;
   let tt_opr{19} = BroadcastSrcBCol0;
   let tt_opr{20} = BroadcastSrcBRow;
+  let tt_opr{21} = AddDst;
   let tt_opr{22} = FlipSrcA;
   let tt_opr{23} = FlipSrcB;
 }
@@ -427,10 +429,12 @@ def TT_CLREXPHIST : TTInst<0x21, (outs), (ins), "tt.clrexphist", "">;
 //===----------------------------------------------------------------------===//
 
 def TT_GATESRCRST : TTInst<0x35, (outs),
-    (ins uimm1:$InvalidateSrcBCache),
-    "tt.gatesrcrst", "$InvalidateSrcBCache"> {
-  bits<1> InvalidateSrcBCache;
-  let tt_opr{1} = InvalidateSrcBCache;
+    (ins uimm1:$ResetSrcA, uimm1:$ResetSrcB),
+    "tt.gatesrcrst", "$ResetSrcA, $ResetSrcB"> {
+  bits<1> ResetSrcA;
+  bits<1> ResetSrcB;
+  let tt_opr{0} = ResetSrcA;
+  let tt_opr{1} = ResetSrcB;
 }
 
 def TT_CLEARDVALID : TTInst<0x36, (outs),
@@ -1860,8 +1864,8 @@ let Predicates = [HasVendorXTTensixWH, IsRV32] in {
   // Matrix Unit (FPU)
   def : Pat<(int_riscv_tt_mvmul timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
             (TT_MVMUL timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
-  def : Pat<(int_riscv_tt_elwmul timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
-            (TT_ELWMUL timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
+  def : Pat<(int_riscv_tt_elwmul timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g),
+            (TT_ELWMUL timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
   def : Pat<(int_riscv_tt_elwadd timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g),
             (TT_ELWADD timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
   def : Pat<(int_riscv_tt_dotpv timm:$a, timm:$b, timm:$c, timm:$d),
@@ -1898,8 +1902,8 @@ let Predicates = [HasVendorXTTensixWH, IsRV32] in {
   def : Pat<(int_riscv_tt_clrexphist), (TT_CLREXPHIST)>;
 
   // Unpacker/Misc Matrix
-  def : Pat<(int_riscv_tt_gatesrcrst timm:$a),
-            (TT_GATESRCRST timm:$a)>;
+  def : Pat<(int_riscv_tt_gatesrcrst timm:$a, timm:$b),
+            (TT_GATESRCRST timm:$a, timm:$b)>;
   def : Pat<(int_riscv_tt_cleardvalid timm:$a, timm:$b, timm:$c, timm:$d),
             (TT_CLEARDVALID timm:$a, timm:$b, timm:$c, timm:$d)>;
   def : Pat<(int_riscv_tt_setrwc timm:$a, timm:$b, timm:$c, timm:$d,
@@ -2390,7 +2394,7 @@ def : InstAlias<"tt.replay", (TT_REPLAY 0, 0, 0, 0)>;
 
 //--- Matrix Unit ---
 def : InstAlias<"tt.mvmul", (TT_MVMUL 0, 0, 0, 0, 0)>;
-def : InstAlias<"tt.elwmul", (TT_ELWMUL 0, 0, 0, 0, 0, 0)>;
+def : InstAlias<"tt.elwmul", (TT_ELWMUL 0, 0, 0, 0, 0, 0, 0)>;
 def : InstAlias<"tt.elwadd", (TT_ELWADD 0, 0, 0, 0, 0, 0, 0)>;
 def : InstAlias<"tt.dotpv", (TT_DOTPV 0, 0, 0, 0)>;
 def : InstAlias<"tt.elwsub", (TT_ELWSUB 0, 0, 0, 0, 0, 0, 0)>;
@@ -2410,7 +2414,7 @@ def : InstAlias<"tt.shiftxa", (TT_SHIFTXA 0)>;
 def : InstAlias<"tt.shiftxb", (TT_SHIFTXB 0, 0, 0)>;
 
 //--- Unpacker/Misc ---
-def : InstAlias<"tt.gatesrcrst", (TT_GATESRCRST 0)>;
+def : InstAlias<"tt.gatesrcrst", (TT_GATESRCRST 0, 0)>;
 def : InstAlias<"tt.cleardvalid", (TT_CLEARDVALID 0, 0, 0, 0)>;
 def : InstAlias<"tt.setrwc", (TT_SETRWC 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)>;
 def : InstAlias<"tt.incrwc", (TT_INCRWC 0, 0, 0, 0, 0, 0)>;

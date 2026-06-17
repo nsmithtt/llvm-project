@@ -120,7 +120,7 @@ def int_riscv_tt_replay     : TTI4;
 
 // Matrix Unit (FPU)
 def int_riscv_tt_mvmul      : TTI5;
-def int_riscv_tt_elwmul     : TTI6;
+def int_riscv_tt_elwmul     : TTI7;
 def int_riscv_tt_elwadd     : TTI7;
 def int_riscv_tt_dotpv      : TTI4;
 def int_riscv_tt_elwsub     : TTI7;
@@ -142,7 +142,7 @@ def int_riscv_tt_shiftxb    : TTI3;
 def int_riscv_tt_clrexphist : TTI0;
 
 // Unpacker/Misc Matrix
-def int_riscv_tt_gatesrcrst : TTI1;
+def int_riscv_tt_gatesrcrst : TTI2;
 def int_riscv_tt_cleardvalid : TTI4;
 def int_riscv_tt_setrwc     : TTI13;
 def int_riscv_tt_incrwc     : TTI6;

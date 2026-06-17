@@ -65,7 +65,7 @@ def replay     : TTB4;
 //===----------------------------------------------------------------------===//
 
 def mvmul      : TTB5;
-def elwmul     : TTB6;
+def elwmul     : TTB7;
 def elwadd     : TTB7;
 def dotpv      : TTB4;
 def elwsub     : TTB7;
@@ -93,7 +93,7 @@ def clrexphist : TTB0;
 // Unpacker/Misc Matrix Instructions
 //===----------------------------------------------------------------------===//
 
-def gatesrcrst : TTB1;
+def gatesrcrst : TTB2;
 def cleardvalid : TTB4;
 def setrwc     : TTB13;
 def incrwc     : TTB6;
