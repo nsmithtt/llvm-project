@@ -98,9 +98,10 @@ tt.movd2b 5, 1, 2, 10, 1
 # CHECK-ASM: encoding: [0x14,0x40,0x54,0x2c]
 tt.movb2a 5, 1, 2, 10
 
-# CHECK-ASM: tt.zeroacc 100, 2, 1, 1, 0
-# CHECK-ASM: encoding: [0x90,0x01,0x34,0x40]
-tt.zeroacc 100, 2, 1, 1, 0
+# Wormhole ZEROACC: dst, addr_mode(2b), clear_mode(3b).
+# CHECK-ASM: tt.zeroacc 100, 2, 5
+# CHECK-ASM: encoding: [0x90,0x01,0xa4,0x40]
+tt.zeroacc 100, 2, 5
 
 # CHECK-ASM: tt.zerosrc 1, 1, 0, 0, 1
 # CHECK-ASM: encoding: [0x4c,0x00,0x00,0x44]

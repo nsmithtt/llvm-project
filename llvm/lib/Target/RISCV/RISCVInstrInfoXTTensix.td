@@ -332,20 +332,17 @@ def TT_MOVB2A : TTInst<0x0B, (outs),
   let tt_opr{22-17} = SrcARow;
 }
 
+// Wormhole ZEROACC: dst[9:0], addr_mode[16:15], clear_mode[21:19]. (Blackhole
+// uses a different field set -- see TT_ZEROACC_BH.)
 def TT_ZEROACC : TTInst<0x10, (outs),
-    (ins uimm10:$Imm10, uimm2:$AddrMod, uimm1:$Revert,
-         uimm2:$Mode, uimm1:$UseDst32b),
-    "tt.zeroacc", "$Imm10, $AddrMod, $Revert, $Mode, $UseDst32b"> {
+    (ins uimm10:$Imm10, uimm2:$AddrMod, uimm3:$ClearMode),
+    "tt.zeroacc", "$Imm10, $AddrMod, $ClearMode"> {
   bits<10> Imm10;
   bits<2> AddrMod;
-  bits<1> Revert;
-  bits<2> Mode;
-  bits<1> UseDst32b;
+  bits<3> ClearMode;
   let tt_opr{9-0} = Imm10;
   let tt_opr{16-15} = AddrMod;
-  let tt_opr{18} = Revert;
-  let tt_opr{20-19} = Mode;
-  let tt_opr{21} = UseDst32b;
+  let tt_opr{21-19} = ClearMode;
 }
 
 def TT_ZEROSRC : TTInst<0x11, (outs),
@@ -1886,8 +1883,8 @@ let Predicates = [HasVendorXTTensixWH, IsRV32] in {
             (TT_MOVD2B timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
   def : Pat<(int_riscv_tt_movb2a timm:$a, timm:$b, timm:$c, timm:$d),
             (TT_MOVB2A timm:$a, timm:$b, timm:$c, timm:$d)>;
-  def : Pat<(int_riscv_tt_zeroacc timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
-            (TT_ZEROACC timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+  def : Pat<(int_riscv_tt_zeroacc timm:$a, timm:$b, timm:$c),
+            (TT_ZEROACC timm:$a, timm:$b, timm:$c)>;
   def : Pat<(int_riscv_tt_zerosrc timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
             (TT_ZEROSRC timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
   def : Pat<(int_riscv_tt_mova2d timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
@@ -2521,6 +2518,22 @@ def TT_MOVB2D_BH : TTInst<0x13, (outs),
   let tt_opr{23} = UseDst32bLo;
 }
 
+// Blackhole ZEROACC: where[9:0], addr_mode[16:14], clear_zero_flags[17],
+// use_32_bit_mode[18], clear_mode[20:19] (a different field set from Wormhole).
+def TT_ZEROACC_BH : TTInst<0x10, (outs),
+    (ins uimm10:$Where, uimm3:$AddrMod, uimm1:$ClearZeroFlags,
+         uimm1:$Use32BitMode, uimm2:$ClearMode),
+    "tt.zeroacc", "$Where, $AddrMod, $ClearZeroFlags, $Use32BitMode, $ClearMode"> {
+  bits<10> Where; bits<3> AddrMod; bits<1> ClearZeroFlags;
+  bits<1> Use32BitMode; bits<2> ClearMode;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{9-0} = Where;
+  let tt_opr{16-14} = AddrMod;
+  let tt_opr{17} = ClearZeroFlags;
+  let tt_opr{18} = Use32BitMode;
+  let tt_opr{20-19} = ClearMode;
+}
+
 } // Predicates
 
 let Predicates = [HasVendorXTTensixBH, IsRV32] in {
@@ -2582,6 +2595,8 @@ def : Pat<(int_riscv_tt_sfpstochrndi_bh timm:$a, timm:$b, timm:$c, timm:$d, timm
           (TT_SFPSTOCHRNDi_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
 def : Pat<(int_riscv_tt_movb2d_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
           (TT_MOVB2D_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+def : Pat<(int_riscv_tt_zeroacc_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+          (TT_ZEROACC_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
 } // Predicates
 
 //===----------------------------------------------------------------------===//
@@ -2610,7 +2625,7 @@ def : InstAlias<"tt.movd2a", (TT_MOVD2A 0, 0, 0, 0, 0)>;
 def : InstAlias<"tt.movdbga2d", (TT_MOVDBGA2D 0, 0, 0, 0, 0)>;
 def : InstAlias<"tt.movd2b", (TT_MOVD2B 0, 0, 0, 0, 0)>;
 def : InstAlias<"tt.movb2a", (TT_MOVB2A 0, 0, 0, 0)>;
-def : InstAlias<"tt.zeroacc", (TT_ZEROACC 0, 0, 0, 0, 0)>;
+def : InstAlias<"tt.zeroacc", (TT_ZEROACC 0, 0, 0)>;
 def : InstAlias<"tt.zerosrc", (TT_ZEROSRC 0, 0, 0, 0, 0)>;
 def : InstAlias<"tt.mova2d", (TT_MOVA2D 0, 0, 0, 0, 0)>;
 def : InstAlias<"tt.movb2d", (TT_MOVB2D 0, 0, 0, 0, 0, 0, 0)>;

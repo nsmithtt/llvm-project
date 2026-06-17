@@ -1406,6 +1406,7 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   TT_BUILTIN(sfpstochrnd_bh)
   TT_BUILTIN(sfpstochrndi_bh)
   TT_BUILTIN(movb2d_bh)
+  TT_BUILTIN(zeroacc_bh)
   TT_BUILTIN(mop)
   TT_BUILTIN(mop_cfg)
   TT_BUILTIN(replay)

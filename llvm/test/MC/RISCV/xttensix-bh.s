@@ -138,6 +138,13 @@ tt.sfpstochrndi 3, 7, 2, 5, 9, 2
 # CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
 tt.movb2d 5, 3, 5, 3, 0
 
+# Blackhole ZEROACC: where, 3-bit addr_mode, clear_zero_flags, use_32_bit_mode,
+# clear_mode (a different field set from the 3-operand Wormhole form).
+# CHECK-ASM: tt.zeroacc 100, 5, 1, 1, 2
+# CHECK-ASM: encoding: [0x90,0x01,0x5d,0x40]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.zeroacc 100, 5, 1, 1, 2
+
 # Zero-operand aliases.
 # CHECK-ASM: tt.sfple
 # CHECK-ASM: encoding: [0x02,0x00,0x00,0x58]
