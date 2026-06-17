@@ -131,6 +131,11 @@ tt.clrexphist
 # CHECK-ASM: encoding: [0x14,0x35,0x57,0xde]
 tt.setrwc 1, 0, 1, 0, 5, 3, 7, 1, 0, 1, 0, 0, 1
 
+# tt.unpacr: full 14-operand form (incl. last[0] and rareb_en[5]).
+# CHECK-ASM: tt.unpacr 1, 1, 0, 0, 1, 0, 1, 2, 3, 1, 0, 1, 0, 1
+# CHECK-ASM: encoding: [0x95,0x3a,0x22,0x0a]
+tt.unpacr 1, 1, 0, 0, 1, 0, 1, 2, 3, 1, 0, 1, 0, 1
+
 #===----------------------------------------------------------------------===#
 # Configuration Instructions
 #===----------------------------------------------------------------------===#

@@ -531,16 +531,18 @@ def TT_PACR : TTInst<0x41, (outs),
 
 // UNPACR - Regular mode (bit[1]=0, bit[13]=0)
 def TT_UNPACR : TTInst<0x42, (outs),
-    (ins uimm1:$RowSearch, uimm1:$UseContextCounter,
-         uimm1:$AllDatumsAreZero, uimm1:$FlipSrc, uimm1:$MultiContextMode,
-         uimm2:$ContextADC, uimm3:$ContextNumber,
+    (ins uimm1:$Last, uimm1:$RowSearch, uimm1:$UseContextCounter,
+         uimm1:$AllDatumsAreZero, uimm1:$RarebEn, uimm1:$FlipSrc,
+         uimm1:$MultiContextMode, uimm2:$ContextADC, uimm3:$ContextNumber,
          uimm2:$Ch0ZInc, uimm2:$Ch0YInc, uimm2:$Ch1ZInc, uimm2:$Ch1YInc,
          uimm1:$WhichUnpacker),
     "tt.unpacr",
-    "$RowSearch, $UseContextCounter, $AllDatumsAreZero, $FlipSrc, $MultiContextMode, $ContextADC, $ContextNumber, $Ch0ZInc, $Ch0YInc, $Ch1ZInc, $Ch1YInc, $WhichUnpacker"> {
+    "$Last, $RowSearch, $UseContextCounter, $AllDatumsAreZero, $RarebEn, $FlipSrc, $MultiContextMode, $ContextADC, $ContextNumber, $Ch0ZInc, $Ch0YInc, $Ch1ZInc, $Ch1YInc, $WhichUnpacker"> {
+  bits<1> Last;
   bits<1> RowSearch;
   bits<1> UseContextCounter;
   bits<1> AllDatumsAreZero;
+  bits<1> RarebEn;  // Wormhole: rareb_en; Blackhole: srcb_bcast (same bit)
   bits<1> FlipSrc;
   bits<1> MultiContextMode;
   bits<2> ContextADC;
@@ -550,10 +552,12 @@ def TT_UNPACR : TTInst<0x42, (outs),
   bits<2> Ch1ZInc;
   bits<2> Ch1YInc;
   bits<1> WhichUnpacker;
-  // bit[1]=0, bit[13]=0 (fixed for regular mode)
+  // bit[1]=0, bit[13]=0 (fixed for regular mode; set by the .ctxinc/.flush forms)
+  let tt_opr{0} = Last;
   let tt_opr{2} = RowSearch;
   let tt_opr{3} = UseContextCounter;
   let tt_opr{4} = AllDatumsAreZero;
+  let tt_opr{5} = RarebEn;
   let tt_opr{6} = FlipSrc;
   let tt_opr{7} = MultiContextMode;
   let tt_opr{9-8} = ContextADC;
@@ -1916,12 +1920,12 @@ let Predicates = [HasVendorXTTensixWH, IsRV32] in {
   def : Pat<(int_riscv_tt_xmov), (TT_XMOV)>;
   def : Pat<(int_riscv_tt_pacr timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g),
             (TT_PACR timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
-  def : Pat<(int_riscv_tt_unpacr timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
-             timm:$k, timm:$l),
-            (TT_UNPACR timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
-             timm:$k, timm:$l)>;
+  def : Pat<(int_riscv_tt_unpacr timm:$a, timm:$b, timm:$c, timm:$d, timm:$e,
+                                 timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
+                                 timm:$k, timm:$l, timm:$m, timm:$n),
+            (TT_UNPACR timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f,
+                       timm:$g, timm:$h, timm:$i, timm:$j, timm:$k, timm:$l,
+                       timm:$m, timm:$n)>;
   def : Pat<(int_riscv_tt_unpacr_ctxinc timm:$a),
             (TT_UNPACR_CTXINC timm:$a)>;
   def : Pat<(int_riscv_tt_unpacr_flush timm:$a, timm:$b),
@@ -2640,7 +2644,7 @@ def : InstAlias<"tt.incrwc", (TT_INCRWC 0, 0, 0, 0, 0, 0)>;
 
 //--- Packer/Unpacker ---
 def : InstAlias<"tt.pacr", (TT_PACR 0, 0, 0, 0, 0, 0, 0)>;
-def : InstAlias<"tt.unpacr", (TT_UNPACR 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)>;
+def : InstAlias<"tt.unpacr", (TT_UNPACR 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)>;
 def : InstAlias<"tt.unpacr_nop", (TT_UNPACR_NOP 0, 0)>;
 
 //--- Configuration ---

@@ -97,6 +97,12 @@ class TTI13 : Intrinsic<[],
      ImmArg<ArgIndex<9>>, ImmArg<ArgIndex<10>>, ImmArg<ArgIndex<11>>,
      ImmArg<ArgIndex<12>>]>;
 
+
+class TTI14 : Intrinsic<[],
+    !listsplat(llvm_i32_ty, 14),
+    !listconcat([IntrHasSideEffects, IntrWriteMem, IntrInaccessibleMemOnly],
+                !foreach(idx, !range(14), ImmArg<ArgIndex<idx>>))>;
+
 //===----------------------------------------------------------------------===//
 // Generic raw-immediate intrinsic (retained as fallback)
 //===----------------------------------------------------------------------===//
@@ -150,7 +156,7 @@ def int_riscv_tt_incrwc     : TTI6;
 // Packer/Unpacker
 def int_riscv_tt_xmov           : TTI0;
 def int_riscv_tt_pacr           : TTI7;
-def int_riscv_tt_unpacr         : TTI12;
+def int_riscv_tt_unpacr         : TTI14;
 def int_riscv_tt_unpacr_ctxinc  : TTI1;
 def int_riscv_tt_unpacr_flush   : TTI2;
 def int_riscv_tt_unpacr_nop     : TTI2;

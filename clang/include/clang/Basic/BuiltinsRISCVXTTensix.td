@@ -32,6 +32,7 @@ class TTB8 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int
 class TTB9 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
 class TTB12 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
 class TTB13 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
+class TTB14 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
 
 // Blackhole-only arity helpers (require the XTTensixBH extension).
 class TTB3BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
@@ -105,7 +106,7 @@ def incrwc     : TTB6;
 
 def xmov           : TTB0;
 def pacr           : TTB7;
-def unpacr         : TTB12;
+def unpacr         : TTB14;
 def unpacr_ctxinc  : TTB1;
 def unpacr_flush   : TTB2;
 def unpacr_nop     : TTB2;
