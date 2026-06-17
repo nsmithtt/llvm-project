@@ -574,7 +574,16 @@ def TT_UNPACR_FLUSH : TTInst<0x42, (outs),
   let tt_opr{23} = WhichUnpacker;
 }
 
-def TT_UNPACR_NOP : TTInst<0x43, (outs), (ins), "tt.unpacr_nop", "">;
+// Wormhole UNPACR_NOP: no_op[4:0], unpack_block_selection[23]. (Blackhole uses a
+// richer 9-field encoding at the same opcode — see TT_UNPACR_NOP_BH.)
+def TT_UNPACR_NOP : TTInst<0x43, (outs),
+    (ins uimm5:$NoOp, uimm1:$UnpackBlockSelection),
+    "tt.unpacr_nop", "$NoOp, $UnpackBlockSelection"> {
+  bits<5> NoOp;
+  bits<1> UnpackBlockSelection;
+  let tt_opr{4-0} = NoOp;
+  let tt_opr{23} = UnpackBlockSelection;
+}
 
 // PACR_SETREG: bit[1]=1, bits[11:8]=0xF, bit[23]=1
 def TT_PACR_SETREG : TTInst<0x4A, (outs),
@@ -1898,7 +1907,8 @@ let Predicates = [HasVendorXTTensixWH, IsRV32] in {
             (TT_UNPACR_CTXINC timm:$a)>;
   def : Pat<(int_riscv_tt_unpacr_flush timm:$a, timm:$b),
             (TT_UNPACR_FLUSH timm:$a, timm:$b)>;
-  def : Pat<(int_riscv_tt_unpacr_nop), (TT_UNPACR_NOP)>;
+  def : Pat<(int_riscv_tt_unpacr_nop timm:$a, timm:$b),
+            (TT_UNPACR_NOP timm:$a, timm:$b)>;
   def : Pat<(int_riscv_tt_pacr_setreg timm:$a, timm:$b, timm:$c),
             (TT_PACR_SETREG timm:$a, timm:$b, timm:$c)>;
 
@@ -2244,6 +2254,36 @@ def TT_PACR_BH : TTInst<0x41, (outs),
   let tt_opr{22-21} = CfgContext;
 }
 
+// Blackhole UNPACR_NOP: 9-field unpacker clear/control encoding (same opcode as
+// the 2-field Wormhole tt.unpacr_nop). Separate decoder namespace like PACR,
+// since a BH encoding with extra fields zeroed can alias the WH one.
+def TT_UNPACR_NOP_BH : TTInst<0x43, (outs),
+    (ins uimm2:$UnpackPop, uimm2:$SrcClrValCtrl, uimm1:$BankClrCtrl,
+         uimm1:$StallClrCntrl, uimm2:$ClrTo1FmtCtrl, uimm1:$SetDvalid,
+         uimm3:$MsgClrCnt, uimm6:$StreamId, uimm1:$UnpackerSelect),
+    "tt.unpacr_nop",
+    "$UnpackPop, $SrcClrValCtrl, $BankClrCtrl, $StallClrCntrl, $ClrTo1FmtCtrl, $SetDvalid, $MsgClrCnt, $StreamId, $UnpackerSelect"> {
+  bits<2> UnpackPop;
+  bits<2> SrcClrValCtrl;
+  bits<1> BankClrCtrl;
+  bits<1> StallClrCntrl;
+  bits<2> ClrTo1FmtCtrl;
+  bits<1> SetDvalid;
+  bits<3> MsgClrCnt;
+  bits<6> StreamId;
+  bits<1> UnpackerSelect;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{1-0} = UnpackPop;
+  let tt_opr{3-2} = SrcClrValCtrl;
+  let tt_opr{4} = BankClrCtrl;
+  let tt_opr{5} = StallClrCntrl;
+  let tt_opr{7-6} = ClrTo1FmtCtrl;
+  let tt_opr{8} = SetDvalid;
+  let tt_opr{14-12} = MsgClrCnt;
+  let tt_opr{21-16} = StreamId;
+  let tt_opr{23} = UnpackerSelect;
+}
+
 } // Predicates
 
 let Predicates = [HasVendorXTTensixBH, IsRV32] in {
@@ -2269,6 +2309,10 @@ def : Pat<(int_riscv_tt_pacr_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, tim
                                 timm:$g, timm:$h, timm:$i, timm:$j, timm:$k, timm:$l),
           (TT_PACR_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f,
                       timm:$g, timm:$h, timm:$i, timm:$j, timm:$k, timm:$l)>;
+def : Pat<(int_riscv_tt_unpacr_nop_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e,
+                                      timm:$f, timm:$g, timm:$h, timm:$i),
+          (TT_UNPACR_NOP_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e,
+                            timm:$f, timm:$g, timm:$h, timm:$i)>;
 } // Predicates
 
 //===----------------------------------------------------------------------===//
@@ -2313,6 +2357,7 @@ def : InstAlias<"tt.incrwc", (TT_INCRWC 0, 0, 0, 0, 0, 0)>;
 //--- Packer/Unpacker ---
 def : InstAlias<"tt.pacr", (TT_PACR 0, 0, 0, 0, 0, 0, 0)>;
 def : InstAlias<"tt.unpacr", (TT_UNPACR 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)>;
+def : InstAlias<"tt.unpacr_nop", (TT_UNPACR_NOP 0, 0)>;
 
 //--- Configuration ---
 def : InstAlias<"tt.setdmareg", (TT_SETDMAREG_IMM 0, 0)>;

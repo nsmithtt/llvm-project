@@ -153,7 +153,7 @@ def int_riscv_tt_pacr           : TTI7;
 def int_riscv_tt_unpacr         : TTI12;
 def int_riscv_tt_unpacr_ctxinc  : TTI1;
 def int_riscv_tt_unpacr_flush   : TTI2;
-def int_riscv_tt_unpacr_nop     : TTI0;
+def int_riscv_tt_unpacr_nop     : TTI2;
 def int_riscv_tt_pacr_setreg    : TTI3;
 
 // Configuration
@@ -221,6 +221,8 @@ def int_riscv_tt_sfparecip    : TTI4;
 def int_riscv_tt_cfgshiftmask : TTI6;
 // Blackhole PACR (12-field encoding; see TT_PACR_BH).
 def int_riscv_tt_pacr_bh      : TTI12;
+// Blackhole UNPACR_NOP (9-field encoding; see TT_UNPACR_NOP_BH).
+def int_riscv_tt_unpacr_nop_bh : TTI9;
 def int_riscv_tt_sfpiadd      : TTI4;
 def int_riscv_tt_sfpshft      : TTI4;
 def int_riscv_tt_sfpsetcc     : TTI4;

@@ -1389,6 +1389,7 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   TT_BUILTIN(sfparecip)
   TT_BUILTIN(cfgshiftmask)
   TT_BUILTIN(pacr_bh)
+  TT_BUILTIN(unpacr_nop_bh)
   TT_BUILTIN(mop)
   TT_BUILTIN(mop_cfg)
   TT_BUILTIN(replay)

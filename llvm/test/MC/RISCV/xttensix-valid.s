@@ -291,3 +291,8 @@ tt.rmwcib3 4, 5, 6
 # CHECK-ASM: tt.pacr 1, 0, 1, 0, 3, 0, 2
 # CHECK-ASM: encoding: [0x45,0x0c,0x04,0x04]
 tt.pacr 1, 0, 1, 0, 3, 0, 2
+
+# Wormhole UNPACR_NOP: 2-operand form (no_op, unpack_block_selection).
+# CHECK-ASM: tt.unpacr_nop 5, 1
+# CHECK-ASM: encoding: [0x15,0x00,0x00,0x0e]
+tt.unpacr_nop 5, 1
