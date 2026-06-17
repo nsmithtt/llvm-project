@@ -209,6 +209,7 @@ def sfpstore_bh   : TTB4BH;
 def sfploadmacro_bh : TTB6BH;
 def sfpstochrnd_bh  : TTB4BH;
 def sfpstochrndi_bh : TTB6BH;
+def movb2d_bh     : TTB5BH;
 def sfpiadd      : TTB4;
 def sfpshft      : TTB4;
 def sfpsetcc     : TTB4;

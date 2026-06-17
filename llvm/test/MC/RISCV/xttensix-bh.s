@@ -132,6 +132,12 @@ tt.sfpstochrnd 3, 7, 2, 2
 # CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
 tt.sfpstochrndi 3, 7, 2, 5, 9, 2
 
+# Blackhole MOVB2D: instr_mod[13:11], 3-bit addr_mode[16:14] (5-operand form).
+# CHECK-ASM: tt.movb2d 5, 3, 5, 3, 0
+# CHECK-ASM: encoding: [0x14,0x60,0x1d,0x4c]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.movb2d 5, 3, 5, 3, 0
+
 # Zero-operand aliases.
 # CHECK-ASM: tt.sfple
 # CHECK-ASM: encoding: [0x02,0x00,0x00,0x58]

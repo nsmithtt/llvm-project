@@ -2505,6 +2505,22 @@ def TT_SFPSTOCHRNDi_BH : TTInst<0x8E, (outs),
   let tt_opr{22-21} = StochasticRounding;
 }
 
+// Blackhole MOVB2D: instr_mod relocates to movb2d_instr_mod[13:11] and addr_mode
+// widens to 3 bits [16:14] (vs WH instr_mod[14:12], addr_mode[16:15]).
+def TT_MOVB2D_BH : TTInst<0x13, (outs),
+    (ins uimm10:$DstRow, uimm3:$InstrMod, uimm3:$AddrMod, uimm6:$SrcRow,
+         uimm1:$UseDst32bLo),
+    "tt.movb2d", "$DstRow, $InstrMod, $AddrMod, $SrcRow, $UseDst32bLo"> {
+  bits<10> DstRow; bits<3> InstrMod; bits<3> AddrMod; bits<6> SrcRow;
+  bits<1> UseDst32bLo;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{9-0} = DstRow;
+  let tt_opr{13-11} = InstrMod;
+  let tt_opr{16-14} = AddrMod;
+  let tt_opr{22-17} = SrcRow;
+  let tt_opr{23} = UseDst32bLo;
+}
+
 } // Predicates
 
 let Predicates = [HasVendorXTTensixBH, IsRV32] in {
@@ -2564,6 +2580,8 @@ def : Pat<(int_riscv_tt_sfpstochrnd_bh timm:$a, timm:$b, timm:$c, timm:$d),
           (TT_SFPSTOCHRND_BH timm:$a, timm:$b, timm:$c, timm:$d)>;
 def : Pat<(int_riscv_tt_sfpstochrndi_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
           (TT_SFPSTOCHRNDi_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
+def : Pat<(int_riscv_tt_movb2d_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+          (TT_MOVB2D_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
 } // Predicates
 
 //===----------------------------------------------------------------------===//

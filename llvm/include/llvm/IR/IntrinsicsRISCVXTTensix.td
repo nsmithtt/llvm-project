@@ -239,6 +239,7 @@ def int_riscv_tt_sfpstore_bh  : TTI4;
 def int_riscv_tt_sfploadmacro_bh : TTI6;
 def int_riscv_tt_sfpstochrnd_bh  : TTI4;
 def int_riscv_tt_sfpstochrndi_bh : TTI6;
+def int_riscv_tt_movb2d_bh    : TTI5;
 def int_riscv_tt_sfpiadd      : TTI4;
 def int_riscv_tt_sfpshft      : TTI4;
 def int_riscv_tt_sfpsetcc     : TTI4;
