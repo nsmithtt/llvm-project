@@ -125,7 +125,7 @@ def int_riscv_tt_elwadd     : TTI7;
 def int_riscv_tt_dotpv      : TTI4;
 def int_riscv_tt_elwsub     : TTI7;
 def int_riscv_tt_gmpool     : TTI5;
-def int_riscv_tt_gapool     : TTI4;
+def int_riscv_tt_gapool     : TTI5;
 
 // Data Movement
 def int_riscv_tt_movd2a     : TTI5;
@@ -223,6 +223,8 @@ def int_riscv_tt_cfgshiftmask : TTI6;
 def int_riscv_tt_pacr_bh      : TTI12;
 // Blackhole UNPACR_NOP (9-field encoding; see TT_UNPACR_NOP_BH).
 def int_riscv_tt_unpacr_nop_bh : TTI9;
+// Blackhole GAPOOL (3-bit pool_addr_mode; see TT_GAPOOL_BH).
+def int_riscv_tt_gapool_bh    : TTI5;
 def int_riscv_tt_sfpiadd      : TTI4;
 def int_riscv_tt_sfpshft      : TTI4;
 def int_riscv_tt_sfpsetcc     : TTI4;

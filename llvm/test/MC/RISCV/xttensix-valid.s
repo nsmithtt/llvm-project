@@ -67,9 +67,10 @@ tt.elwsub 5, 2, 1, 1, 0, 0, 1
 # CHECK-ASM: encoding: [0x14,0x00,0x05,0xce]
 tt.gmpool 5, 1, 2, 0, 1
 
-# CHECK-ASM: tt.gapool 5, 2, 0, 1
-# CHECK-ASM: encoding: [0x14,0x00,0x04,0xd2]
-tt.gapool 5, 2, 0, 1
+# Wormhole GAPOOL: dst, max_pool_index_en, addr_mode(2b), instr_mod19, clear_dvalid.
+# CHECK-ASM: tt.gapool 5, 1, 2, 1, 3
+# CHECK-ASM: encoding: [0x14,0x00,0x25,0xd3]
+tt.gapool 5, 1, 2, 1, 3
 
 #===----------------------------------------------------------------------===#
 # Data Movement Instructions

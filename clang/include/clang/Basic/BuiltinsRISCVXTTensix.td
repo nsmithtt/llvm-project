@@ -70,7 +70,7 @@ def elwadd     : TTB7;
 def dotpv      : TTB4;
 def elwsub     : TTB7;
 def gmpool     : TTB5;
-def gapool     : TTB4;
+def gapool     : TTB5;
 
 //===----------------------------------------------------------------------===//
 // Data Movement Instructions
@@ -193,6 +193,7 @@ def sfparecip    : TTB4BH;
 def cfgshiftmask : TTB6BH;
 def pacr_bh      : TTB12BH;
 def unpacr_nop_bh : TTB9BH;
+def gapool_bh     : TTB5BH;
 def sfpiadd      : TTB4;
 def sfpshft      : TTB4;
 def sfpsetcc     : TTB4;
