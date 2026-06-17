@@ -20,18 +20,21 @@ class RISCVXTTensixBuiltin<string prototype, string features = ""> : TargetBuilt
 // Arity helper classes — all void-returning, all args unsigned int
 //===----------------------------------------------------------------------===//
 
-class TTB0 : RISCVXTTensixBuiltin<"void()", "experimental-xttensix,32bit">;
-class TTB1 : RISCVXTTensixBuiltin<"void(unsigned int)", "experimental-xttensix,32bit">;
-class TTB2 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int)", "experimental-xttensix,32bit">;
-class TTB3 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int)", "experimental-xttensix,32bit">;
-class TTB4 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensix,32bit">;
-class TTB5 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensix,32bit">;
-class TTB6 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensix,32bit">;
-class TTB7 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensix,32bit">;
-class TTB8 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensix,32bit">;
-class TTB9 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensix,32bit">;
-class TTB12 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensix,32bit">;
-class TTB13 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensix,32bit">;
+class TTB0 : RISCVXTTensixBuiltin<"void()", "experimental-xttensixwh,32bit">;
+class TTB1 : RISCVXTTensixBuiltin<"void(unsigned int)", "experimental-xttensixwh,32bit">;
+class TTB2 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
+class TTB3 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
+class TTB4 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
+class TTB5 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
+class TTB6 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
+class TTB7 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
+class TTB8 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
+class TTB9 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
+class TTB12 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
+class TTB13 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
+
+// Blackhole-only arity helpers (require the XTTensixBH extension).
+class TTB3BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
 
 //===----------------------------------------------------------------------===//
 // Generic raw-immediate builtin (retained as fallback)
@@ -177,6 +180,9 @@ def sfpaddi      : TTB3;
 def sfpdivp2     : TTB4;
 def sfpexexp     : TTB3;
 def sfpexman     : TTB3;
+// Blackhole-only SFPU compares.
+def sfple        : TTB3BH;
+def sfpgt        : TTB3BH;
 def sfpiadd      : TTB4;
 def sfpshft      : TTB4;
 def sfpsetcc     : TTB4;

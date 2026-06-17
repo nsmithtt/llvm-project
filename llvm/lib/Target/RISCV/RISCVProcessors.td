@@ -643,13 +643,23 @@ def TENSTORRENT_ASCALON_D8 : RISCVProcessorModel<"tt-ascalon-d8",
                                                   TuneOptimizedZeroStrideLoad,
                                                   TunePostRAScheduler]>;
 
-def TENSTORRENT_TENSIX_BRISC : RISCVProcessorModel<"tt-tensix-brisc",
-                                                    NoSchedModel,
-                                                    [Feature32Bit,
-                                                     FeatureStdExtI,
-                                                     FeatureStdExtZicsr,
-                                                     FeatureStdExtM,
-                                                     FeatureVendorXTTensix]>;
+// Wormhole BRISC: the Wormhole Tensix interface.
+def TENSTORRENT_WH_BRISC : RISCVProcessorModel<"tt-wh-brisc",
+                                               NoSchedModel,
+                                               [Feature32Bit,
+                                                FeatureStdExtI,
+                                                FeatureStdExtZicsr,
+                                                FeatureStdExtM,
+                                                FeatureVendorXTTensixWH]>;
+
+// Blackhole BRISC: the Blackhole Tensix interface (a superset of Wormhole).
+def TENSTORRENT_BH_BRISC : RISCVProcessorModel<"tt-bh-brisc",
+                                               NoSchedModel,
+                                               [Feature32Bit,
+                                                FeatureStdExtI,
+                                                FeatureStdExtZicsr,
+                                                FeatureStdExtM,
+                                                FeatureVendorXTTensixBH]>;
 
 def VENTANA_VEYRON_V1 : RISCVProcessorModel<"veyron-v1",
                                             NoSchedModel,

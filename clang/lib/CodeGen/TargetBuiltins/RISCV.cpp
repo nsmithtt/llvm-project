@@ -1383,6 +1383,8 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   case RISCV::BI__builtin_riscv_tt_##name: \
     ID = Intrinsic::riscv_tt_##name; break;
   TT_BUILTIN(nop)
+  TT_BUILTIN(sfple)
+  TT_BUILTIN(sfpgt)
   TT_BUILTIN(mop)
   TT_BUILTIN(mop_cfg)
   TT_BUILTIN(replay)

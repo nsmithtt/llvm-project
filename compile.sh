@@ -26,7 +26,7 @@ else
   LIBC_LIB=""
 fi
 
-C_FLAGS="-O3 -flto --target=riscv32 -mcpu=tt-tensix-brisc -menable-experimental-extensions -nostdinc -nostdlib ${LIBC_INCLUDES}"
+C_FLAGS="-O3 -flto --target=riscv32 -mcpu=tt-wh-brisc -menable-experimental-extensions -nostdinc -nostdlib ${LIBC_INCLUDES}"
 LD_FLAGS="-fuse-ld=lld -flto -nostdinc -nostdlib -Xlinker -T -Xlinker brisc.ld"
 
 ${CC} ${C_FLAGS} -c ${SOURCE} -o ${SOURCE}.o

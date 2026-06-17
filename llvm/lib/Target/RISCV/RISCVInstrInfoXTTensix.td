@@ -72,14 +72,14 @@ class TTInst<bits<8> opcode, dag outs, dag ins, string opcodestr, string argstr>
   let mayStore = 1;
   let isCodeGenOnly = 0;
   let DecoderNamespace = "XTTensix";
-  let Predicates = [HasVendorXTTensix, IsRV32];
+  let Predicates = [HasVendorXTTensixWH, IsRV32];
 }
 
 //===----------------------------------------------------------------------===//
 // Generic .ttinsn instruction (retained as fallback)
 //===----------------------------------------------------------------------===//
 
-let Predicates = [HasVendorXTTensix, IsRV32] in {
+let Predicates = [HasVendorXTTensixWH, IsRV32] in {
 let hasSideEffects = 1, mayLoad = 0, mayStore = 1,
     DecoderNamespace = "XTTensix" in {
   // TTINSN is a generic fallback for raw 32-bit Tensix encoding.
@@ -1795,7 +1795,7 @@ def TT_RMWCIB1 : TTInst<0xB4, (outs),
 // Intrinsic patterns
 //===----------------------------------------------------------------------===//
 
-let Predicates = [HasVendorXTTensix, IsRV32] in {
+let Predicates = [HasVendorXTTensixWH, IsRV32] in {
   // Generic raw-immediate pattern (retained as fallback)
   def : Pat<(int_riscv_tt_insn timm:$imm), (TTINSN ttensix_imm32:$imm)>;
 
@@ -2096,11 +2096,57 @@ let Predicates = [HasVendorXTTensix, IsRV32] in {
 } // Predicates
 
 //===----------------------------------------------------------------------===//
+// Blackhole-only instructions
+//
+// Gated on HasVendorXTTensixBH so they are rejected on the common/Wormhole
+// subtarget. These use the standard SFPU 3-field layout
+// (instr_mod1[3:0], lreg_dest[7:4], lreg_c[11:8]).
+//===----------------------------------------------------------------------===//
+
+let Predicates = [HasVendorXTTensixBH, IsRV32] in {
+
+def TT_SFPLE : TTInst<0x96, (outs),
+    (ins uimm4:$Mod1, uimm4:$VD, uimm4:$VC),
+    "tt.sfple", "$Mod1, $VD, $VC"> {
+  bits<4> Mod1;
+  bits<4> VD;
+  bits<4> VC;
+  let tt_opr{3-0} = Mod1;
+  let tt_opr{7-4} = VD;
+  let tt_opr{11-8} = VC;
+}
+
+def TT_SFPGT : TTInst<0x97, (outs),
+    (ins uimm4:$Mod1, uimm4:$VD, uimm4:$VC),
+    "tt.sfpgt", "$Mod1, $VD, $VC"> {
+  bits<4> Mod1;
+  bits<4> VD;
+  bits<4> VC;
+  let tt_opr{3-0} = Mod1;
+  let tt_opr{7-4} = VD;
+  let tt_opr{11-8} = VC;
+}
+
+} // Predicates
+
+let Predicates = [HasVendorXTTensixBH, IsRV32] in {
+def : InstAlias<"tt.sfple", (TT_SFPLE 0, 0, 0)>;
+def : InstAlias<"tt.sfpgt", (TT_SFPGT 0, 0, 0)>;
+} // Predicates
+
+let Predicates = [HasVendorXTTensixBH, IsRV32] in {
+def : Pat<(int_riscv_tt_sfple timm:$a, timm:$b, timm:$c),
+          (TT_SFPLE timm:$a, timm:$b, timm:$c)>;
+def : Pat<(int_riscv_tt_sfpgt timm:$a, timm:$b, timm:$c),
+          (TT_SFPGT timm:$a, timm:$b, timm:$c)>;
+} // Predicates
+
+//===----------------------------------------------------------------------===//
 // Instruction aliases for backward compatibility
 // Zero-operand forms that map to all-zero operands.
 //===----------------------------------------------------------------------===//
 
-let Predicates = [HasVendorXTTensix, IsRV32] in {
+let Predicates = [HasVendorXTTensixWH, IsRV32] in {
 
 //--- Control ---
 def : InstAlias<"tt.mop", (TT_MOP 0, 0, 0)>;

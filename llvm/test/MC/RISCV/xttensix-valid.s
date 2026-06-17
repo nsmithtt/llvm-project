@@ -1,4 +1,4 @@
-# RUN: llvm-mc %s -triple=riscv32 -mattr=+experimental-xttensix -show-encoding \
+# RUN: llvm-mc %s -triple=riscv32 -mattr=+experimental-xttensixwh -show-encoding \
 # RUN:     | FileCheck -check-prefixes=CHECK-ASM %s
 # RUN: not llvm-mc %s -triple=riscv32 2>&1 \
 # RUN:     | FileCheck -check-prefix=CHECK-NO-EXT %s
@@ -10,7 +10,7 @@
 # 0x02000000 -> encoded as 0x08000000
 # CHECK-ASM: ttinsn 33554432
 # CHECK-ASM: encoding: [0x00,0x00,0x00,0x08]
-# CHECK-NO-EXT: error: instruction requires the following: 'XTTensix' (Tenstorrent Tensix accelerator interface)
+# CHECK-NO-EXT: error: instruction requires the following: 'XTTensixWH' (Tenstorrent Tensix accelerator interface, Wormhole)
 ttinsn 0x02000000
 
 # 0x26000000 -> encoded as 0x98000000
@@ -24,7 +24,7 @@ ttinsn 0x26000000
 
 # CHECK-ASM: tt.nop
 # CHECK-ASM: encoding: [0x00,0x00,0x00,0x08]
-# CHECK-NO-EXT: error: instruction requires the following: 'XTTensix' (Tenstorrent Tensix accelerator interface)
+# CHECK-NO-EXT: error: instruction requires the following: 'XTTensixWH' (Tenstorrent Tensix accelerator interface, Wormhole)
 tt.nop
 
 # CHECK-ASM: tt.mop 4660, 10, 1

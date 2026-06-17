@@ -16,7 +16,7 @@ cmake -S llvm -G Ninja -B build \
   -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF \
   -DLLVM_LIBC_FULL_BUILD=ON \
   -DLIBC_TARGET_TRIPLE=${TRIPLE} \
-  -DRUNTIMES_${TRIPLE}_LIBC_COMPILE_OPTIONS_DEFAULT="-mcpu=tt-tensix-brisc;-menable-experimental-extensions;-Wno-atomic-alignment" \
+  -DRUNTIMES_${TRIPLE}_LIBC_COMPILE_OPTIONS_DEFAULT="-mcpu=tt-wh-brisc;-menable-experimental-extensions;-Wno-atomic-alignment" \
   -DLLVM_RUNTIME_TARGETS=${TRIPLE}
 
 cmake --build build

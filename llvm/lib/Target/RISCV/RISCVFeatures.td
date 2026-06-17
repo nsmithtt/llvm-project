@@ -1732,13 +1732,26 @@ def HasVendorXSMTVDot
 
 // Tenstorrent Extensions
 
-def FeatureVendorXTTensix
+// The Tensix accelerator interface is versioned per architecture. Wormhole
+// (XTTensixWH) is the baseline; Blackhole (XTTensixBH) is a superset, so it
+// implies XTTensixWH. There is intentionally no generic/common "XTTensix" — each
+// architecture is named explicitly.
+def FeatureVendorXTTensixWH
     : RISCVExperimentalExtension<0, 1,
-                                 "Tenstorrent Tensix accelerator interface">;
-def HasVendorXTTensix
-    : Predicate<"Subtarget->hasVendorXTTensix()">,
-      AssemblerPredicate<(all_of FeatureVendorXTTensix),
-                         "'XTTensix' (Tenstorrent Tensix accelerator interface)">;
+                                 "Tenstorrent Tensix accelerator interface, Wormhole">;
+def HasVendorXTTensixWH
+    : Predicate<"Subtarget->hasVendorXTTensixWH()">,
+      AssemblerPredicate<(all_of FeatureVendorXTTensixWH),
+                         "'XTTensixWH' (Tenstorrent Tensix accelerator interface, Wormhole)">;
+
+def FeatureVendorXTTensixBH
+    : RISCVExperimentalExtension<0, 1,
+                                 "Tenstorrent Tensix accelerator interface, Blackhole",
+                                 [FeatureVendorXTTensixWH]>;
+def HasVendorXTTensixBH
+    : Predicate<"Subtarget->hasVendorXTTensixBH()">,
+      AssemblerPredicate<(all_of FeatureVendorXTTensixBH),
+                         "'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)">;
 
 //===----------------------------------------------------------------------===//
 // LLVM specific features and extensions

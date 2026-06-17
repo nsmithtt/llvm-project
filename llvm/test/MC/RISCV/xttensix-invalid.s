@@ -1,4 +1,4 @@
-# RUN: not llvm-mc %s -triple=riscv32 -mattr=+experimental-xttensix 2>&1 \
+# RUN: not llvm-mc %s -triple=riscv32 -mattr=+experimental-xttensixwh 2>&1 \
 # RUN:     | FileCheck %s
 
 # Test that immediates >= 0xC0000000 are rejected for ttinsn

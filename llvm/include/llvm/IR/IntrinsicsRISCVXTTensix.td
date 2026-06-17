@@ -213,6 +213,9 @@ def int_riscv_tt_sfpaddi      : TTI3;
 def int_riscv_tt_sfpdivp2     : TTI4;
 def int_riscv_tt_sfpexexp     : TTI3;
 def int_riscv_tt_sfpexman     : TTI3;
+// Blackhole-only SFPU compares.
+def int_riscv_tt_sfple        : TTI3;
+def int_riscv_tt_sfpgt        : TTI3;
 def int_riscv_tt_sfpiadd      : TTI4;
 def int_riscv_tt_sfpshft      : TTI4;
 def int_riscv_tt_sfpsetcc     : TTI4;

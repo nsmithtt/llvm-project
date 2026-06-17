@@ -686,7 +686,9 @@ static constexpr FeatureBitset XAndesGroup = {
 
 static constexpr FeatureBitset XSMTGroup = {RISCV::FeatureVendorXSMTVDot};
 
-static constexpr FeatureBitset XTTensixGroup = {RISCV::FeatureVendorXTTensix};
+// XTTensixBH implies XTTensixWH, so gating on the Wormhole feature covers any
+// Tensix-capable subtarget (Wormhole or Blackhole).
+static constexpr FeatureBitset XTTensixGroup = {RISCV::FeatureVendorXTTensixWH};
 
 static constexpr DecoderListEntry DecoderList32[]{
     // Vendor Extensions
@@ -835,7 +837,7 @@ DecodeStatus RISCVDisassembler::getInstruction(MCInst &MI, uint64_t &Size,
   // encoding space (bits[1:0] != 0b11). Try XTTensix decoding first when the
   // feature is enabled and we have enough bytes.
   if ((Bytes[0] & 0b11) != 0b11 && Bytes.size() >= 4 &&
-      STI.hasFeature(RISCV::FeatureVendorXTTensix)) {
+      STI.hasFeature(RISCV::FeatureVendorXTTensixWH)) {
     uint32_t Insn =
         support::endian::read32le(Bytes.data()) & 0xFFFFFFFF;
     LLVM_DEBUG(dbgs() << "Trying XTTensix table (32 bit instruction)\n");
