@@ -237,7 +237,7 @@ def int_riscv_tt_sfpsetman    : TTI4;
 def int_riscv_tt_sfpmad       : TTI5;
 def int_riscv_tt_sfpadd       : TTI5;
 def int_riscv_tt_sfpmul       : TTI5;
-def int_riscv_tt_sfppushc     : TTI1;
+def int_riscv_tt_sfppushc     : TTI2;
 def int_riscv_tt_sfppopc      : TTI2;
 def int_riscv_tt_sfpsetsgn    : TTI4;
 def int_riscv_tt_sfpencc      : TTI3;

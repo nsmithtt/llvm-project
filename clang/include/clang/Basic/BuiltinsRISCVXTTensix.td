@@ -207,7 +207,7 @@ def sfpsetman    : TTB4;
 def sfpmad       : TTB5;
 def sfpadd       : TTB5;
 def sfpmul       : TTB5;
-def sfppushc     : TTB1;
+def sfppushc     : TTB2;
 def sfppopc      : TTB2;
 def sfpsetsgn    : TTB4;
 def sfpencc      : TTB3;

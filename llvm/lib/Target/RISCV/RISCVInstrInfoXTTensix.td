@@ -1509,10 +1509,11 @@ def TT_SFPMUL : TTInst<0x86, (outs),
 
 // SFPPUSHC: Mod1[3:0]=0 fixed, VD[7:4]
 def TT_SFPPUSHC : TTInst<0x87, (outs),
-    (ins uimm4:$VD),
-    "tt.sfppushc", "$VD"> {
+    (ins uimm4:$Mod1, uimm4:$VD),
+    "tt.sfppushc", "$Mod1, $VD"> {
+  bits<4> Mod1;
   bits<4> VD;
-  // Mod1[3:0] = 0 fixed
+  let tt_opr{3-0} = Mod1;
   let tt_opr{7-4} = VD;
 }
 
@@ -2072,8 +2073,8 @@ let Predicates = [HasVendorXTTensixWH, IsRV32] in {
             (TT_SFPADD timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
   def : Pat<(int_riscv_tt_sfpmul timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
             (TT_SFPMUL timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
-  def : Pat<(int_riscv_tt_sfppushc timm:$a),
-            (TT_SFPPUSHC timm:$a)>;
+  def : Pat<(int_riscv_tt_sfppushc timm:$a, timm:$b),
+            (TT_SFPPUSHC timm:$a, timm:$b)>;
   def : Pat<(int_riscv_tt_sfppopc timm:$a, timm:$b),
             (TT_SFPPOPC timm:$a, timm:$b)>;
   def : Pat<(int_riscv_tt_sfpsetsgn timm:$a, timm:$b, timm:$c, timm:$d),

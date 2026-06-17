@@ -305,3 +305,8 @@ tt.sfpand 1, 2, 3, 4
 # CHECK-ASM: tt.sfpor 5, 6, 7, 8
 # CHECK-ASM: encoding: [0x95,0x1d,0x02,0xfc]
 tt.sfpor 5, 6, 7, 8
+
+# SFPPUSHC: full 2-field form (instr_mod1, lreg_dest).
+# CHECK-ASM: tt.sfppushc 1, 2
+# CHECK-ASM: encoding: [0x86,0x00,0x00,0x1c]
+tt.sfppushc 1, 2
