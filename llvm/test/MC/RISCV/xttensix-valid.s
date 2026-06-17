@@ -310,3 +310,8 @@ tt.sfpor 5, 6, 7, 8
 # CHECK-ASM: tt.sfppushc 1, 2
 # CHECK-ASM: encoding: [0x86,0x00,0x00,0x1c]
 tt.sfppushc 1, 2
+
+# SFPDIVP2: imm12_math is a full 12-bit field [23:12].
+# CHECK-ASM: tt.sfpdivp2 1, 2, 3, 4095
+# CHECK-ASM: encoding: [0x85,0xcc,0xff,0xdb]
+tt.sfpdivp2 1, 2, 3, 4095

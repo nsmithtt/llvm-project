@@ -1295,16 +1295,16 @@ def TT_SFPADDI : TTInst<0x75, (outs),
 }
 
 def TT_SFPDIVP2 : TTInst<0x76, (outs),
-    (ins uimm4:$Mod1, uimm4:$VD, uimm4:$VC, uimm8:$Imm8),
-    "tt.sfpdivp2", "$Mod1, $VD, $VC, $Imm8"> {
+    (ins uimm4:$Mod1, uimm4:$VD, uimm4:$VC, uimm12:$Imm),
+    "tt.sfpdivp2", "$Mod1, $VD, $VC, $Imm"> {
   bits<4> Mod1;
   bits<4> VD;
   bits<4> VC;
-  bits<8> Imm8;
+  bits<12> Imm;
   let tt_opr{3-0} = Mod1;
   let tt_opr{7-4} = VD;
   let tt_opr{11-8} = VC;
-  let tt_opr{19-12} = Imm8;
+  let tt_opr{23-12} = Imm;
 }
 
 def TT_SFPEXEXP : TTInst<0x77, (outs),
