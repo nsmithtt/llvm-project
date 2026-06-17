@@ -2345,6 +2345,74 @@ def TT_GMPOOL_BH : TTInst<0x33, (outs),
   let tt_opr{23-22} = ClearDvalid;
 }
 
+// Blackhole matrix/elementwise variants: identical to their Wormhole forms but
+// with a 3-bit addr_mode at [16:14] instead of 2 bits at [16:15]. Separate
+// decoder namespace (a BH form with bit[14]=0 aliases the WH encoding).
+def TT_MVMUL_BH : TTInst<0x26, (outs),
+    (ins uimm10:$DstRow, uimm3:$AddrMod, uimm1:$BroadcastSrcBRow,
+         uimm1:$FlipSrcA, uimm1:$FlipSrcB),
+    "tt.mvmul", "$DstRow, $AddrMod, $BroadcastSrcBRow, $FlipSrcA, $FlipSrcB"> {
+  bits<10> DstRow; bits<3> AddrMod; bits<1> BroadcastSrcBRow;
+  bits<1> FlipSrcA; bits<1> FlipSrcB;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{9-0} = DstRow;
+  let tt_opr{16-14} = AddrMod;
+  let tt_opr{19} = BroadcastSrcBRow;
+  let tt_opr{22} = FlipSrcA;
+  let tt_opr{23} = FlipSrcB;
+}
+
+def TT_ELWMUL_BH : TTInst<0x27, (outs),
+    (ins uimm10:$DstRow, uimm3:$AddrMod, uimm1:$BroadcastSrcBCol0,
+         uimm1:$BroadcastSrcBRow, uimm1:$AddDst, uimm1:$FlipSrcA, uimm1:$FlipSrcB),
+    "tt.elwmul",
+    "$DstRow, $AddrMod, $BroadcastSrcBCol0, $BroadcastSrcBRow, $AddDst, $FlipSrcA, $FlipSrcB"> {
+  bits<10> DstRow; bits<3> AddrMod; bits<1> BroadcastSrcBCol0;
+  bits<1> BroadcastSrcBRow; bits<1> AddDst; bits<1> FlipSrcA; bits<1> FlipSrcB;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{9-0} = DstRow;
+  let tt_opr{16-14} = AddrMod;
+  let tt_opr{19} = BroadcastSrcBCol0;
+  let tt_opr{20} = BroadcastSrcBRow;
+  let tt_opr{21} = AddDst;
+  let tt_opr{22} = FlipSrcA;
+  let tt_opr{23} = FlipSrcB;
+}
+
+def TT_ELWADD_BH : TTInst<0x28, (outs),
+    (ins uimm10:$DstRow, uimm3:$AddrMod, uimm1:$BroadcastSrcBCol0,
+         uimm1:$BroadcastSrcBRow, uimm1:$AddDst, uimm1:$FlipSrcA, uimm1:$FlipSrcB),
+    "tt.elwadd",
+    "$DstRow, $AddrMod, $BroadcastSrcBCol0, $BroadcastSrcBRow, $AddDst, $FlipSrcA, $FlipSrcB"> {
+  bits<10> DstRow; bits<3> AddrMod; bits<1> BroadcastSrcBCol0;
+  bits<1> BroadcastSrcBRow; bits<1> AddDst; bits<1> FlipSrcA; bits<1> FlipSrcB;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{9-0} = DstRow;
+  let tt_opr{16-14} = AddrMod;
+  let tt_opr{19} = BroadcastSrcBCol0;
+  let tt_opr{20} = BroadcastSrcBRow;
+  let tt_opr{21} = AddDst;
+  let tt_opr{22} = FlipSrcA;
+  let tt_opr{23} = FlipSrcB;
+}
+
+def TT_ELWSUB_BH : TTInst<0x30, (outs),
+    (ins uimm10:$DstRow, uimm3:$AddrMod, uimm1:$BroadcastSrcBCol0,
+         uimm1:$BroadcastSrcBRow, uimm1:$AddDst, uimm1:$FlipSrcA, uimm1:$FlipSrcB),
+    "tt.elwsub",
+    "$DstRow, $AddrMod, $BroadcastSrcBCol0, $BroadcastSrcBRow, $AddDst, $FlipSrcA, $FlipSrcB"> {
+  bits<10> DstRow; bits<3> AddrMod; bits<1> BroadcastSrcBCol0;
+  bits<1> BroadcastSrcBRow; bits<1> AddDst; bits<1> FlipSrcA; bits<1> FlipSrcB;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{9-0} = DstRow;
+  let tt_opr{16-14} = AddrMod;
+  let tt_opr{19} = BroadcastSrcBCol0;
+  let tt_opr{20} = BroadcastSrcBRow;
+  let tt_opr{21} = AddDst;
+  let tt_opr{22} = FlipSrcA;
+  let tt_opr{23} = FlipSrcB;
+}
+
 } // Predicates
 
 let Predicates = [HasVendorXTTensixBH, IsRV32] in {
@@ -2378,6 +2446,14 @@ def : Pat<(int_riscv_tt_gapool_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
           (TT_GAPOOL_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
 def : Pat<(int_riscv_tt_gmpool_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
           (TT_GMPOOL_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+def : Pat<(int_riscv_tt_mvmul_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+          (TT_MVMUL_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+def : Pat<(int_riscv_tt_elwmul_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g),
+          (TT_ELWMUL_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
+def : Pat<(int_riscv_tt_elwadd_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g),
+          (TT_ELWADD_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
+def : Pat<(int_riscv_tt_elwsub_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g),
+          (TT_ELWSUB_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
 } // Predicates
 
 //===----------------------------------------------------------------------===//

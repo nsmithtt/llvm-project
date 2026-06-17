@@ -38,6 +38,7 @@ class TTB3BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned i
 class TTB4BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
 class TTB5BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
 class TTB6BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
+class TTB7BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
 class TTB9BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
 class TTB12BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
 
@@ -195,6 +196,10 @@ def pacr_bh      : TTB12BH;
 def unpacr_nop_bh : TTB9BH;
 def gapool_bh     : TTB5BH;
 def gmpool_bh     : TTB5BH;
+def mvmul_bh      : TTB5BH;
+def elwmul_bh     : TTB7BH;
+def elwadd_bh     : TTB7BH;
+def elwsub_bh     : TTB7BH;
 def sfpiadd      : TTB4;
 def sfpshft      : TTB4;
 def sfpsetcc     : TTB4;

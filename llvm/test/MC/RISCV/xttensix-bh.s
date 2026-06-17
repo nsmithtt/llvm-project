@@ -63,6 +63,27 @@ tt.gapool 5, 1, 5, 1, 3
 # CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
 tt.gmpool 5, 1, 5, 1, 3
 
+# Blackhole matrix/elementwise: 3-bit addr_mode (here 5).
+# CHECK-ASM: tt.mvmul 5, 5, 1, 0, 1
+# CHECK-ASM: encoding: [0x14,0x00,0x25,0x9a]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.mvmul 5, 5, 1, 0, 1
+
+# CHECK-ASM: tt.elwmul 5, 5, 1, 0, 1, 1, 0
+# CHECK-ASM: encoding: [0x14,0x00,0xa5,0x9d]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.elwmul 5, 5, 1, 0, 1, 1, 0
+
+# CHECK-ASM: tt.elwadd 5, 5, 1, 0, 1, 1, 0
+# CHECK-ASM: encoding: [0x14,0x00,0xa5,0xa1]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.elwadd 5, 5, 1, 0, 1, 1, 0
+
+# CHECK-ASM: tt.elwsub 5, 5, 1, 0, 1, 1, 0
+# CHECK-ASM: encoding: [0x14,0x00,0xa5,0xc1]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.elwsub 5, 5, 1, 0, 1, 1, 0
+
 # Zero-operand aliases.
 # CHECK-ASM: tt.sfple
 # CHECK-ASM: encoding: [0x02,0x00,0x00,0x58]

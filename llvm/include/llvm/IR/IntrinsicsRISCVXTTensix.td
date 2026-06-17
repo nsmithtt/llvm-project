@@ -226,6 +226,10 @@ def int_riscv_tt_unpacr_nop_bh : TTI9;
 // Blackhole GAPOOL/GMPOOL (3-bit pool_addr_mode; see TT_GAPOOL_BH/TT_GMPOOL_BH).
 def int_riscv_tt_gapool_bh    : TTI5;
 def int_riscv_tt_gmpool_bh    : TTI5;
+def int_riscv_tt_mvmul_bh     : TTI5;
+def int_riscv_tt_elwmul_bh    : TTI7;
+def int_riscv_tt_elwadd_bh    : TTI7;
+def int_riscv_tt_elwsub_bh    : TTI7;
 def int_riscv_tt_sfpiadd      : TTI4;
 def int_riscv_tt_sfpshft      : TTI4;
 def int_riscv_tt_sfpsetcc     : TTI4;
