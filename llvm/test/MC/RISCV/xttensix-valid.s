@@ -296,3 +296,12 @@ tt.pacr 1, 0, 1, 0, 3, 0, 2
 # CHECK-ASM: tt.unpacr_nop 5, 1
 # CHECK-ASM: encoding: [0x15,0x00,0x00,0x0e]
 tt.unpacr_nop 5, 1
+
+# SFPAND/SFPOR: full 4-field form (instr_mod1, lreg_dest, lreg_c, imm12_math).
+# CHECK-ASM: tt.sfpand 1, 2, 3, 4
+# CHECK-ASM: encoding: [0x85,0x0c,0x01,0xf8]
+tt.sfpand 1, 2, 3, 4
+
+# CHECK-ASM: tt.sfpor 5, 6, 7, 8
+# CHECK-ASM: encoding: [0x95,0x1d,0x02,0xfc]
+tt.sfpor 5, 6, 7, 8

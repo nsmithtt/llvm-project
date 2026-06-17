@@ -1391,21 +1391,29 @@ def TT_SFPABS : TTInst<0x7D, (outs),
 }
 
 def TT_SFPAND : TTInst<0x7E, (outs),
-    (ins uimm4:$VD, uimm4:$VC),
-    "tt.sfpand", "$VD, $VC"> {
+    (ins uimm4:$Mod1, uimm4:$VD, uimm4:$VC, uimm4:$Imm),
+    "tt.sfpand", "$Mod1, $VD, $VC, $Imm"> {
+  bits<4> Mod1;
   bits<4> VD;
   bits<4> VC;
+  bits<4> Imm;
+  let tt_opr{3-0} = Mod1;
   let tt_opr{7-4} = VD;
   let tt_opr{11-8} = VC;
+  let tt_opr{15-12} = Imm;
 }
 
 def TT_SFPOR : TTInst<0x7F, (outs),
-    (ins uimm4:$VD, uimm4:$VC),
-    "tt.sfpor", "$VD, $VC"> {
+    (ins uimm4:$Mod1, uimm4:$VD, uimm4:$VC, uimm4:$Imm),
+    "tt.sfpor", "$Mod1, $VD, $VC, $Imm"> {
+  bits<4> Mod1;
   bits<4> VD;
   bits<4> VC;
+  bits<4> Imm;
+  let tt_opr{3-0} = Mod1;
   let tt_opr{7-4} = VD;
   let tt_opr{11-8} = VC;
+  let tt_opr{15-12} = Imm;
 }
 
 def TT_SFPNOT : TTInst<0x80, (outs),
@@ -2046,10 +2054,10 @@ let Predicates = [HasVendorXTTensixWH, IsRV32] in {
             (TT_SFPMOV timm:$a, timm:$b, timm:$c)>;
   def : Pat<(int_riscv_tt_sfpabs timm:$a, timm:$b, timm:$c),
             (TT_SFPABS timm:$a, timm:$b, timm:$c)>;
-  def : Pat<(int_riscv_tt_sfpand timm:$a, timm:$b),
-            (TT_SFPAND timm:$a, timm:$b)>;
-  def : Pat<(int_riscv_tt_sfpor timm:$a, timm:$b),
-            (TT_SFPOR timm:$a, timm:$b)>;
+  def : Pat<(int_riscv_tt_sfpand timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SFPAND timm:$a, timm:$b, timm:$c, timm:$d)>;
+  def : Pat<(int_riscv_tt_sfpor timm:$a, timm:$b, timm:$c, timm:$d),
+            (TT_SFPOR timm:$a, timm:$b, timm:$c, timm:$d)>;
   def : Pat<(int_riscv_tt_sfpnot timm:$a, timm:$b),
             (TT_SFPNOT timm:$a, timm:$b)>;
   def : Pat<(int_riscv_tt_sfplz timm:$a, timm:$b, timm:$c),
