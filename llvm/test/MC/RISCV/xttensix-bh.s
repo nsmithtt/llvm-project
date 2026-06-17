@@ -105,6 +105,33 @@ tt.mova2d 5, 2, 5, 3, 0
 # CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
 tt.movb2a 5, 2, 5, 3
 
+# Blackhole SFP load/store/macro: 3-bit sfpu_addr_mode (here 5).
+# CHECK-ASM: tt.sfpload 100, 5, 5, 10
+# CHECK-ASM: encoding: [0x91,0x81,0x96,0xc2]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.sfpload 100, 5, 5, 10
+
+# CHECK-ASM: tt.sfpstore 100, 5, 5, 10
+# CHECK-ASM: encoding: [0x91,0x81,0x96,0xca]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.sfpstore 100, 5, 5, 10
+
+# CHECK-ASM: tt.sfploadmacro 1, 100, 5, 5, 2, 1
+# CHECK-ASM: encoding: [0x26,0x83,0x96,0x4d]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.sfploadmacro 1, 100, 5, 5, 2, 1
+
+# Blackhole SFP_STOCH_RND: 2-bit rnd_mode (here 2).
+# CHECK-ASM: tt.sfpstochrnd 3, 7, 2, 2
+# CHECK-ASM: encoding: [0xce,0x09,0x00,0x39]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.sfpstochrnd 3, 7, 2, 2
+
+# CHECK-ASM: tt.sfpstochrndi 3, 7, 2, 5, 9, 2
+# CHECK-ASM: encoding: [0xee,0x49,0x25,0x39]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.sfpstochrndi 3, 7, 2, 5, 9, 2
+
 # Zero-operand aliases.
 # CHECK-ASM: tt.sfple
 # CHECK-ASM: encoding: [0x02,0x00,0x00,0x58]

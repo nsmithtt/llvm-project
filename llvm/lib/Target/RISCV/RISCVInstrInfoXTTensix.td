@@ -2442,6 +2442,69 @@ def TT_MOVB2A_BH : TTInst<0x0B, (outs),
   let tt_opr{22-17} = SrcARow;
 }
 
+// Blackhole SFP load/store/macro: 3-bit sfpu_addr_mode at [15:13].
+def TT_SFPLOAD_BH : TTInst<0x70, (outs),
+    (ins uimm10:$Imm10, uimm3:$AddrMod, uimm4:$Mod0, uimm4:$VD),
+    "tt.sfpload", "$Imm10, $AddrMod, $Mod0, $VD"> {
+  bits<10> Imm10; bits<3> AddrMod; bits<4> Mod0; bits<4> VD;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{9-0} = Imm10;
+  let tt_opr{15-13} = AddrMod;
+  let tt_opr{19-16} = Mod0;
+  let tt_opr{23-20} = VD;
+}
+def TT_SFPSTORE_BH : TTInst<0x72, (outs),
+    (ins uimm10:$Imm10, uimm3:$AddrMod, uimm4:$Mod0, uimm4:$VD),
+    "tt.sfpstore", "$Imm10, $AddrMod, $Mod0, $VD"> {
+  bits<10> Imm10; bits<3> AddrMod; bits<4> Mod0; bits<4> VD;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{9-0} = Imm10;
+  let tt_opr{15-13} = AddrMod;
+  let tt_opr{19-16} = Mod0;
+  let tt_opr{23-20} = VD;
+}
+def TT_SFPLOADMACRO_BH : TTInst<0x93, (outs),
+    (ins uimm1:$VDHi, uimm9:$Imm9, uimm3:$AddrMod, uimm4:$Mod0,
+         uimm2:$VDLo, uimm2:$MacroIndex),
+    "tt.sfploadmacro", "$VDHi, $Imm9, $AddrMod, $Mod0, $VDLo, $MacroIndex"> {
+  bits<1> VDHi; bits<9> Imm9; bits<3> AddrMod; bits<4> Mod0;
+  bits<2> VDLo; bits<2> MacroIndex;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{0} = VDHi;
+  let tt_opr{9-1} = Imm9;
+  let tt_opr{15-13} = AddrMod;
+  let tt_opr{19-16} = Mod0;
+  let tt_opr{21-20} = VDLo;
+  let tt_opr{23-22} = MacroIndex;
+}
+
+// Blackhole SFP_STOCH_RND: 2-bit rnd_mode at [22:21].
+def TT_SFPSTOCHRND_BH : TTInst<0x8E, (outs),
+    (ins uimm3:$Mod1Lo, uimm4:$VD, uimm4:$VC, uimm2:$StochasticRounding),
+    "tt.sfpstochrnd", "$Mod1Lo, $VD, $VC, $StochasticRounding"> {
+  bits<3> Mod1Lo; bits<4> VD; bits<4> VC; bits<2> StochasticRounding;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{2-0} = Mod1Lo;
+  let tt_opr{7-4} = VD;
+  let tt_opr{11-8} = VC;
+  let tt_opr{22-21} = StochasticRounding;
+}
+def TT_SFPSTOCHRNDi_BH : TTInst<0x8E, (outs),
+    (ins uimm3:$Mod1Lo, uimm4:$VD, uimm4:$VC, uimm4:$VB, uimm5:$Imm5,
+         uimm2:$StochasticRounding),
+    "tt.sfpstochrndi", "$Mod1Lo, $VD, $VC, $VB, $Imm5, $StochasticRounding"> {
+  bits<3> Mod1Lo; bits<4> VD; bits<4> VC; bits<4> VB; bits<5> Imm5;
+  bits<2> StochasticRounding;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{2-0} = Mod1Lo;
+  let tt_opr{3} = 1;
+  let tt_opr{7-4} = VD;
+  let tt_opr{11-8} = VC;
+  let tt_opr{15-12} = VB;
+  let tt_opr{20-16} = Imm5;
+  let tt_opr{22-21} = StochasticRounding;
+}
+
 } // Predicates
 
 let Predicates = [HasVendorXTTensixBH, IsRV32] in {
@@ -2491,6 +2554,16 @@ def : Pat<(int_riscv_tt_mova2d_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
           (TT_MOVA2D_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
 def : Pat<(int_riscv_tt_movb2a_bh timm:$a, timm:$b, timm:$c, timm:$d),
           (TT_MOVB2A_BH timm:$a, timm:$b, timm:$c, timm:$d)>;
+def : Pat<(int_riscv_tt_sfpload_bh timm:$a, timm:$b, timm:$c, timm:$d),
+          (TT_SFPLOAD_BH timm:$a, timm:$b, timm:$c, timm:$d)>;
+def : Pat<(int_riscv_tt_sfpstore_bh timm:$a, timm:$b, timm:$c, timm:$d),
+          (TT_SFPSTORE_BH timm:$a, timm:$b, timm:$c, timm:$d)>;
+def : Pat<(int_riscv_tt_sfploadmacro_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
+          (TT_SFPLOADMACRO_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
+def : Pat<(int_riscv_tt_sfpstochrnd_bh timm:$a, timm:$b, timm:$c, timm:$d),
+          (TT_SFPSTOCHRND_BH timm:$a, timm:$b, timm:$c, timm:$d)>;
+def : Pat<(int_riscv_tt_sfpstochrndi_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
+          (TT_SFPSTOCHRNDi_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
 } // Predicates
 
 //===----------------------------------------------------------------------===//
