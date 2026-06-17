@@ -216,6 +216,9 @@ def int_riscv_tt_sfpexman     : TTI3;
 // Blackhole-only SFPU compares.
 def int_riscv_tt_sfple        : TTI3;
 def int_riscv_tt_sfpgt        : TTI3;
+def int_riscv_tt_sfpmul24     : TTI5;
+def int_riscv_tt_sfparecip    : TTI4;
+def int_riscv_tt_cfgshiftmask : TTI6;
 def int_riscv_tt_sfpiadd      : TTI4;
 def int_riscv_tt_sfpshft      : TTI4;
 def int_riscv_tt_sfpsetcc     : TTI4;
@@ -263,5 +266,7 @@ def int_riscv_tt_rdcfg   : TTI2;
 def int_riscv_tt_setc16  : TTI2;
 def int_riscv_tt_rmwcib0 : TTI3;
 def int_riscv_tt_rmwcib1 : TTI3;
+def int_riscv_tt_rmwcib2 : TTI3;
+def int_riscv_tt_rmwcib3 : TTI3;
 
 } // TargetPrefix = "riscv"

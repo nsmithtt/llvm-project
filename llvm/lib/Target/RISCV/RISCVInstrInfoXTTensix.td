@@ -1791,6 +1791,28 @@ def TT_RMWCIB1 : TTInst<0xB4, (outs),
   let tt_opr{23-16} = Mask;
 }
 
+def TT_RMWCIB2 : TTInst<0xB5, (outs),
+    (ins uimm8:$Index4, uimm8:$NewValue, uimm8:$Mask),
+    "tt.rmwcib2", "$Index4, $NewValue, $Mask"> {
+  bits<8> Index4;
+  bits<8> NewValue;
+  bits<8> Mask;
+  let tt_opr{7-0} = Index4;
+  let tt_opr{15-8} = NewValue;
+  let tt_opr{23-16} = Mask;
+}
+
+def TT_RMWCIB3 : TTInst<0xB6, (outs),
+    (ins uimm8:$Index4, uimm8:$NewValue, uimm8:$Mask),
+    "tt.rmwcib3", "$Index4, $NewValue, $Mask"> {
+  bits<8> Index4;
+  bits<8> NewValue;
+  bits<8> Mask;
+  let tt_opr{7-0} = Index4;
+  let tt_opr{15-8} = NewValue;
+  let tt_opr{23-16} = Mask;
+}
+
 //===----------------------------------------------------------------------===//
 // Intrinsic patterns
 //===----------------------------------------------------------------------===//
@@ -2093,6 +2115,10 @@ let Predicates = [HasVendorXTTensixWH, IsRV32] in {
             (TT_RMWCIB0 timm:$a, timm:$b, timm:$c)>;
   def : Pat<(int_riscv_tt_rmwcib1 timm:$a, timm:$b, timm:$c),
             (TT_RMWCIB1 timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_rmwcib2 timm:$a, timm:$b, timm:$c),
+            (TT_RMWCIB2 timm:$a, timm:$b, timm:$c)>;
+  def : Pat<(int_riscv_tt_rmwcib3 timm:$a, timm:$b, timm:$c),
+            (TT_RMWCIB3 timm:$a, timm:$b, timm:$c)>;
 } // Predicates
 
 //===----------------------------------------------------------------------===//
@@ -2127,11 +2153,64 @@ def TT_SFPGT : TTInst<0x97, (outs),
   let tt_opr{11-8} = VC;
 }
 
+// SFPU 24-bit multiply: VD = VA * VB (+ VC). Standard 5-field SFPU layout.
+def TT_SFPMUL24 : TTInst<0x98, (outs),
+    (ins uimm4:$Mod1, uimm4:$VD, uimm4:$VC, uimm4:$VB, uimm4:$VA),
+    "tt.sfpmul24", "$Mod1, $VD, $VC, $VB, $VA"> {
+  bits<4> Mod1;
+  bits<4> VD;
+  bits<4> VC;
+  bits<4> VB;
+  bits<4> VA;
+  let tt_opr{3-0} = Mod1;
+  let tt_opr{7-4} = VD;
+  let tt_opr{11-8} = VC;
+  let tt_opr{15-12} = VB;
+  let tt_opr{19-16} = VA;
+}
+
+// SFPU reciprocal approximation: instr_mod1, lreg_dest, lreg_c, imm12_math.
+def TT_SFPARECIP : TTInst<0x99, (outs),
+    (ins uimm4:$Mod1, uimm4:$VD, uimm4:$VC, uimm4:$Imm),
+    "tt.sfparecip", "$Mod1, $VD, $VC, $Imm"> {
+  bits<4> Mod1;
+  bits<4> VD;
+  bits<4> VC;
+  bits<4> Imm;
+  let tt_opr{3-0} = Mod1;
+  let tt_opr{7-4} = VD;
+  let tt_opr{11-8} = VC;
+  let tt_opr{15-12} = Imm;
+}
+
+// Config shift/mask read-modify-write.
+def TT_CFGSHIFTMASK : TTInst<0xB8, (outs),
+    (ins uimm8:$CfgReg, uimm2:$ScratchSel, uimm5:$RightCShiftAmt,
+         uimm5:$MaskWidth, uimm3:$Operation, uimm1:$DisableMaskOnOldVal),
+    "tt.cfgshiftmask",
+    "$CfgReg, $ScratchSel, $RightCShiftAmt, $MaskWidth, $Operation, $DisableMaskOnOldVal"> {
+  bits<8> CfgReg;
+  bits<2> ScratchSel;
+  bits<5> RightCShiftAmt;
+  bits<5> MaskWidth;
+  bits<3> Operation;
+  bits<1> DisableMaskOnOldVal;
+  let tt_opr{7-0} = CfgReg;
+  let tt_opr{9-8} = ScratchSel;
+  let tt_opr{14-10} = RightCShiftAmt;
+  let tt_opr{19-15} = MaskWidth;
+  let tt_opr{22-20} = Operation;
+  let tt_opr{23} = DisableMaskOnOldVal;
+}
+
 } // Predicates
 
 let Predicates = [HasVendorXTTensixBH, IsRV32] in {
 def : InstAlias<"tt.sfple", (TT_SFPLE 0, 0, 0)>;
 def : InstAlias<"tt.sfpgt", (TT_SFPGT 0, 0, 0)>;
+def : InstAlias<"tt.sfpmul24", (TT_SFPMUL24 0, 0, 0, 0, 0)>;
+def : InstAlias<"tt.sfparecip", (TT_SFPARECIP 0, 0, 0, 0)>;
+def : InstAlias<"tt.cfgshiftmask", (TT_CFGSHIFTMASK 0, 0, 0, 0, 0, 0)>;
 } // Predicates
 
 let Predicates = [HasVendorXTTensixBH, IsRV32] in {
@@ -2139,6 +2218,12 @@ def : Pat<(int_riscv_tt_sfple timm:$a, timm:$b, timm:$c),
           (TT_SFPLE timm:$a, timm:$b, timm:$c)>;
 def : Pat<(int_riscv_tt_sfpgt timm:$a, timm:$b, timm:$c),
           (TT_SFPGT timm:$a, timm:$b, timm:$c)>;
+def : Pat<(int_riscv_tt_sfpmul24 timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+          (TT_SFPMUL24 timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+def : Pat<(int_riscv_tt_sfparecip timm:$a, timm:$b, timm:$c, timm:$d),
+          (TT_SFPARECIP timm:$a, timm:$b, timm:$c, timm:$d)>;
+def : Pat<(int_riscv_tt_cfgshiftmask timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
+          (TT_CFGSHIFTMASK timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
 } // Predicates
 
 //===----------------------------------------------------------------------===//

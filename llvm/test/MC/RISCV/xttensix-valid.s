@@ -278,3 +278,11 @@ tt.flushdma
 # CHECK-ASM: tt.dmanop
 # CHECK-ASM: encoding: [0x01,0x00,0x00,0x80]
 tt.dmanop
+
+# CHECK-ASM: tt.rmwcib2 1, 2, 3
+# CHECK-ASM: encoding: [0x06,0x08,0x0c,0xd4]
+tt.rmwcib2 1, 2, 3
+
+# CHECK-ASM: tt.rmwcib3 4, 5, 6
+# CHECK-ASM: encoding: [0x12,0x14,0x18,0xd8]
+tt.rmwcib3 4, 5, 6

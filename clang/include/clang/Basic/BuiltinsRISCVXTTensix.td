@@ -35,6 +35,9 @@ class TTB13 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned in
 
 // Blackhole-only arity helpers (require the XTTensixBH extension).
 class TTB3BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
+class TTB4BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
+class TTB5BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
+class TTB6BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
 
 //===----------------------------------------------------------------------===//
 // Generic raw-immediate builtin (retained as fallback)
@@ -183,6 +186,9 @@ def sfpexman     : TTB3;
 // Blackhole-only SFPU compares.
 def sfple        : TTB3BH;
 def sfpgt        : TTB3BH;
+def sfpmul24     : TTB5BH;
+def sfparecip    : TTB4BH;
+def cfgshiftmask : TTB6BH;
 def sfpiadd      : TTB4;
 def sfpshft      : TTB4;
 def sfpsetcc     : TTB4;
@@ -236,3 +242,5 @@ def rdcfg   : TTB2;
 def setc16  : TTB2;
 def rmwcib0 : TTB3;
 def rmwcib1 : TTB3;
+def rmwcib2 : TTB3;
+def rmwcib3 : TTB3;

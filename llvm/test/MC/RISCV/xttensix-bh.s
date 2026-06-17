@@ -21,6 +21,21 @@ tt.sfple 1, 2, 3
 # CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
 tt.sfpgt 4, 5, 6
 
+# CHECK-ASM: tt.sfpmul24 1, 2, 3, 4, 5
+# CHECK-ASM: encoding: [0x86,0x0c,0x15,0x60]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.sfpmul24 1, 2, 3, 4, 5
+
+# CHECK-ASM: tt.sfparecip 1, 2, 3, 4
+# CHECK-ASM: encoding: [0x86,0x0c,0x01,0x64]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.sfparecip 1, 2, 3, 4
+
+# CHECK-ASM: tt.cfgshiftmask 18, 1, 2, 3, 4, 1
+# CHECK-ASM: encoding: [0x4a,0x24,0x06,0xe3]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.cfgshiftmask 18, 1, 2, 3, 4, 1
+
 # Zero-operand aliases.
 # CHECK-ASM: tt.sfple
 # CHECK-ASM: encoding: [0x02,0x00,0x00,0x58]

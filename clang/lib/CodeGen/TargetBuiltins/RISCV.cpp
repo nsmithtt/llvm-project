@@ -1385,6 +1385,9 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   TT_BUILTIN(nop)
   TT_BUILTIN(sfple)
   TT_BUILTIN(sfpgt)
+  TT_BUILTIN(sfpmul24)
+  TT_BUILTIN(sfparecip)
+  TT_BUILTIN(cfgshiftmask)
   TT_BUILTIN(mop)
   TT_BUILTIN(mop_cfg)
   TT_BUILTIN(replay)
@@ -1507,6 +1510,8 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   TT_BUILTIN(setc16)
   TT_BUILTIN(rmwcib0)
   TT_BUILTIN(rmwcib1)
+  TT_BUILTIN(rmwcib2)
+  TT_BUILTIN(rmwcib3)
 #undef TT_BUILTIN
 
     // Vector builtins are handled from here.
