@@ -2203,6 +2203,47 @@ def TT_CFGSHIFTMASK : TTInst<0xB8, (outs),
   let tt_opr{23} = DisableMaskOnOldVal;
 }
 
+// Blackhole PACR. Same opcode as the Wormhole tt.pacr (TT_PACR) but a richer
+// 12-field encoding: WH's fields sit at the same bit positions, and Blackhole
+// adds ctxt_ctrl, addr_cnt_context, dst_access_mode, row_pad_zero, cfg_context
+// (and renames pack_sel -> read_intf_sel). Because a BH PACR with the extra
+// fields zeroed is bit-identical to a WH PACR, this lives in its own decoder
+// namespace to avoid a decode conflict (the disassembler picks the BH table on
+// Blackhole subtargets).
+def TT_PACR_BH : TTInst<0x41, (outs),
+    (ins uimm1:$Last, uimm1:$Flush, uimm2:$CtxtCtrl, uimm1:$Concat,
+         uimm1:$OvrdThreadId, uimm4:$ReadIntfSel, uimm1:$ZeroWrite,
+         uimm2:$AddrCntContext, uimm2:$AddrMode, uimm1:$DstAccessMode,
+         uimm3:$RowPadZero, uimm2:$CfgContext),
+    "tt.pacr",
+    "$Last, $Flush, $CtxtCtrl, $Concat, $OvrdThreadId, $ReadIntfSel, $ZeroWrite, $AddrCntContext, $AddrMode, $DstAccessMode, $RowPadZero, $CfgContext"> {
+  bits<1> Last;
+  bits<1> Flush;
+  bits<2> CtxtCtrl;
+  bits<1> Concat;
+  bits<1> OvrdThreadId;
+  bits<4> ReadIntfSel;
+  bits<1> ZeroWrite;
+  bits<2> AddrCntContext;
+  bits<2> AddrMode;
+  bits<1> DstAccessMode;
+  bits<3> RowPadZero;
+  bits<2> CfgContext;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{0} = Last;
+  let tt_opr{1} = Flush;
+  let tt_opr{3-2} = CtxtCtrl;
+  let tt_opr{4} = Concat;
+  let tt_opr{7} = OvrdThreadId;
+  let tt_opr{11-8} = ReadIntfSel;
+  let tt_opr{12} = ZeroWrite;
+  let tt_opr{14-13} = AddrCntContext;
+  let tt_opr{16-15} = AddrMode;
+  let tt_opr{17} = DstAccessMode;
+  let tt_opr{20-18} = RowPadZero;
+  let tt_opr{22-21} = CfgContext;
+}
+
 } // Predicates
 
 let Predicates = [HasVendorXTTensixBH, IsRV32] in {
@@ -2224,6 +2265,10 @@ def : Pat<(int_riscv_tt_sfparecip timm:$a, timm:$b, timm:$c, timm:$d),
           (TT_SFPARECIP timm:$a, timm:$b, timm:$c, timm:$d)>;
 def : Pat<(int_riscv_tt_cfgshiftmask timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
           (TT_CFGSHIFTMASK timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
+def : Pat<(int_riscv_tt_pacr_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f,
+                                timm:$g, timm:$h, timm:$i, timm:$j, timm:$k, timm:$l),
+          (TT_PACR_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f,
+                      timm:$g, timm:$h, timm:$i, timm:$j, timm:$k, timm:$l)>;
 } // Predicates
 
 //===----------------------------------------------------------------------===//

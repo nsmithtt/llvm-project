@@ -286,3 +286,8 @@ tt.rmwcib2 1, 2, 3
 # CHECK-ASM: tt.rmwcib3 4, 5, 6
 # CHECK-ASM: encoding: [0x12,0x14,0x18,0xd8]
 tt.rmwcib3 4, 5, 6
+
+# Wormhole PACR: 7-operand form.
+# CHECK-ASM: tt.pacr 1, 0, 1, 0, 3, 0, 2
+# CHECK-ASM: encoding: [0x45,0x0c,0x04,0x04]
+tt.pacr 1, 0, 1, 0, 3, 0, 2

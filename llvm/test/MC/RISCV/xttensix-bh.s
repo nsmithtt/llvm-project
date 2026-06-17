@@ -36,6 +36,13 @@ tt.sfparecip 1, 2, 3, 4
 # CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
 tt.cfgshiftmask 18, 1, 2, 3, 4, 1
 
+# Blackhole PACR: the 12-operand form (same mnemonic as the 7-operand Wormhole
+# tt.pacr, distinguished by operand count + the XTTensixBH predicate).
+# CHECK-ASM: tt.pacr 1, 0, 2, 1, 0, 7, 1, 2, 3, 1, 5, 2
+# CHECK-ASM: encoding: [0x65,0x5c,0x5f,0x05]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.pacr 1, 0, 2, 1, 0, 7, 1, 2, 3, 1, 5, 2
+
 # Zero-operand aliases.
 # CHECK-ASM: tt.sfple
 # CHECK-ASM: encoding: [0x02,0x00,0x00,0x58]

@@ -38,6 +38,7 @@ class TTB3BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned i
 class TTB4BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
 class TTB5BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
 class TTB6BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
+class TTB12BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixbh,32bit">;
 
 //===----------------------------------------------------------------------===//
 // Generic raw-immediate builtin (retained as fallback)
@@ -189,6 +190,7 @@ def sfpgt        : TTB3BH;
 def sfpmul24     : TTB5BH;
 def sfparecip    : TTB4BH;
 def cfgshiftmask : TTB6BH;
+def pacr_bh      : TTB12BH;
 def sfpiadd      : TTB4;
 def sfpshft      : TTB4;
 def sfpsetcc     : TTB4;

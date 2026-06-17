@@ -840,6 +840,18 @@ DecodeStatus RISCVDisassembler::getInstruction(MCInst &MI, uint64_t &Size,
       STI.hasFeature(RISCV::FeatureVendorXTTensixWH)) {
     uint32_t Insn =
         support::endian::read32le(Bytes.data()) & 0xFFFFFFFF;
+    // On Blackhole, try the BH-specific table first. It holds instructions whose
+    // encoding diverges from Wormhole (e.g. PACR), so it must take precedence
+    // over the shared table where a BH encoding would otherwise alias a WH one.
+    if (STI.hasFeature(RISCV::FeatureVendorXTTensixBH)) {
+      LLVM_DEBUG(dbgs() << "Trying XTTensixBH table (32 bit instruction)\n");
+      DecodeStatus Result = decodeInstruction(DecoderTableXTTensixBH32, MI, Insn,
+                                              Address, this, STI);
+      if (Result != MCDisassembler::Fail) {
+        Size = 4;
+        return Result;
+      }
+    }
     LLVM_DEBUG(dbgs() << "Trying XTTensix table (32 bit instruction)\n");
     DecodeStatus Result = decodeInstruction(DecoderTableXTTensix32, MI, Insn,
                                             Address, this, STI);
