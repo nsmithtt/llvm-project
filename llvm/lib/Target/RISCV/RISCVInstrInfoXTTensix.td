@@ -272,16 +272,16 @@ def TT_GAPOOL : TTInst<0x34, (outs),
 //===----------------------------------------------------------------------===//
 
 def TT_MOVD2A : TTInst<0x08, (outs),
-    (ins uimm10:$DstRow, uimm1:$Move4Rows, uimm2:$AddrMod,
+    (ins uimm10:$DstRow, uimm2:$InstrMod, uimm2:$AddrMod,
          uimm6:$SrcRow, uimm1:$UseDst32bLo),
-    "tt.movd2a", "$DstRow, $Move4Rows, $AddrMod, $SrcRow, $UseDst32bLo"> {
+    "tt.movd2a", "$DstRow, $InstrMod, $AddrMod, $SrcRow, $UseDst32bLo"> {
   bits<10> DstRow;
-  bits<1> Move4Rows;
+  bits<2> InstrMod;
   bits<2> AddrMod;
   bits<6> SrcRow;
   bits<1> UseDst32bLo;
   let tt_opr{9-0} = DstRow;
-  let tt_opr{13} = Move4Rows;
+  let tt_opr{13-12} = InstrMod;
   let tt_opr{16-15} = AddrMod;
   let tt_opr{22-17} = SrcRow;
   let tt_opr{23} = UseDst32bLo;
@@ -304,30 +304,30 @@ def TT_MOVDBGA2D : TTInst<0x09, (outs),
 }
 
 def TT_MOVD2B : TTInst<0x0A, (outs),
-    (ins uimm10:$DstRow, uimm1:$Move4Rows, uimm2:$AddrMod,
+    (ins uimm10:$DstRow, uimm2:$InstrMod, uimm2:$AddrMod,
          uimm6:$SrcRow, uimm1:$UseDst32bLo),
-    "tt.movd2b", "$DstRow, $Move4Rows, $AddrMod, $SrcRow, $UseDst32bLo"> {
+    "tt.movd2b", "$DstRow, $InstrMod, $AddrMod, $SrcRow, $UseDst32bLo"> {
   bits<10> DstRow;
-  bits<1> Move4Rows;
+  bits<2> InstrMod;
   bits<2> AddrMod;
   bits<6> SrcRow;
   bits<1> UseDst32bLo;
   let tt_opr{9-0} = DstRow;
-  let tt_opr{13} = Move4Rows;
+  let tt_opr{13-12} = InstrMod;
   let tt_opr{16-15} = AddrMod;
   let tt_opr{22-17} = SrcRow;
   let tt_opr{23} = UseDst32bLo;
 }
 
 def TT_MOVB2A : TTInst<0x0B, (outs),
-    (ins uimm6:$SrcBRow, uimm1:$Move4Rows, uimm2:$AddrMod, uimm6:$SrcARow),
-    "tt.movb2a", "$SrcBRow, $Move4Rows, $AddrMod, $SrcARow"> {
+    (ins uimm6:$SrcBRow, uimm2:$InstrMod, uimm2:$AddrMod, uimm6:$SrcARow),
+    "tt.movb2a", "$SrcBRow, $InstrMod, $AddrMod, $SrcARow"> {
   bits<6> SrcBRow;
-  bits<1> Move4Rows;
+  bits<2> InstrMod;
   bits<2> AddrMod;
   bits<6> SrcARow;
   let tt_opr{5-0} = SrcBRow;
-  let tt_opr{13} = Move4Rows;
+  let tt_opr{13-12} = InstrMod;
   let tt_opr{16-15} = AddrMod;
   let tt_opr{22-17} = SrcARow;
 }
@@ -366,16 +366,16 @@ def TT_ZEROSRC : TTInst<0x11, (outs),
 }
 
 def TT_MOVA2D : TTInst<0x12, (outs),
-    (ins uimm10:$DstRow, uimm1:$Move8Rows, uimm2:$AddrMod,
+    (ins uimm10:$DstRow, uimm2:$InstrMod, uimm2:$AddrMod,
          uimm6:$SrcRow, uimm1:$UseDst32bLo),
-    "tt.mova2d", "$DstRow, $Move8Rows, $AddrMod, $SrcRow, $UseDst32bLo"> {
+    "tt.mova2d", "$DstRow, $InstrMod, $AddrMod, $SrcRow, $UseDst32bLo"> {
   bits<10> DstRow;
-  bits<1> Move8Rows;
+  bits<2> InstrMod;
   bits<2> AddrMod;
   bits<6> SrcRow;
   bits<1> UseDst32bLo;
   let tt_opr{9-0} = DstRow;
-  let tt_opr{13} = Move8Rows;
+  let tt_opr{13-12} = InstrMod;
   let tt_opr{16-15} = AddrMod;
   let tt_opr{22-17} = SrcRow;
   let tt_opr{23} = UseDst32bLo;
@@ -2413,6 +2413,35 @@ def TT_ELWSUB_BH : TTInst<0x30, (outs),
   let tt_opr{23} = FlipSrcB;
 }
 
+// Blackhole data-movement variants: 3-bit addr_mode at [16:14].
+class TTMovBH<bits<8> op, string mn> : TTInst<op, (outs),
+    (ins uimm10:$DstRow, uimm2:$InstrMod, uimm3:$AddrMod, uimm6:$SrcRow,
+         uimm1:$UseDst32bLo),
+    mn, "$DstRow, $InstrMod, $AddrMod, $SrcRow, $UseDst32bLo"> {
+  bits<10> DstRow; bits<2> InstrMod; bits<3> AddrMod; bits<6> SrcRow;
+  bits<1> UseDst32bLo;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{9-0} = DstRow;
+  let tt_opr{13-12} = InstrMod;
+  let tt_opr{16-14} = AddrMod;
+  let tt_opr{22-17} = SrcRow;
+  let tt_opr{23} = UseDst32bLo;
+}
+def TT_MOVD2A_BH : TTMovBH<0x08, "tt.movd2a">;
+def TT_MOVD2B_BH : TTMovBH<0x0A, "tt.movd2b">;
+def TT_MOVA2D_BH : TTMovBH<0x12, "tt.mova2d">;
+
+def TT_MOVB2A_BH : TTInst<0x0B, (outs),
+    (ins uimm6:$SrcBRow, uimm2:$InstrMod, uimm3:$AddrMod, uimm6:$SrcARow),
+    "tt.movb2a", "$SrcBRow, $InstrMod, $AddrMod, $SrcARow"> {
+  bits<6> SrcBRow; bits<2> InstrMod; bits<3> AddrMod; bits<6> SrcARow;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{5-0} = SrcBRow;
+  let tt_opr{13-12} = InstrMod;
+  let tt_opr{16-14} = AddrMod;
+  let tt_opr{22-17} = SrcARow;
+}
+
 } // Predicates
 
 let Predicates = [HasVendorXTTensixBH, IsRV32] in {
@@ -2454,6 +2483,14 @@ def : Pat<(int_riscv_tt_elwadd_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, t
           (TT_ELWADD_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
 def : Pat<(int_riscv_tt_elwsub_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g),
           (TT_ELWSUB_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
+def : Pat<(int_riscv_tt_movd2a_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+          (TT_MOVD2A_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+def : Pat<(int_riscv_tt_movd2b_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+          (TT_MOVD2B_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+def : Pat<(int_riscv_tt_mova2d_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+          (TT_MOVA2D_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+def : Pat<(int_riscv_tt_movb2a_bh timm:$a, timm:$b, timm:$c, timm:$d),
+          (TT_MOVB2A_BH timm:$a, timm:$b, timm:$c, timm:$d)>;
 } // Predicates
 
 //===----------------------------------------------------------------------===//

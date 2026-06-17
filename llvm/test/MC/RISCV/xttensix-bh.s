@@ -84,6 +84,27 @@ tt.elwadd 5, 5, 1, 0, 1, 1, 0
 # CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
 tt.elwsub 5, 5, 1, 0, 1, 1, 0
 
+# Blackhole data-movement: 3-bit addr_mode (here 5).
+# CHECK-ASM: tt.movd2a 5, 2, 5, 3, 0
+# CHECK-ASM: encoding: [0x14,0x80,0x1d,0x20]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.movd2a 5, 2, 5, 3, 0
+
+# CHECK-ASM: tt.movd2b 5, 2, 5, 3, 0
+# CHECK-ASM: encoding: [0x14,0x80,0x1d,0x28]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.movd2b 5, 2, 5, 3, 0
+
+# CHECK-ASM: tt.mova2d 5, 2, 5, 3, 0
+# CHECK-ASM: encoding: [0x14,0x80,0x1d,0x48]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.mova2d 5, 2, 5, 3, 0
+
+# CHECK-ASM: tt.movb2a 5, 2, 5, 3
+# CHECK-ASM: encoding: [0x14,0x80,0x1d,0x2c]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.movb2a 5, 2, 5, 3
+
 # Zero-operand aliases.
 # CHECK-ASM: tt.sfple
 # CHECK-ASM: encoding: [0x02,0x00,0x00,0x58]

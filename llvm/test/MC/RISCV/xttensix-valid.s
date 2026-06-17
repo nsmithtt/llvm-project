@@ -83,7 +83,7 @@ tt.gapool 5, 1, 2, 1, 3
 #===----------------------------------------------------------------------===#
 
 # CHECK-ASM: tt.movd2a 5, 1, 2, 10, 1
-# CHECK-ASM: encoding: [0x14,0x80,0x54,0x22]
+# CHECK-ASM: encoding: [0x14,0x40,0x54,0x22]
 tt.movd2a 5, 1, 2, 10, 1
 
 # CHECK-ASM: tt.movdbga2d 5, 1, 2, 10, 1
@@ -91,11 +91,11 @@ tt.movd2a 5, 1, 2, 10, 1
 tt.movdbga2d 5, 1, 2, 10, 1
 
 # CHECK-ASM: tt.movd2b 5, 1, 2, 10, 1
-# CHECK-ASM: encoding: [0x14,0x80,0x54,0x2a]
+# CHECK-ASM: encoding: [0x14,0x40,0x54,0x2a]
 tt.movd2b 5, 1, 2, 10, 1
 
 # CHECK-ASM: tt.movb2a 5, 1, 2, 10
-# CHECK-ASM: encoding: [0x14,0x80,0x54,0x2c]
+# CHECK-ASM: encoding: [0x14,0x40,0x54,0x2c]
 tt.movb2a 5, 1, 2, 10
 
 # CHECK-ASM: tt.zeroacc 100, 2, 1, 1, 0
@@ -107,7 +107,7 @@ tt.zeroacc 100, 2, 1, 1, 0
 tt.zerosrc 1, 1, 0, 0, 1
 
 # CHECK-ASM: tt.mova2d 5, 1, 2, 10, 1
-# CHECK-ASM: encoding: [0x14,0x80,0x54,0x4a]
+# CHECK-ASM: encoding: [0x14,0x40,0x54,0x4a]
 tt.mova2d 5, 1, 2, 10, 1
 
 # CHECK-ASM: tt.trnspsrcb
