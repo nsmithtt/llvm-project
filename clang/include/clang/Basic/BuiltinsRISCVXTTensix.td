@@ -194,6 +194,7 @@ def cfgshiftmask : TTB6BH;
 def pacr_bh      : TTB12BH;
 def unpacr_nop_bh : TTB9BH;
 def gapool_bh     : TTB5BH;
+def gmpool_bh     : TTB5BH;
 def sfpiadd      : TTB4;
 def sfpshft      : TTB4;
 def sfpsetcc     : TTB4;

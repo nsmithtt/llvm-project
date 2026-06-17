@@ -57,6 +57,12 @@ tt.unpacr_nop 1, 2, 1, 1, 2, 1, 3, 7, 1
 # CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
 tt.gapool 5, 1, 5, 1, 3
 
+# Blackhole GMPOOL: 3-bit pool_addr_mode (here 5).
+# CHECK-ASM: tt.gmpool 5, 1, 5, 1, 3
+# CHECK-ASM: encoding: [0x14,0x00,0x2b,0xcf]
+# CHECK-NO-BH: error: instruction requires the following: 'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+tt.gmpool 5, 1, 5, 1, 3
+
 # Zero-operand aliases.
 # CHECK-ASM: tt.sfple
 # CHECK-ASM: encoding: [0x02,0x00,0x00,0x58]

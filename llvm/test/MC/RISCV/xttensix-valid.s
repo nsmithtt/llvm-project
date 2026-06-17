@@ -63,9 +63,10 @@ tt.dotpv 5, 2, 0, 1
 # CHECK-ASM: encoding: [0x14,0x00,0x64,0xc2]
 tt.elwsub 5, 2, 1, 1, 0, 0, 1
 
-# CHECK-ASM: tt.gmpool 5, 1, 2, 0, 1
-# CHECK-ASM: encoding: [0x14,0x00,0x05,0xce]
-tt.gmpool 5, 1, 2, 0, 1
+# Wormhole GMPOOL: dst, max_pool_index_en, addr_mode(2b), instr_mod19, clear_dvalid.
+# CHECK-ASM: tt.gmpool 5, 1, 2, 1, 3
+# CHECK-ASM: encoding: [0x14,0x00,0x25,0xcf]
+tt.gmpool 5, 1, 2, 1, 3
 
 # Wormhole GAPOOL: dst, max_pool_index_en, addr_mode(2b), instr_mod19, clear_dvalid.
 # CHECK-ASM: tt.gapool 5, 1, 2, 1, 3

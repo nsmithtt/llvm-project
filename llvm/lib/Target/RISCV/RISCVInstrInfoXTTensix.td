@@ -227,20 +227,23 @@ def TT_ELWSUB : TTInst<0x30, (outs),
   let tt_opr{23} = FlipSrcB;
 }
 
+// Wormhole GMPOOL: dst[9:0], max_pool_index_en[14], addr_mode[16:15],
+// instr_mod19[19], clear_dvalid[23:22]. (Blackhole widens addr_mode to 3 bits at
+// [17:15] -- see TT_GMPOOL_BH.)
 def TT_GMPOOL : TTInst<0x33, (outs),
-    (ins uimm10:$DstRow, uimm1:$ArgMax, uimm2:$AddrMod,
-         uimm1:$FlipSrcA, uimm1:$FlipSrcB),
-    "tt.gmpool", "$DstRow, $ArgMax, $AddrMod, $FlipSrcA, $FlipSrcB"> {
+    (ins uimm10:$DstRow, uimm1:$MaxPoolIndexEn, uimm2:$AddrMode,
+         uimm1:$InstrMod19, uimm2:$ClearDvalid),
+    "tt.gmpool", "$DstRow, $MaxPoolIndexEn, $AddrMode, $InstrMod19, $ClearDvalid"> {
   bits<10> DstRow;
-  bits<1> ArgMax;
-  bits<2> AddrMod;
-  bits<1> FlipSrcA;
-  bits<1> FlipSrcB;
+  bits<1> MaxPoolIndexEn;
+  bits<2> AddrMode;
+  bits<1> InstrMod19;
+  bits<2> ClearDvalid;
   let tt_opr{9-0} = DstRow;
-  let tt_opr{14} = ArgMax;
-  let tt_opr{16-15} = AddrMod;
-  let tt_opr{22} = FlipSrcA;
-  let tt_opr{23} = FlipSrcB;
+  let tt_opr{14} = MaxPoolIndexEn;
+  let tt_opr{16-15} = AddrMode;
+  let tt_opr{19} = InstrMod19;
+  let tt_opr{23-22} = ClearDvalid;
 }
 
 // Wormhole GAPOOL: dst[9:0], max_pool_index_en[14], addr_mode[16:15],
@@ -2319,6 +2322,25 @@ def TT_GAPOOL_BH : TTInst<0x34, (outs),
   let tt_opr{23-22} = ClearDvalid;
 }
 
+// Blackhole GMPOOL: like the Wormhole form with a 3-bit pool_addr_mode at
+// [17:15]. Separate decoder namespace (a BH gmpool with bit[17]=0 aliases WH).
+def TT_GMPOOL_BH : TTInst<0x33, (outs),
+    (ins uimm10:$DstRow, uimm1:$MaxPoolIndexEn, uimm3:$PoolAddrMode,
+         uimm1:$InstrMod19, uimm2:$ClearDvalid),
+    "tt.gmpool", "$DstRow, $MaxPoolIndexEn, $PoolAddrMode, $InstrMod19, $ClearDvalid"> {
+  bits<10> DstRow;
+  bits<1> MaxPoolIndexEn;
+  bits<3> PoolAddrMode;
+  bits<1> InstrMod19;
+  bits<2> ClearDvalid;
+  let DecoderNamespace = "XTTensixBH";
+  let tt_opr{9-0} = DstRow;
+  let tt_opr{14} = MaxPoolIndexEn;
+  let tt_opr{17-15} = PoolAddrMode;
+  let tt_opr{19} = InstrMod19;
+  let tt_opr{23-22} = ClearDvalid;
+}
+
 } // Predicates
 
 let Predicates = [HasVendorXTTensixBH, IsRV32] in {
@@ -2350,6 +2372,8 @@ def : Pat<(int_riscv_tt_unpacr_nop_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$
                             timm:$f, timm:$g, timm:$h, timm:$i)>;
 def : Pat<(int_riscv_tt_gapool_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
           (TT_GAPOOL_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
+def : Pat<(int_riscv_tt_gmpool_bh timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
+          (TT_GMPOOL_BH timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
 } // Predicates
 
 //===----------------------------------------------------------------------===//
