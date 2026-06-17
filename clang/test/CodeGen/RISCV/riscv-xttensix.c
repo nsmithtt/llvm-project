@@ -100,11 +100,11 @@ void test_tt_setrwc(void) {
 
 // CHECK-LABEL: @test_tt_unpacr(
 // CHECK-NEXT:  entry:
-// CHECK-NEXT:    call void @llvm.riscv.tt.unpacr(i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0)
+// CHECK-NEXT:    call void @llvm.riscv.tt.unpacr(i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0, i32 0)
 // CHECK-NEXT:    ret void
 //
 void test_tt_unpacr(void) {
-    __builtin_riscv_tt_unpacr(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    __builtin_riscv_tt_unpacr(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 }
 
 // CHECK-LABEL: @test_tt_unpacr_ctxinc(
