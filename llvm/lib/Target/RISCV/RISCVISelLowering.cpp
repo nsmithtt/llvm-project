@@ -760,11 +760,6 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
 
   setOperationAction({ISD::TRAP, ISD::DEBUGTRAP}, MVT::Other, Legal);
   setOperationAction(ISD::INTRINSIC_WO_CHAIN, MVT::Other, Custom);
-
-  // Custom-lower the runtime Tensix instruction-issue intrinsic (a store of a
-  // runtime word to the instruction buffer).
-  if (Subtarget.hasVendorXTTensixWH())
-    setOperationAction(ISD::INTRINSIC_VOID, MVT::Other, Custom);
   if (Subtarget.is64Bit())
     setOperationAction(ISD::INTRINSIC_WO_CHAIN, MVT::i32, Custom);
 
@@ -11780,20 +11775,6 @@ SDValue RISCVTargetLowering::LowerINTRINSIC_VOID(SDValue Op,
   switch (IntNo) {
   default:
     break;
-  case Intrinsic::riscv_tt_insn_rt: {
-    // Issue a Tensix instruction whose 32-bit word is computed at runtime by
-    // storing it to the Tensix instruction buffer (INSTRN_BUF_BASE). Volatile so
-    // it is neither eliminated nor reordered with other instruction issues.
-    SDLoc DL(Op);
-    SDValue Chain = Op.getOperand(0);
-    SDValue Word = Op.getOperand(2);
-    SDValue Addr = DAG.getConstant(0xFFE40000ULL, DL, Subtarget.getXLenVT());
-    MachineFunction &MF = DAG.getMachineFunction();
-    MachineMemOperand *MMO = MF.getMachineMemOperand(
-        MachinePointerInfo(),
-        MachineMemOperand::MOStore | MachineMemOperand::MOVolatile, 4, Align(4));
-    return DAG.getStore(Chain, DL, Word, Addr, MMO);
-  }
   case Intrinsic::riscv_seg2_store_mask:
   case Intrinsic::riscv_seg3_store_mask:
   case Intrinsic::riscv_seg4_store_mask:

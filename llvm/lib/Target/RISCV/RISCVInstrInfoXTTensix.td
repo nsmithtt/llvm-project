@@ -91,6 +91,20 @@ let hasSideEffects = 1, mayLoad = 0, mayStore = 1,
     let Inst{31-2} = imm{29-0};
     let Inst{1-0} = imm{31-30};
   }
+
+  // Runtime Tensix instruction issue: store a runtime-built 32-bit word to the
+  // Tensix instruction buffer (INSTRN_BUF_BASE). Encodes exactly as `sw`, but is
+  // modeled with side effects + mayStore in the SAME memory-effect domain as the
+  // named tt instructions (whose intrinsics are IntrInaccessibleMemOnly). That
+  // keeps runtime issues correctly ordered with the named-instruction stream:
+  // lowering the issue to a plain (accessible-memory) store instead lets the DAG
+  // treat it as non-aliasing the inaccessible-memory named ops and reorder it
+  // across them, desyncing the instruction FIFO. isCodeGenOnly so it does not
+  // collide with SW in the assembler/disassembler.
+  let isCodeGenOnly = 1 in
+  def TT_FIFO_SW : RVInstS<0b010, OPC_STORE, (outs),
+                           (ins GPR:$rs2, GPR:$rs1, simm12_lo:$imm12),
+                           "tt.fifo.sw", "$rs2, ${imm12}(${rs1})">;
 } // hasSideEffects, mayLoad, mayStore, ...
 } // Predicates
 
@@ -1840,6 +1854,11 @@ def TT_RMWCIB3 : TTInst<0xB6, (outs),
 let Predicates = [HasVendorXTTensixWH, IsRV32] in {
   // Generic raw-immediate pattern (retained as fallback)
   def : Pat<(int_riscv_tt_insn timm:$imm), (TTINSN ttensix_imm32:$imm)>;
+
+  // Runtime-operand issue: build the FIFO address (0xFFE40000 = LUI 0xFFE40) and
+  // store the runtime word to it via the side-effecting TT_FIFO_SW.
+  def : Pat<(int_riscv_tt_insn_rt GPR:$word),
+            (TT_FIFO_SW GPR:$word, (LUI 0xFFE40), 0)>;
 
   // Frontend/Control
   def : Pat<(int_riscv_tt_nop), (TT_NOP)>;
