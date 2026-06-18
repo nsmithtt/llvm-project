@@ -151,16 +151,12 @@ static void configure_hardware() {
 
     // --- ALU Configuration (Config[0][0..1]) ---
 
-    // Config[0][0]: ALU_FORMAT_SPEC_REG
-    //   SrcA_val = BF16(5)       bits [3:0]
-    //   SrcA_override = 1        bit  [4]
-    //   SrcB_val = BF16(5)       bits [8:5]
-    //   SrcB_override = 1        bit  [9]
-    //   Dstacc_val = FP32(0)     bits [13:10]
-    //   Dstacc_override = 1      bit  [14]
-    cfg[0] = (DFMT_BF16 << 0)  | (1u << 4)
-           | (DFMT_BF16 << 5)  | (1u << 9)
-           | (DFMT_FP32 << 10) | (1u << 14);
+    // Config[0][0]: ALU_FORMAT_SPEC_REG.
+    //   The per-source "override" mechanism (SrcA/SrcB/Dstacc_override bits) is
+    //   not modeled by ttsim, which always reads the formats from Config[0][1]
+    //   (ALU_FORMAT_SPEC_REG0_SrcA / REG1_SrcB / REG2_Dstacc) below. Those are
+    //   set identically, so leave the override register clear.
+    cfg[0] = 0u;
 
     // Config[0][1]: ALU format registers + FP32 accumulation enable
     //   DEST_TARGET_REG_CFG_MATH_Offset = 0   bits [11:0]
@@ -240,13 +236,12 @@ static void matmul_16x16() {
     );
 
     // ---- Phase 3: Zero all of Dst (FP32 mode) ----
-    // zeroacc(Imm10, AddrMod, Revert, Mode, UseDst32b)
+    // zeroacc(Imm10, AddrMod, ClearMode).  ClearMode is the 3-bit clear_mode
+    // field [21:19]; 7 == old (Mode=ALL=3 in [20:19]) | (UseDst32b=1 in [21]).
     __builtin_riscv_tt_zeroacc(
-        0,               // Imm10 (unused for Mode=ALL)
+        0,               // Imm10 (unused for clear-all)
         0,               // AddrMod
-        0,               // Revert
-        ZEROACC_MODE_ALL, // Mode = 3 (all of Dst)
-        1                // UseDst32b = 1 (FP32 destination)
+        7                // ClearMode = clear all of Dst, FP32 destination
     );
     // Wait for FPU to finish zeroing
     __builtin_riscv_tt_stallwait(COND_FPU_BUSY, BLOCK_FPU);
@@ -261,11 +256,13 @@ static void matmul_16x16() {
     //   X0Val = Ch0.X start, X1Val = Ch1.X (datum count - 1)
     __builtin_riscv_tt_setadcxx(0, 255, 1, 0, 0);   // 256 datums (16x16), Unp0
 
-    // unpacr(RowSearch, UseCtxCtr, AllZero, FlipSrc, MultiCtx,
-    //        CtxADC, CtxNum, Ch0ZInc, Ch0YInc, Ch1ZInc, Ch1YInc,
-    //        WhichUnpacker)
+    // unpacr(Last, RowSearch, UseCtxCtr, AllZero, RarebEn, FlipSrc, MultiCtx,
+    //        CtxADC, CtxNum, Ch0ZInc, Ch0YInc, Ch1ZInc, Ch1YInc, WhichUnpacker)
+    // (Last and RarebEn are new operands; both 0 here, preserving the encoding.)
     __builtin_riscv_tt_unpacr(
+        0,           // Last
         0, 0, 0,
+        0,           // RarebEn
         1,           // FlipSrc = 1: hand bank to Matrix Unit after unpack
         0, 0, 0,
         0, 0, 0, 0,
@@ -280,7 +277,9 @@ static void matmul_16x16() {
     __builtin_riscv_tt_setadcxx(0, 127, 0, 1, 0);   // 128 datums (8x16), Unp1
 
     __builtin_riscv_tt_unpacr(
+        0,           // Last
         0, 0, 0,
+        0,           // RarebEn
         1,           // FlipSrc = 1
         0, 0, 0,
         0, 0, 0, 0,
@@ -310,7 +309,9 @@ static void matmul_16x16() {
     __builtin_riscv_tt_setadcxx(0, 127, 0, 1, 0);   // 128 datums (8x16), Unp1
 
     __builtin_riscv_tt_unpacr(
+        0,           // Last
         0, 0, 0,
+        0,           // RarebEn
         1,           // FlipSrc = 1
         0, 0, 0,
         0, 0, 0, 0,
