@@ -1379,6 +1379,8 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   // XTTensix builtins
   case RISCV::BI__builtin_riscv_tt_insn:
     ID = Intrinsic::riscv_tt_insn; break;
+  case RISCV::BI__builtin_riscv_tt_insn_rt:
+    ID = Intrinsic::riscv_tt_insn_rt; break;
 #define TT_BUILTIN(name) \
   case RISCV::BI__builtin_riscv_tt_##name: \
     ID = Intrinsic::riscv_tt_##name; break;

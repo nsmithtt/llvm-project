@@ -54,6 +54,9 @@ class TTB12BH : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned 
 // This builtin requires a compile-time constant argument.
 def insn : TTB1;
 
+// Runtime-word issue (the word operand may be a runtime value).
+def insn_rt : TTB1;
+
 //===----------------------------------------------------------------------===//
 // Frontend/Control Instructions
 //===----------------------------------------------------------------------===//

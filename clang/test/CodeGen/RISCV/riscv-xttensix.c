@@ -16,6 +16,22 @@ void test_tt_insn(void) {
 }
 
 //===----------------------------------------------------------------------===//
+// Generic runtime-operand builtin (data-staging instructions)
+//===----------------------------------------------------------------------===//
+
+// CHECK-LABEL: @test_tt_insn_rt(
+// CHECK-NEXT:  entry:
+// CHECK-NEXT:    [[WORD_ADDR:%.*]] = alloca i32, align 4
+// CHECK-NEXT:    store i32 [[WORD:%.*]], ptr [[WORD_ADDR]], align 4
+// CHECK-NEXT:    [[TMP0:%.*]] = load i32, ptr [[WORD_ADDR]], align 4
+// CHECK-NEXT:    call void @llvm.riscv.tt.insn.rt(i32 [[TMP0]])
+// CHECK-NEXT:    ret void
+//
+void test_tt_insn_rt(unsigned word) {
+    __builtin_riscv_tt_insn_rt(word);
+}
+
+//===----------------------------------------------------------------------===//
 // Frontend/Control
 //===----------------------------------------------------------------------===//
 

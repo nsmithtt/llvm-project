@@ -119,6 +119,14 @@ class TTI14 : Intrinsic<[],
 // (INSTRN_BUF_BASE) that isn't part of LLVM's addressable memory model.
 def int_riscv_tt_insn : TTI1;
 
+// Runtime-operand path: issue a Tensix instruction whose 32-bit word is computed
+// at runtime (e.g. data-staging instructions whose fields hold a data value or a
+// computed address). Unlike the named instructions, the word operand is NOT an
+// ImmArg. Lowered to a store of the word to the Tensix instruction buffer; shares
+// the other tt intrinsics' memory effects so issue order is preserved.
+def int_riscv_tt_insn_rt : Intrinsic<[], [llvm_i32_ty],
+    [IntrHasSideEffects, IntrWriteMem, IntrInaccessibleMemOnly]>;
+
 //===----------------------------------------------------------------------===//
 // Named intrinsics — one per instruction def
 //===----------------------------------------------------------------------===//
