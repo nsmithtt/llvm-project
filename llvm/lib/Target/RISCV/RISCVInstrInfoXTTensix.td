@@ -727,9 +727,9 @@ def TT_SETADC : TTInst<0x50, (outs),
 def TT_SETADCXY : TTInst<0x51, (outs),
     (ins uimm1:$X0, uimm1:$Y0, uimm1:$X1, uimm1:$Y1,
          uimm3:$X0Val, uimm3:$Y0Val, uimm3:$X1Val, uimm3:$Y1Val,
-         uimm2:$ThreadOverride, uimm1:$U0, uimm1:$U1, uimm1:$PK),
+         uimm1:$U0, uimm1:$U1, uimm1:$PK),
     "tt.setadcxy",
-    "$X0, $Y0, $X1, $Y1, $X0Val, $Y0Val, $X1Val, $Y1Val, $ThreadOverride, $U0, $U1, $PK"> {
+    "$X0, $Y0, $X1, $Y1, $X0Val, $Y0Val, $X1Val, $Y1Val, $U0, $U1, $PK"> {
   bits<1> X0;
   bits<1> Y0;
   bits<1> X1;
@@ -738,7 +738,6 @@ def TT_SETADCXY : TTInst<0x51, (outs),
   bits<3> Y0Val;
   bits<3> X1Val;
   bits<3> Y1Val;
-  bits<2> ThreadOverride;
   bits<1> U0;
   bits<1> U1;
   bits<1> PK;
@@ -750,7 +749,6 @@ def TT_SETADCXY : TTInst<0x51, (outs),
   let tt_opr{11-9} = Y0Val;
   let tt_opr{14-12} = X1Val;
   let tt_opr{17-15} = Y1Val;
-  let tt_opr{19-18} = ThreadOverride;
   let tt_opr{21} = U0;
   let tt_opr{22} = U1;
   let tt_opr{23} = PK;
@@ -758,14 +756,13 @@ def TT_SETADCXY : TTInst<0x51, (outs),
 
 def TT_INCADCXY : TTInst<0x52, (outs),
     (ins uimm3:$X0Inc, uimm3:$Y0Inc, uimm3:$X1Inc, uimm3:$Y1Inc,
-         uimm2:$ThreadOverride, uimm1:$U0, uimm1:$U1, uimm1:$PK),
+         uimm1:$U0, uimm1:$U1, uimm1:$PK),
     "tt.incadcxy",
-    "$X0Inc, $Y0Inc, $X1Inc, $Y1Inc, $ThreadOverride, $U0, $U1, $PK"> {
+    "$X0Inc, $Y0Inc, $X1Inc, $Y1Inc, $U0, $U1, $PK"> {
   bits<3> X0Inc;
   bits<3> Y0Inc;
   bits<3> X1Inc;
   bits<3> Y1Inc;
-  bits<2> ThreadOverride;
   bits<1> U0;
   bits<1> U1;
   bits<1> PK;
@@ -773,7 +770,6 @@ def TT_INCADCXY : TTInst<0x52, (outs),
   let tt_opr{11-9} = Y0Inc;
   let tt_opr{14-12} = X1Inc;
   let tt_opr{17-15} = Y1Inc;
-  let tt_opr{19-18} = ThreadOverride;
   let tt_opr{21} = U0;
   let tt_opr{22} = U1;
   let tt_opr{23} = PK;
@@ -782,9 +778,9 @@ def TT_INCADCXY : TTInst<0x52, (outs),
 def TT_ADDRCRXY : TTInst<0x53, (outs),
     (ins uimm1:$X0, uimm1:$Y0, uimm1:$X1, uimm1:$Y1,
          uimm3:$X0Inc, uimm3:$Y0Inc, uimm3:$X1Inc, uimm3:$Y1Inc,
-         uimm2:$ThreadOverride, uimm1:$U0, uimm1:$U1, uimm1:$PK),
+         uimm1:$U0, uimm1:$U1, uimm1:$PK),
     "tt.addrcrxy",
-    "$X0, $Y0, $X1, $Y1, $X0Inc, $Y0Inc, $X1Inc, $Y1Inc, $ThreadOverride, $U0, $U1, $PK"> {
+    "$X0, $Y0, $X1, $Y1, $X0Inc, $Y0Inc, $X1Inc, $Y1Inc, $U0, $U1, $PK"> {
   bits<1> X0;
   bits<1> Y0;
   bits<1> X1;
@@ -793,7 +789,6 @@ def TT_ADDRCRXY : TTInst<0x53, (outs),
   bits<3> Y0Inc;
   bits<3> X1Inc;
   bits<3> Y1Inc;
-  bits<2> ThreadOverride;
   bits<1> U0;
   bits<1> U1;
   bits<1> PK;
@@ -805,7 +800,6 @@ def TT_ADDRCRXY : TTInst<0x53, (outs),
   let tt_opr{11-9} = Y0Inc;
   let tt_opr{14-12} = X1Inc;
   let tt_opr{17-15} = Y1Inc;
-  let tt_opr{19-18} = ThreadOverride;
   let tt_opr{21} = U0;
   let tt_opr{22} = U1;
   let tt_opr{23} = PK;
@@ -814,9 +808,9 @@ def TT_ADDRCRXY : TTInst<0x53, (outs),
 def TT_SETADCZW : TTInst<0x54, (outs),
     (ins uimm1:$Z0, uimm1:$W0, uimm1:$Z1, uimm1:$W1,
          uimm3:$Z0Val, uimm3:$W0Val, uimm3:$Z1Val, uimm3:$W1Val,
-         uimm2:$ThreadOverride, uimm1:$U0, uimm1:$U1, uimm1:$PK),
+         uimm1:$U0, uimm1:$U1, uimm1:$PK),
     "tt.setadczw",
-    "$Z0, $W0, $Z1, $W1, $Z0Val, $W0Val, $Z1Val, $W1Val, $ThreadOverride, $U0, $U1, $PK"> {
+    "$Z0, $W0, $Z1, $W1, $Z0Val, $W0Val, $Z1Val, $W1Val, $U0, $U1, $PK"> {
   bits<1> Z0;
   bits<1> W0;
   bits<1> Z1;
@@ -825,7 +819,6 @@ def TT_SETADCZW : TTInst<0x54, (outs),
   bits<3> W0Val;
   bits<3> Z1Val;
   bits<3> W1Val;
-  bits<2> ThreadOverride;
   bits<1> U0;
   bits<1> U1;
   bits<1> PK;
@@ -837,7 +830,6 @@ def TT_SETADCZW : TTInst<0x54, (outs),
   let tt_opr{11-9} = W0Val;
   let tt_opr{14-12} = Z1Val;
   let tt_opr{17-15} = W1Val;
-  let tt_opr{19-18} = ThreadOverride;
   let tt_opr{21} = U0;
   let tt_opr{22} = U1;
   let tt_opr{23} = PK;
@@ -845,14 +837,13 @@ def TT_SETADCZW : TTInst<0x54, (outs),
 
 def TT_INCADCZW : TTInst<0x55, (outs),
     (ins uimm3:$Z0Inc, uimm3:$W0Inc, uimm3:$Z1Inc, uimm3:$W1Inc,
-         uimm2:$ThreadOverride, uimm1:$U0, uimm1:$U1, uimm1:$PK),
+         uimm1:$U0, uimm1:$U1, uimm1:$PK),
     "tt.incadczw",
-    "$Z0Inc, $W0Inc, $Z1Inc, $W1Inc, $ThreadOverride, $U0, $U1, $PK"> {
+    "$Z0Inc, $W0Inc, $Z1Inc, $W1Inc, $U0, $U1, $PK"> {
   bits<3> Z0Inc;
   bits<3> W0Inc;
   bits<3> Z1Inc;
   bits<3> W1Inc;
-  bits<2> ThreadOverride;
   bits<1> U0;
   bits<1> U1;
   bits<1> PK;
@@ -860,7 +851,6 @@ def TT_INCADCZW : TTInst<0x55, (outs),
   let tt_opr{11-9} = W0Inc;
   let tt_opr{14-12} = Z1Inc;
   let tt_opr{17-15} = W1Inc;
-  let tt_opr{19-18} = ThreadOverride;
   let tt_opr{21} = U0;
   let tt_opr{22} = U1;
   let tt_opr{23} = PK;
@@ -869,9 +859,9 @@ def TT_INCADCZW : TTInst<0x55, (outs),
 def TT_ADDRCRZW : TTInst<0x56, (outs),
     (ins uimm1:$Z0, uimm1:$W0, uimm1:$Z1, uimm1:$W1,
          uimm3:$Z0Inc, uimm3:$W0Inc, uimm3:$Z1Inc, uimm3:$W1Inc,
-         uimm2:$ThreadOverride, uimm1:$U0, uimm1:$U1, uimm1:$PK),
+         uimm1:$U0, uimm1:$U1, uimm1:$PK),
     "tt.addrcrzw",
-    "$Z0, $W0, $Z1, $W1, $Z0Inc, $W0Inc, $Z1Inc, $W1Inc, $ThreadOverride, $U0, $U1, $PK"> {
+    "$Z0, $W0, $Z1, $W1, $Z0Inc, $W0Inc, $Z1Inc, $W1Inc, $U0, $U1, $PK"> {
   bits<1> Z0;
   bits<1> W0;
   bits<1> Z1;
@@ -880,7 +870,6 @@ def TT_ADDRCRZW : TTInst<0x56, (outs),
   bits<3> W0Inc;
   bits<3> Z1Inc;
   bits<3> W1Inc;
-  bits<2> ThreadOverride;
   bits<1> U0;
   bits<1> U1;
   bits<1> PK;
@@ -892,7 +881,6 @@ def TT_ADDRCRZW : TTInst<0x56, (outs),
   let tt_opr{11-9} = W0Inc;
   let tt_opr{14-12} = Z1Inc;
   let tt_opr{17-15} = W1Inc;
-  let tt_opr{19-18} = ThreadOverride;
   let tt_opr{21} = U0;
   let tt_opr{22} = U1;
   let tt_opr{23} = PK;
@@ -1950,38 +1938,18 @@ let Predicates = [HasVendorXTTensixWH, IsRV32] in {
             (TT_LOADIND timm:$a, timm:$b, timm:$c, timm:$d, timm:$e)>;
   def : Pat<(int_riscv_tt_setadc timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
             (TT_SETADC timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
-  def : Pat<(int_riscv_tt_setadcxy timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
-             timm:$k, timm:$l),
-            (TT_SETADCXY timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
-             timm:$k, timm:$l)>;
-  def : Pat<(int_riscv_tt_incadcxy timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h),
-            (TT_INCADCXY timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h)>;
-  def : Pat<(int_riscv_tt_addrcrxy timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
-             timm:$k, timm:$l),
-            (TT_ADDRCRXY timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
-             timm:$k, timm:$l)>;
-  def : Pat<(int_riscv_tt_setadczw timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
-             timm:$k, timm:$l),
-            (TT_SETADCZW timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
-             timm:$k, timm:$l)>;
-  def : Pat<(int_riscv_tt_incadczw timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h),
-            (TT_INCADCZW timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h)>;
-  def : Pat<(int_riscv_tt_addrcrzw timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
-             timm:$k, timm:$l),
-            (TT_ADDRCRZW timm:$a, timm:$b, timm:$c, timm:$d,
-             timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
-             timm:$k, timm:$l)>;
+  def : Pat<(int_riscv_tt_setadcxy timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j, timm:$k),
+            (TT_SETADCXY timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j, timm:$k)>;
+  def : Pat<(int_riscv_tt_incadcxy timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g),
+            (TT_INCADCXY timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
+  def : Pat<(int_riscv_tt_addrcrxy timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j, timm:$k),
+            (TT_ADDRCRXY timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j, timm:$k)>;
+  def : Pat<(int_riscv_tt_setadczw timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j, timm:$k),
+            (TT_SETADCZW timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j, timm:$k)>;
+  def : Pat<(int_riscv_tt_incadczw timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g),
+            (TT_INCADCZW timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g)>;
+  def : Pat<(int_riscv_tt_addrcrzw timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j, timm:$k),
+            (TT_ADDRCRZW timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j, timm:$k)>;
   def : Pat<(int_riscv_tt_setdvalid timm:$a, timm:$b),
             (TT_SETDVALID timm:$a, timm:$b)>;
   def : Pat<(int_riscv_tt_setadcxx timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
@@ -2652,7 +2620,7 @@ def : InstAlias<"tt.setdmareg", (TT_SETDMAREG_IMM 0, 0)>;
 def : InstAlias<"tt.reg2flop", (TT_REG2FLOP_CFG 0, 0, 0)>;
 def : InstAlias<"tt.loadind", (TT_LOADIND 0, 0, 0, 0, 0)>;
 def : InstAlias<"tt.setadc", (TT_SETADC 0, 0, 0, 0, 0, 0)>;
-def : InstAlias<"tt.setadcxy", (TT_SETADCXY 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)>;
+def : InstAlias<"tt.setadcxy", (TT_SETADCXY 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)>;
 def : InstAlias<"tt.setdvalid", (TT_SETDVALID 0, 0)>;
 
 //--- DMA/Sync ---

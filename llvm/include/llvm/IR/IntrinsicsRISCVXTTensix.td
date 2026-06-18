@@ -76,6 +76,11 @@ class TTI9 : Intrinsic<[],
      ImmArg<ArgIndex<3>>, ImmArg<ArgIndex<4>>, ImmArg<ArgIndex<5>>,
      ImmArg<ArgIndex<6>>, ImmArg<ArgIndex<7>>, ImmArg<ArgIndex<8>>]>;
 
+class TTI11 : Intrinsic<[],
+    !listsplat(llvm_i32_ty, 11),
+    !listconcat([IntrHasSideEffects, IntrWriteMem, IntrInaccessibleMemOnly],
+                !foreach(idx, !range(11), ImmArg<ArgIndex<idx>>))>;
+
 class TTI12 : Intrinsic<[],
     [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_i32_ty,
      llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_i32_ty,
@@ -169,12 +174,12 @@ def int_riscv_tt_reg2flop          : TTI3;
 def int_riscv_tt_reg2flop_adc      : TTI9;
 def int_riscv_tt_loadind           : TTI5;
 def int_riscv_tt_setadc            : TTI6;
-def int_riscv_tt_setadcxy          : TTI12;
-def int_riscv_tt_incadcxy          : TTI8;
-def int_riscv_tt_addrcrxy          : TTI12;
-def int_riscv_tt_setadczw          : TTI12;
-def int_riscv_tt_incadczw          : TTI8;
-def int_riscv_tt_addrcrzw          : TTI12;
+def int_riscv_tt_setadcxy          : TTI11;
+def int_riscv_tt_incadcxy          : TTI7;
+def int_riscv_tt_addrcrxy          : TTI11;
+def int_riscv_tt_setadczw          : TTI11;
+def int_riscv_tt_incadczw          : TTI7;
+def int_riscv_tt_addrcrzw          : TTI11;
 def int_riscv_tt_setdvalid         : TTI2;
 def int_riscv_tt_setadcxx          : TTI5;
 

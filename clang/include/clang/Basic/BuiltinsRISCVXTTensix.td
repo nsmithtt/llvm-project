@@ -30,6 +30,7 @@ class TTB6 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int
 class TTB7 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
 class TTB8 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
 class TTB9 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
+class TTB11 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
 class TTB12 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
 class TTB13 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
 class TTB14 : RISCVXTTensixBuiltin<"void(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)", "experimental-xttensixwh,32bit">;
@@ -122,12 +123,12 @@ def reg2flop          : TTB3;
 def reg2flop_adc      : TTB9;
 def loadind           : TTB5;
 def setadc            : TTB6;
-def setadcxy          : TTB12;
-def incadcxy          : TTB8;
-def addrcrxy          : TTB12;
-def setadczw          : TTB12;
-def incadczw          : TTB8;
-def addrcrzw          : TTB12;
+def setadcxy          : TTB11;
+def incadcxy          : TTB7;
+def addrcrxy          : TTB11;
+def setadczw          : TTB11;
+def incadczw          : TTB7;
+def addrcrzw          : TTB11;
 def setdvalid         : TTB2;
 def setadcxx          : TTB5;
 
