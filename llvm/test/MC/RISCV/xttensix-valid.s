@@ -18,6 +18,13 @@ ttinsn 0x02000000
 # CHECK-ASM: encoding: [0x00,0x00,0x00,0x98]
 ttinsn 0x26000000
 
+# A 32-bit Tensix word may be written in its signed-int32 spelling (bit 31 set);
+# existing kernels' TT_OP macros produce such values for SFP* opcodes.
+# 0x8a002c0a (== -1979699190) is < 0xc0000000 and so is valid.
+# CHECK-ASM: ttinsn -1979699190
+# CHECK-ASM: encoding: [0x2a,0xc0,0x00,0x28]
+ttinsn -1979699190
+
 #===----------------------------------------------------------------------===#
 # Frontend/Control Instructions
 #===----------------------------------------------------------------------===#

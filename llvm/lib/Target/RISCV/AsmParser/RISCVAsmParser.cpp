@@ -740,10 +740,18 @@ public:
   bool isUImm48() const { return isUImm<48>(); }
   bool isUImm64() const { return isUImm<64>(); }
 
-  // Tenstorrent Tensix immediate: must be < 0xC0000000 to ensure proper encoding
+  // Tenstorrent Tensix immediate: a 32-bit instruction word whose top two bits
+  // are not 0b11 (i.e. < 0xC0000000 when viewed as unsigned). The word may be
+  // written either as an unsigned value or as its signed-int32 spelling --
+  // Tensix opcodes with bit 31 set (e.g. the SFP* ops emitted by existing
+  // kernels' TT_OP macros) are negative as 'int'. Accept both; the code emitter
+  // truncates to 32 bits.
   bool isTTensixImm32() const {
-    return isUImmPred(
-        [](int64_t Imm) { return Imm >= 0 && (uint64_t)Imm < 0xC0000000ULL; });
+    return isUImmPred([](int64_t Imm) {
+      if (!isUInt<32>(Imm) && !isInt<32>(Imm))
+        return false;
+      return (uint32_t)Imm < 0xC0000000U;
+    });
   }
 
   bool isUImm5NonZero() const {
