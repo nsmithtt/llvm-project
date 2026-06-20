@@ -8880,7 +8880,9 @@ void Sema::CheckVariableDeclarationType(VarDecl *NewVD) {
   // automatic variables that point to other address spaces.
   // ISO/IEC TR 18037 S5.1.2
   if (!getLangOpts().OpenCL && NewVD->hasLocalStorage() &&
-      T.getAddressSpace() != LangAS::Default) {
+      T.getAddressSpace() != LangAS::Default &&
+      // Tenstorrent rvtt_l1_ptr/rvtt_reg_ptr are benign logical pointer qualifiers.
+      !isRvttAddressSpace(T.getAddressSpace())) {
     Diag(NewVD->getLocation(), diag::err_as_qualified_auto_decl) << 0;
     NewVD->setInvalidDecl();
     return;
@@ -8980,7 +8982,9 @@ void Sema::CheckVariableDeclarationType(VarDecl *NewVD) {
       } else if (T.getAddressSpace() != LangAS::opencl_private &&
                  // If we are parsing a template we didn't deduce an addr
                  // space yet.
-                 T.getAddressSpace() != LangAS::Default) {
+                 T.getAddressSpace() != LangAS::Default &&
+                 // Tenstorrent rvtt_l1_ptr/rvtt_reg_ptr are benign qualifiers.
+                 !isRvttAddressSpace(T.getAddressSpace())) {
         // Do not allow other address spaces on automatic variable.
         Diag(NewVD->getLocation(), diag::err_as_qualified_auto_decl) << 1;
         NewVD->setInvalidDecl();
@@ -15781,7 +15785,9 @@ ParmVarDecl *Sema::CheckParameter(DeclContext *DC, SourceLocation StartLoc,
       // WebAssembly allows reference types as parameters. Funcref in particular
       // lives in a different address space.
       !(T->isFunctionPointerType() &&
-        T.getAddressSpace() == LangAS::wasm_funcref)) {
+        T.getAddressSpace() == LangAS::wasm_funcref) &&
+      // Tenstorrent rvtt_l1_ptr/rvtt_reg_ptr are benign logical pointer qualifiers.
+      !isRvttAddressSpace(T.getAddressSpace())) {
     Diag(NameLoc, diag::err_arg_with_address_space);
     New->setInvalidDecl();
   }
@@ -19165,8 +19171,10 @@ FieldDecl *Sema::CheckFieldDecl(DeclarationName Name, QualType T,
     }
   }
 
-  // TR 18037 does not allow fields to be declared with address space
-  if (T.hasAddressSpace() || T->isDependentAddressSpaceType() ||
+  // TR 18037 does not allow fields to be declared with address space, except for
+  // the benign Tenstorrent rvtt_l1_ptr/rvtt_reg_ptr pointer qualifiers.
+  if ((T.hasAddressSpace() && !isRvttAddressSpace(T.getAddressSpace())) ||
+      T->isDependentAddressSpaceType() ||
       T->getBaseElementTypeUnsafe()->isDependentAddressSpaceType()) {
     Diag(Loc, diag::err_field_with_address_space);
     Record->setInvalidDecl();

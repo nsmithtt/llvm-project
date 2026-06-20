@@ -21,7 +21,7 @@
 namespace clang {
 namespace targets {
 
-static const unsigned WebAssemblyAddrSpaceMap[] = {
+static const LangASMap WebAssemblyAddrSpaceMap = {
     0,  // Default
     0,  // opencl_global
     0,  // opencl_local

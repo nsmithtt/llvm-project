@@ -2648,6 +2648,10 @@ std::string Qualifiers::getAddrSpaceAsString(LangAS AS) {
     return "__uptr __ptr32";
   case LangAS::ptr64:
     return "__ptr64";
+  case LangAS::rvtt_l1_ptr:
+    return "rvtt_l1_ptr";
+  case LangAS::rvtt_reg_ptr:
+    return "rvtt_reg_ptr";
   case LangAS::hlsl_groupshared:
     return "groupshared";
   case LangAS::hlsl_constant:

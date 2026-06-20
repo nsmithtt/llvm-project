@@ -29,7 +29,7 @@ namespace targets {
 // target processor and program binary. TCE co-design environment is
 // publicly available in http://tce.cs.tut.fi
 
-static const unsigned TCEOpenCLAddrSpaceMap[] = {
+static const LangASMap TCEOpenCLAddrSpaceMap = {
     0, // Default
     3, // opencl_global
     4, // opencl_local

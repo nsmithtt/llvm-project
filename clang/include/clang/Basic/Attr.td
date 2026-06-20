@@ -854,6 +854,20 @@ def AddressSpace : TypeAttr {
   let Documentation = [Undocumented];
 }
 
+// Tenstorrent Tensix logical pointer qualifiers, compatible with the sfpi GCC
+// fork's rvtt_l1_ptr / rvtt_reg_ptr type attributes. They apply a named address
+// space that mangles as the Itanium vendor qualifier U11rvtt_l1_ptr /
+// U12rvtt_reg_ptr (so clang objects link against fork-built objects) and lowers
+// to the default target address space.
+def RvttL1Ptr : TypeAttr {
+  let Spellings = [GNU<"rvtt_l1_ptr">];
+  let Documentation = [Undocumented];
+}
+def RvttRegPtr : TypeAttr {
+  let Spellings = [GNU<"rvtt_reg_ptr">];
+  let Documentation = [Undocumented];
+}
+
 def Alias : Attr {
   let Spellings = [GCC<"alias">];
   let Args = [StringArgument<"Aliasee">];

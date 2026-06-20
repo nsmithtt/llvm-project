@@ -67,6 +67,13 @@ enum class LangAS : unsigned {
   // Wasm specific address spaces.
   wasm_funcref,
 
+  // Tenstorrent Tensix (XTTensix) logical pointer qualifiers. These match the
+  // sfpi GCC fork's rvtt_l1_ptr / rvtt_reg_ptr type attributes: they affect C++
+  // mangling (as Itanium vendor qualifiers) but lower to the default target
+  // address space (normal pointers), so clang and the fork's objects link.
+  rvtt_l1_ptr,
+  rvtt_reg_ptr,
+
   // This denotes the count of language-specific address spaces and also
   // the offset added to the target-specific address spaces, which are usually
   // specified by address space attributes __attribute__(address_space(n))).
@@ -96,6 +103,13 @@ inline LangAS getLangASFromTargetAS(unsigned TargetAS) {
 inline bool isPtrSizeAddressSpace(LangAS AS) {
   return (AS == LangAS::ptr32_sptr || AS == LangAS::ptr32_uptr ||
           AS == LangAS::ptr64);
+}
+
+// Tenstorrent Tensix rvtt_l1_ptr / rvtt_reg_ptr are benign logical pointer
+// qualifiers (mangling only, lowering to the default address space), so they are
+// exempt from the address-space storage restrictions clang normally enforces.
+inline bool isRvttAddressSpace(LangAS AS) {
+  return (AS == LangAS::rvtt_l1_ptr || AS == LangAS::rvtt_reg_ptr);
 }
 
 } // namespace clang

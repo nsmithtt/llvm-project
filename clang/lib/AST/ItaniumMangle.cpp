@@ -2811,6 +2811,14 @@ void CXXNameMangler::mangleQualifiers(Qualifiers Quals, const DependentAddressSp
       case LangAS::ptr64:
         ASString = "ptr64";
         break;
+      // Tenstorrent Tensix logical pointer qualifiers (match the sfpi GCC fork:
+      // U11rvtt_l1_ptr / U12rvtt_reg_ptr).
+      case LangAS::rvtt_l1_ptr:
+        ASString = "rvtt_l1_ptr";
+        break;
+      case LangAS::rvtt_reg_ptr:
+        ASString = "rvtt_reg_ptr";
+        break;
       }
     }
     if (!ASString.empty())

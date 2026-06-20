@@ -6959,6 +6959,12 @@ CanQualType ASTContext::getCanonicalParamType(QualType T) const {
     Result = getPointerType(QualType(Ty, 0));
   } else {
     Result = QualType(Ty, 0);
+    // Tenstorrent: top-level qualifiers are dropped from parameter types, but the
+    // benign rvtt_l1_ptr/rvtt_reg_ptr pointer qualifiers must be kept so the
+    // mangled signature matches the sfpi GCC fork (which retains them).
+    LangAS AS = T.getAddressSpace();
+    if (isRvttAddressSpace(AS))
+      Result = getAddrSpaceQualType(Result, AS);
   }
 
   return CanQualType::CreateUnsafe(Result);
@@ -7959,7 +7965,14 @@ QualType ASTContext::getAdjustedParameterType(QualType T) const {
 QualType ASTContext::getSignatureParameterType(QualType T) const {
   T = getVariableArrayDecayedType(T);
   T = getAdjustedParameterType(T);
-  return T.getUnqualifiedType();
+  // Tenstorrent: keep the benign rvtt_l1_ptr/rvtt_reg_ptr pointer qualifier in the
+  // signature type (and thus the mangling) to match the sfpi GCC fork, which
+  // retains it; all other top-level qualifiers are dropped as usual.
+  LangAS AS = T.getAddressSpace();
+  QualType Unqual = T.getUnqualifiedType();
+  if (isRvttAddressSpace(AS))
+    return getAddrSpaceQualType(Unqual, AS);
+  return Unqual;
 }
 
 QualType ASTContext::getExceptionObjectType(QualType T) const {

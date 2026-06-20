@@ -1483,7 +1483,10 @@ CodeGenFunction::EmitAutoVarAlloca(const VarDecl &D) {
   QualType Ty = D.getType();
   assert(
       Ty.getAddressSpace() == LangAS::Default ||
-      (Ty.getAddressSpace() == LangAS::opencl_private && getLangOpts().OpenCL));
+      (Ty.getAddressSpace() == LangAS::opencl_private && getLangOpts().OpenCL) ||
+      // Tenstorrent rvtt_l1_ptr/rvtt_reg_ptr are benign logical pointer qualifiers
+      // that lower to the default address space; locals of such type are fine.
+      isRvttAddressSpace(Ty.getAddressSpace()));
 
   AutoVarEmission emission(D);
 

@@ -1851,6 +1851,17 @@ QualType Sema::BuildPointerType(QualType T,
     }
   }
 
+  // Tenstorrent Tensix: the rvtt_l1_ptr / rvtt_reg_ptr qualifiers, written as
+  // `T rvtt_l1_ptr *p`, bind to the pointer rather than the pointee (matching the
+  // sfpi GCC fork, which mangles e.g. `U11rvtt_l1_ptrPm`). clang otherwise applies
+  // the attribute to the pointee. Move such an address space from the pointee onto
+  // the pointer being formed so symbol names agree with the fork's objects.
+  LangAS PointeeAS = T.getAddressSpace();
+  if (PointeeAS == LangAS::rvtt_l1_ptr || PointeeAS == LangAS::rvtt_reg_ptr) {
+    T = Context.removeAddrSpaceQualType(T);
+    return Context.getAddrSpaceQualType(Context.getPointerType(T), PointeeAS);
+  }
+
   // Build the pointer type.
   return Context.getPointerType(T);
 }
@@ -6627,6 +6638,17 @@ static void HandleAddressSpaceTypeAttribute(QualType &Type,
       Type = T;
     else
       Attr.setInvalid();
+  } else if (Attr.getKind() == ParsedAttr::AT_RvttL1Ptr ||
+             Attr.getKind() == ParsedAttr::AT_RvttRegPtr) {
+    // Tenstorrent Tensix logical pointer qualifiers (sfpi GCC fork compatible).
+    ASIdx = Attr.getKind() == ParsedAttr::AT_RvttL1Ptr ? LangAS::rvtt_l1_ptr
+                                                       : LangAS::rvtt_reg_ptr;
+    if (DiagnoseMultipleAddrSpaceAttributes(S, Type.getAddressSpace(), ASIdx,
+                                            Attr.getLoc())) {
+      Attr.setInvalid();
+      return;
+    }
+    Type = S.Context.getAddrSpaceQualType(Type, ASIdx);
   } else {
     // The keyword-based type attributes imply which address space to use.
     ASIdx = S.getLangOpts().SYCLIsDevice ? Attr.asSYCLLangAS()
@@ -8921,6 +8943,8 @@ static void processTypeAttrs(TypeProcessingState &state, QualType &type,
     case ParsedAttr::AT_OpenCLConstantAddressSpace:
     case ParsedAttr::AT_OpenCLGenericAddressSpace:
     case ParsedAttr::AT_HLSLGroupSharedAddressSpace:
+    case ParsedAttr::AT_RvttL1Ptr:
+    case ParsedAttr::AT_RvttRegPtr:
     case ParsedAttr::AT_AddressSpace:
       HandleAddressSpaceTypeAttribute(type, attr, state);
       attr.setUsedAsTypeAttr();

@@ -24,7 +24,7 @@
 namespace clang {
 namespace targets {
 
-static const unsigned NVPTXAddrSpaceMap[] = {
+static const LangASMap NVPTXAddrSpaceMap = {
     0, // Default
     1, // opencl_global
     3, // opencl_local

@@ -25,7 +25,7 @@
 namespace clang {
 namespace targets {
 
-static const unsigned X86AddrSpaceMap[] = {
+static const LangASMap X86AddrSpaceMap = {
     0,   // Default
     0,   // opencl_global
     0,   // opencl_local

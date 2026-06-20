@@ -23,7 +23,7 @@ namespace targets {
 
 enum AArch64AddrSpace { ptr32_sptr = 270, ptr32_uptr = 271, ptr64 = 272 };
 
-static const unsigned ARM64AddrSpaceMap[] = {
+static const LangASMap ARM64AddrSpaceMap = {
     0, // Default
     0, // opencl_global
     0, // opencl_local

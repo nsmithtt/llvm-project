@@ -20,7 +20,7 @@
 namespace clang {
 namespace targets {
 
-static const unsigned DirectXAddrSpaceMap[] = {
+static const LangASMap DirectXAddrSpaceMap = {
     0, // Default
     1, // opencl_global
     3, // opencl_local

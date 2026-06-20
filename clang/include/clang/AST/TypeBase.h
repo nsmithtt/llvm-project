@@ -8352,7 +8352,16 @@ inline bool QualType::isCanonical() const {
 
 inline bool QualType::isCanonicalAsParam() const {
   if (!isCanonical()) return false;
-  if (hasLocalQualifiers()) return false;
+  if (hasLocalQualifiers()) {
+    // Tenstorrent: a lone rvtt_l1_ptr/rvtt_reg_ptr address space is a benign
+    // pointer qualifier kept in canonical parameter types so the mangling matches
+    // the sfpi GCC fork; permit it. Any other local qualifier is disallowed.
+    Qualifiers Q = getLocalQualifiers();
+    LangAS AS = Q.getAddressSpace();
+    Q.removeAddressSpace();
+    if (!(isRvttAddressSpace(AS) && Q.empty()))
+      return false;
+  }
 
   const Type *T = getTypePtr();
   if (T->isVariablyModifiedType() && T->hasSizedVLAType())

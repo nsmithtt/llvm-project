@@ -1798,7 +1798,10 @@ Sema::BuildFieldReferenceExpr(Expr *BaseExpr, bool IsArrow,
     Qualifiers MemberQuals =
         Context.getCanonicalType(MemberType).getQualifiers();
 
-    assert(!MemberQuals.hasAddressSpace());
+    // Fields normally cannot carry an address space, except the benign
+    // Tenstorrent rvtt_l1_ptr/rvtt_reg_ptr pointer qualifiers.
+    assert(!MemberQuals.hasAddressSpace() ||
+           isRvttAddressSpace(MemberQuals.getAddressSpace()));
 
     Qualifiers Combined = BaseQuals + MemberQuals;
     if (Combined != MemberQuals)

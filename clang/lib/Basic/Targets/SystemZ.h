@@ -21,7 +21,7 @@
 namespace clang {
 namespace targets {
 
-static const unsigned ZOSAddressMap[] = {
+static const LangASMap ZOSAddressMap = {
     0, // Default
     0, // opencl_global
     0, // opencl_local
