@@ -427,5 +427,10 @@ def int_riscv_rvtt_sfpxor : SFP2Addr<[llvm_v32i32_ty, llvm_v32i32_ty]>;
 def int_riscv_rvtt_sfpsetexp_v : SFP2AddrM<[llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 2>;
 def int_riscv_rvtt_sfpsetman_v : SFP2AddrM<[llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 2>;
 def int_riscv_rvtt_sfpsetsgn_v : SFP2AddrM<[llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 2>;
+// Integer add (vector) and shift (vector amount): same 2-address shape -- first
+// arg tied to dest, second is VC, plus a mode. (GCC's dead-result _nv form is a
+// register-pressure optimization not ported here.)
+def int_riscv_rvtt_sfpiadd_v : SFP2AddrM<[llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 2>;
+def int_riscv_rvtt_sfpshft_v : SFP2AddrM<[llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 2>;
 
 } // TargetPrefix = "riscv"

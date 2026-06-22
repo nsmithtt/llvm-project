@@ -13,6 +13,8 @@ declare <32 x i32> @llvm.riscv.rvtt.sfpxor(<32 x i32>, <32 x i32>)
 declare <32 x i32> @llvm.riscv.rvtt.sfpsetexp.v(<32 x i32>, <32 x i32>, i32 immarg)
 declare <32 x i32> @llvm.riscv.rvtt.sfpsetman.v(<32 x i32>, <32 x i32>, i32 immarg)
 declare <32 x i32> @llvm.riscv.rvtt.sfpsetsgn.v(<32 x i32>, <32 x i32>, i32 immarg)
+declare <32 x i32> @llvm.riscv.rvtt.sfpiadd.v(<32 x i32>, <32 x i32>, i32 immarg)
+declare <32 x i32> @llvm.riscv.rvtt.sfpshft.v(<32 x i32>, <32 x i32>, i32 immarg)
 declare void @llvm.riscv.rvtt.sfpstore(<32 x i32>, i32 immarg, i32 immarg, i32 immarg)
 
 ; and/or/xor: the first operand (%a) is tied to the dest, so the result lreg
@@ -45,5 +47,19 @@ define void @setfield() {
   %m = call <32 x i32> @llvm.riscv.rvtt.sfpsetman.v(<32 x i32> %e, <32 x i32> %f, i32 0)
   %s = call <32 x i32> @llvm.riscv.rvtt.sfpsetsgn.v(<32 x i32> %m, <32 x i32> %f, i32 0)
   call void @llvm.riscv.rvtt.sfpstore(<32 x i32> %s, i32 0, i32 0, i32 3)
+  ret void
+}
+
+; integer add (vector) and shift (vector amount): same 2-address tie, with mode.
+; CHECK-LABEL: iadd_shft:
+; CHECK:         tt.sfpiadd 4, [[A:lreg[0-9]+]], lreg{{[0-9]+}}, 0
+; CHECK:         tt.sfpshft 0, [[A]], lreg{{[0-9]+}}, 0
+; CHECK:         tt.sfpstore 0, 0, 3, [[A]]
+define void @iadd_shft() {
+  %a = call <32 x i32> @llvm.riscv.rvtt.sfploadi(i32 1, i32 0)
+  %b = call <32 x i32> @llvm.riscv.rvtt.sfploadi(i32 2, i32 0)
+  %s = call <32 x i32> @llvm.riscv.rvtt.sfpiadd.v(<32 x i32> %a, <32 x i32> %b, i32 4)
+  %t = call <32 x i32> @llvm.riscv.rvtt.sfpshft.v(<32 x i32> %s, <32 x i32> %b, i32 0)
+  call void @llvm.riscv.rvtt.sfpstore(<32 x i32> %t, i32 0, i32 0, i32 3)
   ret void
 }

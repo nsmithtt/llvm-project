@@ -2435,6 +2435,8 @@ def TT_SFPXOR_V : SFP2AddrLogicInst<0x8D, "tt.sfpxor">;
 def TT_SFPSETEXP_V : SFP2AddrSetInst<0x82, "tt.sfpsetexp">;
 def TT_SFPSETMAN_V : SFP2AddrSetInst<0x83, "tt.sfpsetman">;
 def TT_SFPSETSGN_V : SFP2AddrSetInst<0x89, "tt.sfpsetsgn">;
+def TT_SFPIADD_V   : SFP2AddrSetInst<0x79, "tt.sfpiadd">;
+def TT_SFPSHFT_V   : SFP2AddrSetInst<0x7A, "tt.sfpshft">;
 
 def : Pat<(int_riscv_rvtt_sfpand (v32i32 SFPLReg:$a), (v32i32 SFPLReg:$VC)),
           (TT_SFPAND_V SFPLReg:$a, SFPLReg:$VC)>;
@@ -2451,6 +2453,12 @@ def : Pat<(int_riscv_rvtt_sfpsetman_v (v32i32 SFPLReg:$value), (v32i32 SFPLReg:$
 def : Pat<(int_riscv_rvtt_sfpsetsgn_v (v32i32 SFPLReg:$value), (v32i32 SFPLReg:$VC),
                                       timm:$Mod1),
           (TT_SFPSETSGN_V SFPLReg:$value, SFPLReg:$VC, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpiadd_v (v32i32 SFPLReg:$a), (v32i32 SFPLReg:$VC),
+                                    timm:$Mod1),
+          (TT_SFPIADD_V SFPLReg:$a, SFPLReg:$VC, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpshft_v (v32i32 SFPLReg:$value), (v32i32 SFPLReg:$VC),
+                                    timm:$Mod1),
+          (TT_SFPSHFT_V SFPLReg:$value, SFPLReg:$VC, timm:$Mod1)>;
 } // Predicates, isCodeGenOnly
 
 //===----------------------------------------------------------------------===//
