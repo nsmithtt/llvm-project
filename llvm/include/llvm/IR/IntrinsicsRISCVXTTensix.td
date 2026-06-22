@@ -350,11 +350,19 @@ def int_riscv_rvtt_sfpassign_lv : DefaultAttrsIntrinsic<
     [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_v32i32_ty],
     [IntrReadMem, IntrInaccessibleMemOnly]>;
 
-// sfpstore(value, imm10, addrmod, mod0) — writes an L-register to L1/dest.
+// sfpstore(value, addr14, addrmod, mode) — writes an L-register to L1/dest at a
+// compile-time signed offset.
 def int_riscv_rvtt_sfpstore : Intrinsic<
     [], [llvm_v32i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_i32_ty],
     [IntrHasSideEffects, IntrWriteMem, IntrInaccessibleMemOnly,
      ImmArg<ArgIndex<1>>, ImmArg<ArgIndex<2>>, ImmArg<ArgIndex<3>>]>;
+
+// d = sfpload(addr14, addrmod, mode) — loads an L-register from L1/dest at a
+// compile-time signed offset. (Runtime-address form deferred; see §11.4.)
+def int_riscv_rvtt_sfpload : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty], [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty],
+    [IntrReadMem, IntrInaccessibleMemOnly,
+     ImmArg<ArgIndex<0>>, ImmArg<ArgIndex<1>>, ImmArg<ArgIndex<2>>]>;
 
 // --- Float arithmetic (m2). Each op has a base form (fresh dest) and an _lv
 // form whose first operand is the prior dest value, tied to the result so a

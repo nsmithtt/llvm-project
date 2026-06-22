@@ -33,6 +33,7 @@ def uimm18 : RISCVUImmOp<18>;
 
 // Signed immediate operand type for Tensix instruction fields.
 def simm12 : RISCVSImmOp<12>;
+def simm14 : RISCVSImmOp<14>;
 
 // Custom operand for 32-bit Tensix immediate.
 // The immediate must be < 0xC0000000 to ensure proper encoding.
@@ -2183,18 +2184,36 @@ def TT_SFPMOV_V : TTInst<0x7C, (outs SFPLReg:$VD),
   let isCodeGenOnly = 1;
 }
 
+// Compile-time-address store: src reg, 14-bit signed L1/dest offset, mode, and
+// 2-bit addr-mode. Field layout from docs/sfpu-encoding-reference.txt
+// (J20 src, J0 s14 addr, J16 mode, J14 u2). The runtime-address form (which
+// synthesizes the word and issues it via the FIFO) is deferred.
 def TT_SFPSTORE_V : TTInst<0x72, (outs),
-    (ins SFPLReg:$VD, uimm10:$Imm10, uimm2:$AddrMod, uimm4:$Mod0),
-    "tt.sfpstore", "$Imm10, $AddrMod, $Mod0, $VD"> {
-  bits<10> Imm10;
+    (ins SFPLReg:$VD, simm14:$Imm14, uimm2:$AddrMod, uimm4:$Mod0),
+    "tt.sfpstore", "$Imm14, $AddrMod, $Mod0, $VD"> {
+  bits<14> Imm14;
   bits<2> AddrMod;
   bits<4> Mod0;
   bits<4> VD;
-  let tt_opr{9-0} = Imm10;
+  let tt_opr{13-0} = Imm14;
   let tt_opr{15-14} = AddrMod;
   let tt_opr{19-16} = Mod0;
   let tt_opr{23-20} = VD;
   let isCodeGenOnly = 1;
+}
+// Matching compile-time-address load (opcode 0x70): produces a fresh dest.
+def TT_SFPLOAD_VV : TTInst<0x70, (outs SFPLReg:$VD),
+    (ins simm14:$Imm14, uimm2:$AddrMod, uimm4:$Mod0),
+    "tt.sfpload", "$Imm14, $AddrMod, $Mod0, $VD"> {
+  bits<14> Imm14;
+  bits<2> AddrMod;
+  bits<4> Mod0;
+  bits<4> VD;
+  let tt_opr{13-0} = Imm14;
+  let tt_opr{15-14} = AddrMod;
+  let tt_opr{19-16} = Mod0;
+  let tt_opr{23-20} = VD;
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
 }
 
 // Predicated move: same encoding as sfpmov, live value tied to the dest.
@@ -2216,9 +2235,11 @@ def : Pat<(int_riscv_rvtt_sfpmov (v32i32 SFPLReg:$VC), timm:$Mod1),
 def : Pat<(int_riscv_rvtt_sfpmov_lv (v32i32 SFPLReg:$live), (v32i32 SFPLReg:$VC),
                                     timm:$Mod1),
           (TT_SFPMOV_LV SFPLReg:$live, timm:$Mod1, SFPLReg:$VC)>;
-def : Pat<(int_riscv_rvtt_sfpstore (v32i32 SFPLReg:$VD), timm:$Imm10,
+def : Pat<(int_riscv_rvtt_sfpstore (v32i32 SFPLReg:$VD), timm:$Imm14,
                                    timm:$AddrMod, timm:$Mod0),
-          (TT_SFPSTORE_V SFPLReg:$VD, timm:$Imm10, timm:$AddrMod, timm:$Mod0)>;
+          (TT_SFPSTORE_V SFPLReg:$VD, timm:$Imm14, timm:$AddrMod, timm:$Mod0)>;
+def : Pat<(int_riscv_rvtt_sfpload timm:$Imm14, timm:$AddrMod, timm:$Mod0),
+          (TT_SFPLOAD_VV timm:$Imm14, timm:$AddrMod, timm:$Mod0)>;
 
 // --- Float arithmetic value ops (m2): mad / mul / add, each with an _LV form
 // whose live value is tied to the dest (predicated lane update). The _LV

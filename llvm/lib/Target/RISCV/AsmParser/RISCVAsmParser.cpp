@@ -825,6 +825,7 @@ public:
   bool isSImm10() const { return isSImm<10>(); }
   bool isSImm11() const { return isSImm<11>(); }
   bool isSImm12() const { return isSImm<12>(); }
+  bool isSImm14() const { return isSImm<14>(); }
   bool isSImm16() const { return isSImm<16>(); }
   bool isSImm26() const { return isSImm<26>(); }
 
