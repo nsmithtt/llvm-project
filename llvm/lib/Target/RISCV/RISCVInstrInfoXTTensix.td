@@ -2357,6 +2357,41 @@ def : Pat<(int_riscv_rvtt_sfpencc timm:$Mod1, timm:$Imm12),
 def : Pat<(int_riscv_rvtt_sfppushc timm:$Mod1), (TT_SFPPUSHC_V timm:$Mod1)>;
 def : Pat<(int_riscv_rvtt_sfppopc timm:$Mod1), (TT_SFPPOPC_V timm:$Mod1)>;
 def : Pat<(int_riscv_rvtt_sfpcompc), (TT_SFPCOMPC_V)>;
+
+// --- Unary value ops (m4): VD = op(VC, mod), same layout as sfpmov.
+class SFPUnaryVInst<bits<8> op, string mnem> : TTInst<op, (outs SFPLReg:$VD),
+    (ins SFPLReg:$VC, uimm4:$Mod1), mnem, "$Mod1, $VD, $VC"> {
+  bits<4> Mod1; bits<4> VD; bits<4> VC;
+  let tt_opr{3-0} = Mod1;
+  let tt_opr{7-4} = VD;
+  let tt_opr{11-8} = VC;
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+def TT_SFPABS_V   : SFPUnaryVInst<0x7D, "tt.sfpabs">;
+def TT_SFPLZ_V    : SFPUnaryVInst<0x81, "tt.sfplz">;
+def TT_SFPEXEXP_V : SFPUnaryVInst<0x77, "tt.sfpexexp">;
+def TT_SFPEXMAN_V : SFPUnaryVInst<0x78, "tt.sfpexman">;
+def TT_SFPCAST_V  : SFPUnaryVInst<0x90, "tt.sfpcast">;
+def TT_SFPNOT_V : TTInst<0x80, (outs SFPLReg:$VD), (ins SFPLReg:$VC),
+    "tt.sfpnot", "$VD, $VC"> {
+  bits<4> VD; bits<4> VC;
+  let tt_opr{7-4} = VD;
+  let tt_opr{11-8} = VC;
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+
+def : Pat<(int_riscv_rvtt_sfpabs (v32i32 SFPLReg:$VC), timm:$Mod1),
+          (TT_SFPABS_V SFPLReg:$VC, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfplz (v32i32 SFPLReg:$VC), timm:$Mod1),
+          (TT_SFPLZ_V SFPLReg:$VC, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpexexp (v32i32 SFPLReg:$VC), timm:$Mod1),
+          (TT_SFPEXEXP_V SFPLReg:$VC, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpexman (v32i32 SFPLReg:$VC), timm:$Mod1),
+          (TT_SFPEXMAN_V SFPLReg:$VC, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpcast (v32i32 SFPLReg:$VC), timm:$Mod1),
+          (TT_SFPCAST_V SFPLReg:$VC, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpnot (v32i32 SFPLReg:$VC)),
+          (TT_SFPNOT_V SFPLReg:$VC)>;
 } // Predicates, isCodeGenOnly
 
 //===----------------------------------------------------------------------===//

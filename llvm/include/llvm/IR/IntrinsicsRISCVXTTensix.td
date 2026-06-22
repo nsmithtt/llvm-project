@@ -385,4 +385,16 @@ def int_riscv_rvtt_sfppushc : SFPCCVoid<[llvm_i32_ty], [ImmArg<ArgIndex<0>>]>;
 def int_riscv_rvtt_sfppopc : SFPCCVoid<[llvm_i32_ty], [ImmArg<ArgIndex<0>>]>;
 def int_riscv_rvtt_sfpcompc : SFPCCVoid<[], []>;
 
+// --- Unary value ops (m4). VD = op(VC, mod); same operand layout as sfpmov.
+// sfpnot has no mode. (_lv variants follow m2's tied-live pattern and are added
+// alongside the live-value pass; see docs §11.)
+def int_riscv_rvtt_sfpabs   : SFPValue<[llvm_v32i32_ty, llvm_i32_ty], 1>;
+def int_riscv_rvtt_sfplz    : SFPValue<[llvm_v32i32_ty, llvm_i32_ty], 1>;
+def int_riscv_rvtt_sfpexexp : SFPValue<[llvm_v32i32_ty, llvm_i32_ty], 1>;
+def int_riscv_rvtt_sfpexman : SFPValue<[llvm_v32i32_ty, llvm_i32_ty], 1>;
+def int_riscv_rvtt_sfpcast  : SFPValue<[llvm_v32i32_ty, llvm_i32_ty], 1>;
+def int_riscv_rvtt_sfpnot   : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty], [llvm_v32i32_ty],
+    [IntrReadMem, IntrInaccessibleMemOnly]>;
+
 } // TargetPrefix = "riscv"
