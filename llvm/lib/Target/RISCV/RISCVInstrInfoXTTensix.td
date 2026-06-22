@@ -2498,6 +2498,38 @@ def TT_SFPSWAP_V : TTInst<0x92, (outs SFPLReg:$o0, SFPLReg:$o1),
 def : Pat<(int_riscv_rvtt_sfpswap (v32i32 SFPLReg:$a), (v32i32 SFPLReg:$b),
                                   timm:$Mod1),
           (TT_SFPSWAP_V SFPLReg:$a, SFPLReg:$b, timm:$Mod1)>;
+
+// --- Fixed-L-register ops (m5 tail). Inputs are pinned to specific L-regs via
+// single-register operand classes; the allocator inserts the copies. Only the
+// dest+mode (lut) or nothing (transp) is encoded.
+//
+// sfplut: dest = L3, reads L0/L1/L2/L3; the 4th input is tied to the dest.
+def TT_SFPLUT_V : TTInst<0x73, (outs SFPLReg3:$VD),
+    (ins SFPLReg0:$a, SFPLReg1:$b, SFPLReg2:$c, SFPLReg3:$d, uimm4:$Mod0),
+    "tt.sfplut", "$Mod0, $VD"> {
+  bits<4> Mod0; bits<4> VD;
+  let tt_opr{19-16} = Mod0;
+  let tt_opr{23-20} = VD;
+  let Constraints = "$d = $VD";
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+// sfptransp: in-place 4x4 transpose of L0..L3 (no encoded operands).
+def TT_SFPTRANSP_V : TTInst<0x8C,
+    (outs SFPLReg0:$o0, SFPLReg1:$o1, SFPLReg2:$o2, SFPLReg3:$o3),
+    (ins SFPLReg0:$a, SFPLReg1:$b, SFPLReg2:$c, SFPLReg3:$d),
+    "tt.sfptransp", ""> {
+  let Constraints = "$a = $o0, $b = $o1, $c = $o2, $d = $o3";
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+
+def : Pat<(int_riscv_rvtt_sfplut (v32i32 SFPLReg0:$a), (v32i32 SFPLReg1:$b),
+                                 (v32i32 SFPLReg2:$c), (v32i32 SFPLReg3:$d),
+                                 timm:$Mod0),
+          (TT_SFPLUT_V SFPLReg0:$a, SFPLReg1:$b, SFPLReg2:$c, SFPLReg3:$d,
+                       timm:$Mod0)>;
+def : Pat<(int_riscv_rvtt_sfptransp (v32i32 SFPLReg0:$a), (v32i32 SFPLReg1:$b),
+                                    (v32i32 SFPLReg2:$c), (v32i32 SFPLReg3:$d)),
+          (TT_SFPTRANSP_V SFPLReg0:$a, SFPLReg1:$b, SFPLReg2:$c, SFPLReg3:$d)>;
 } // Predicates, isCodeGenOnly
 
 //===----------------------------------------------------------------------===//

@@ -451,4 +451,18 @@ def int_riscv_rvtt_sfpswap : DefaultAttrsIntrinsic<
     [llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
     [IntrReadMem, IntrInaccessibleMemOnly, ImmArg<ArgIndex<2>>]>;
 
+// --- Fixed-L-register ops. Their vector inputs/outputs live in specific
+// L-registers (the instruction encodes no register operands, or only a dest):
+//   sfplut(a,b,c,d,mod): a->L0 b->L1 c->L2 d->L3(=dest); result in L3.
+//   sfptransp(a,b,c,d) -> {L0,L1,L2,L3}: in-place 4x4 transpose of L0..L3.
+// The single-L-register operand classes pin the args; the allocator copies.
+def int_riscv_rvtt_sfplut : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty],
+    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
+    [IntrReadMem, IntrInaccessibleMemOnly, ImmArg<ArgIndex<4>>]>;
+def int_riscv_rvtt_sfptransp : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty],
+    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty],
+    [IntrReadMem, IntrInaccessibleMemOnly]>;
+
 } // TargetPrefix = "riscv"

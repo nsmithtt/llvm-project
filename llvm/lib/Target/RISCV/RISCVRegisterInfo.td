@@ -918,3 +918,13 @@ foreach Index = 0-15 in
 
 let RegInfos = SFPLRegRI in
 def SFPLReg : RISCVRegisterClass<[v32i32], 1024, (sequence "LReg%u", 0, 15)>;
+
+// Single-L-register classes, used to pin an operand to a fixed L-register for
+// the ops whose inputs/outputs live in specific L-regs (sfplut, sfptransp);
+// the allocator inserts the copies. See docs/tensix-backend.md §11.
+let RegInfos = SFPLRegRI in {
+  def SFPLReg0 : RISCVRegisterClass<[v32i32], 1024, (add LReg0)>;
+  def SFPLReg1 : RISCVRegisterClass<[v32i32], 1024, (add LReg1)>;
+  def SFPLReg2 : RISCVRegisterClass<[v32i32], 1024, (add LReg2)>;
+  def SFPLReg3 : RISCVRegisterClass<[v32i32], 1024, (add LReg3)>;
+}
