@@ -57,6 +57,12 @@ static const MCPhysReg ArgVRs[] = {
     RISCV::V8,  RISCV::V9,  RISCV::V10, RISCV::V11, RISCV::V12, RISCV::V13,
     RISCV::V14, RISCV::V15, RISCV::V16, RISCV::V17, RISCV::V18, RISCV::V19,
     RISCV::V20, RISCV::V21, RISCV::V22, RISCV::V23};
+// Tenstorrent SFPU vectors (__xtt_vector == v32i32) are passed/returned in the
+// general-purpose L-registers L0..L7 (L8..L15 are constant/special). See
+// docs/tensix-backend.md §11.
+static const MCPhysReg ArgSFPLRegs[] = {
+    RISCV::LReg0, RISCV::LReg1, RISCV::LReg2, RISCV::LReg3,
+    RISCV::LReg4, RISCV::LReg5, RISCV::LReg6, RISCV::LReg7};
 static const MCPhysReg ArgVRM2s[] = {RISCV::V8M2,  RISCV::V10M2, RISCV::V12M2,
                                      RISCV::V14M2, RISCV::V16M2, RISCV::V18M2,
                                      RISCV::V20M2, RISCV::V22M2};
@@ -544,6 +550,19 @@ bool llvm::CC_RISCV(unsigned ValNo, MVT ValVT, MVT LocVT,
   MCRegister Reg;
   unsigned StoreSizeBytes = XLen / 8;
   Align StackAlign = Align(XLen / 8);
+
+  // Tenstorrent SFPU vector: pass/return in an L-register, else a 128-byte
+  // stack slot. Handled before the RVV path (its register class is SFPLReg,
+  // which allocateRVVReg does not recognize).
+  if (ValVT == MVT::v32i32) {
+    if (MCRegister R = State.AllocateReg(ArgSFPLRegs))
+      State.addLoc(CCValAssign::getReg(ValNo, ValVT, R, LocVT, LocInfo));
+    else {
+      int64_t Off = State.AllocateStack(ValVT.getStoreSize(), Align(128));
+      State.addLoc(CCValAssign::getMem(ValNo, ValVT, Off, LocVT, LocInfo));
+    }
+    return false;
+  }
 
   if (ValVT.isVector() || ValVT.isRISCVVectorTuple()) {
     Reg = allocateRVVReg(ValVT, ValNo, State, TLI);
