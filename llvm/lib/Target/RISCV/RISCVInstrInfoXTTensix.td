@@ -2480,6 +2480,24 @@ def : Pat<(int_riscv_rvtt_sfpiadd_v (v32i32 SFPLReg:$a), (v32i32 SFPLReg:$VC),
 def : Pat<(int_riscv_rvtt_sfpshft_v (v32i32 SFPLReg:$value), (v32i32 SFPLReg:$VC),
                                     timm:$Mod1),
           (TT_SFPSHFT_V SFPLReg:$value, SFPLReg:$VC, timm:$Mod1)>;
+
+// --- vector2 tuple op (m5 tail): sfpswap defines two L-registers at once, each
+// tied to its input (in-place). Selected from the 2-result intrinsic; the SFPI
+// select2 extraction is a plain extractvalue on the {v32i32,v32i32} result.
+def TT_SFPSWAP_V : TTInst<0x92, (outs SFPLReg:$o0, SFPLReg:$o1),
+    (ins SFPLReg:$a, SFPLReg:$b, uimm4:$Mod1),
+    "tt.sfpswap", "$Mod1, $o0, $o1"> {
+  bits<4> Mod1; bits<4> o0; bits<4> o1;
+  let tt_opr{3-0} = Mod1;
+  let tt_opr{7-4} = o0;
+  let tt_opr{11-8} = o1;
+  let Constraints = "$a = $o0, $b = $o1";
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+
+def : Pat<(int_riscv_rvtt_sfpswap (v32i32 SFPLReg:$a), (v32i32 SFPLReg:$b),
+                                  timm:$Mod1),
+          (TT_SFPSWAP_V SFPLReg:$a, SFPLReg:$b, timm:$Mod1)>;
 } // Predicates, isCodeGenOnly
 
 //===----------------------------------------------------------------------===//

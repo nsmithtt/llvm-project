@@ -441,4 +441,14 @@ def int_riscv_rvtt_sfpsetsgn_v : SFP2AddrM<[llvm_v32i32_ty, llvm_v32i32_ty, llvm
 def int_riscv_rvtt_sfpiadd_v : SFP2AddrM<[llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 2>;
 def int_riscv_rvtt_sfpshft_v : SFP2AddrM<[llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 2>;
 
+// sfpswap(a, b, mod) -> {a', b'} : an in-place 2-register min/max/swap. Returns
+// both updated L-registers (SFPI's __xtt_vector2 tuple, consumed via select2 =
+// extractvalue). Both outputs are tied to their inputs. The __xtt_vector4
+// tuple op sfptransp encodes no register operands (it runs on fixed L0..L3) and
+// is grouped with the fixed-register lut ops; see §11.4.
+def int_riscv_rvtt_sfpswap : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty, llvm_v32i32_ty],
+    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
+    [IntrReadMem, IntrInaccessibleMemOnly, ImmArg<ArgIndex<2>>]>;
+
 } // TargetPrefix = "riscv"
