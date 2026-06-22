@@ -2197,10 +2197,25 @@ def TT_SFPSTORE_V : TTInst<0x72, (outs),
   let isCodeGenOnly = 1;
 }
 
+// Predicated move: same encoding as sfpmov, live value tied to the dest.
+def TT_SFPMOV_LV : TTInst<0x7C, (outs SFPLReg:$VD),
+    (ins SFPLReg:$live, uimm4:$Mod1, SFPLReg:$VC),
+    "tt.sfpmov", "$Mod1, $VD, $VC"> {
+  bits<4> Mod1; bits<4> VD; bits<4> VC;
+  let tt_opr{3-0} = Mod1;
+  let tt_opr{7-4} = VD;
+  let tt_opr{11-8} = VC;
+  let Constraints = "$live = $VD";
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+
 def : Pat<(int_riscv_rvtt_sfploadi timm:$Imm16, timm:$Mod0),
           (TT_SFPLOADI_V timm:$Imm16, timm:$Mod0)>;
 def : Pat<(int_riscv_rvtt_sfpmov (v32i32 SFPLReg:$VC), timm:$Mod1),
           (TT_SFPMOV_V timm:$Mod1, SFPLReg:$VC)>;
+def : Pat<(int_riscv_rvtt_sfpmov_lv (v32i32 SFPLReg:$live), (v32i32 SFPLReg:$VC),
+                                    timm:$Mod1),
+          (TT_SFPMOV_LV SFPLReg:$live, timm:$Mod1, SFPLReg:$VC)>;
 def : Pat<(int_riscv_rvtt_sfpstore (v32i32 SFPLReg:$VD), timm:$Imm10,
                                    timm:$AddrMod, timm:$Mod0),
           (TT_SFPSTORE_V SFPLReg:$VD, timm:$Imm10, timm:$AddrMod, timm:$Mod0)>;

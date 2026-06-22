@@ -336,6 +336,19 @@ def int_riscv_rvtt_sfploadi : DefaultAttrsIntrinsic<
 def int_riscv_rvtt_sfpmov : DefaultAttrsIntrinsic<
     [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_i32_ty],
     [IntrReadMem, IntrInaccessibleMemOnly, ImmArg<ArgIndex<1>>]>;
+// d = sfpmov_lv(live, src, mod) — predicated copy; disabled lanes keep live.
+// Also the catch-all the live-value pass folds a leftover sfpassign_lv into.
+def int_riscv_rvtt_sfpmov_lv : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
+    [IntrReadMem, IntrInaccessibleMemOnly, ImmArg<ArgIndex<2>>]>;
+
+// sfpassign_lv(live, computed) — predication merge marker emitted at a vector
+// reassignment: result is `computed` in CC-enabled lanes, `live` in disabled
+// ones. The live-value pass (RISCVRVTTLive) folds it into the producer's _lv
+// form, or into sfpmov_lv as a catch-all. See docs/tensix-backend.md §11.
+def int_riscv_rvtt_sfpassign_lv : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_v32i32_ty],
+    [IntrReadMem, IntrInaccessibleMemOnly]>;
 
 // sfpstore(value, imm10, addrmod, mod0) — writes an L-register to L1/dest.
 def int_riscv_rvtt_sfpstore : Intrinsic<
