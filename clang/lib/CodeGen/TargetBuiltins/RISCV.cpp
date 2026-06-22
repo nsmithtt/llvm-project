@@ -1535,6 +1535,38 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   TT_BUILTIN(rmwcib3)
 #undef TT_BUILTIN
 
+  // SFPU value-semantics builtins (__builtin_rvtt_sfp*) -> int_riscv_rvtt_sfp*.
+  // 1:1 mapping; the generic emit below issues the intrinsic call with Ops.
+#define RVTT_BUILTIN(name)                                                     \
+  case RISCV::BI__builtin_rvtt_##name:                                         \
+    ID = Intrinsic::riscv_rvtt_##name;                                         \
+    break;
+  RVTT_BUILTIN(sfpmov)
+  RVTT_BUILTIN(sfpmad)
+  RVTT_BUILTIN(sfpmul)
+  RVTT_BUILTIN(sfpadd)
+  RVTT_BUILTIN(sfpabs)
+  RVTT_BUILTIN(sfplz)
+  RVTT_BUILTIN(sfpexexp)
+  RVTT_BUILTIN(sfpexman)
+  RVTT_BUILTIN(sfpcast)
+  RVTT_BUILTIN(sfpnot)
+  RVTT_BUILTIN(sfpand)
+  RVTT_BUILTIN(sfpor)
+  RVTT_BUILTIN(sfpxor)
+  RVTT_BUILTIN(sfpsetexp_v)
+  RVTT_BUILTIN(sfpsetman_v)
+  RVTT_BUILTIN(sfpsetsgn_v)
+  RVTT_BUILTIN(sfpiadd_v)
+  RVTT_BUILTIN(sfpshft_v)
+  RVTT_BUILTIN(sfpsetcc_i)
+  RVTT_BUILTIN(sfpsetcc_v)
+  RVTT_BUILTIN(sfpencc)
+  RVTT_BUILTIN(sfppushc)
+  RVTT_BUILTIN(sfppopc)
+  RVTT_BUILTIN(sfpcompc)
+#undef RVTT_BUILTIN
+
     // Vector builtins are handled from here.
 #include "clang/Basic/riscv_vector_builtin_cg.inc"
 

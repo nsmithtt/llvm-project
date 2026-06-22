@@ -271,3 +271,45 @@ def rmwcib0 : TTB3;
 def rmwcib1 : TTB3;
 def rmwcib2 : TTB3;
 def rmwcib3 : TTB3;
+
+//===----------------------------------------------------------------------===//
+// SFPU value-semantics builtins (__builtin_rvtt_sfp*) — docs/tensix-backend.md
+// §11. SFPI's actual builtin names, over the 32-lane __xtt_vector (== V32Ui).
+// Mode/immediate operands are integer constant expressions (I). They map 1:1 to
+// the int_riscv_rvtt_sfp* value intrinsics. The ptr-bearing load/store/loadi
+// family and the __xtt_vector2/4 tuple ops (swap/lut/transp) are not here yet —
+// they need per-op argument massaging / tuple return types.
+//===----------------------------------------------------------------------===//
+class RVTTBuiltin<string name, string proto> : TargetBuiltin {
+  let Spellings = ["__builtin_rvtt_" # name];
+  let Prototype = proto;
+  let Features = "experimental-xttensixwh,32bit";
+}
+
+// __xtt_vector is _Vector<32, unsigned int>; mode operands are ICE (_Constant).
+def rvtt_sfpmov : RVTTBuiltin<"sfpmov", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpmad : RVTTBuiltin<"sfpmad", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpmul : RVTTBuiltin<"sfpmul", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpadd : RVTTBuiltin<"sfpadd", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpabs : RVTTBuiltin<"sfpabs", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfplz : RVTTBuiltin<"sfplz", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpexexp : RVTTBuiltin<"sfpexexp", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpexman : RVTTBuiltin<"sfpexman", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpcast : RVTTBuiltin<"sfpcast", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpnot : RVTTBuiltin<"sfpnot", "_Vector<32, unsigned int>(_Vector<32, unsigned int>)">;
+def rvtt_sfpand : RVTTBuiltin<"sfpand", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>)">;
+def rvtt_sfpor : RVTTBuiltin<"sfpor", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>)">;
+def rvtt_sfpxor : RVTTBuiltin<"sfpxor", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>)">;
+def rvtt_sfpsetexp_v : RVTTBuiltin<"sfpsetexp_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpsetman_v : RVTTBuiltin<"sfpsetman_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpsetsgn_v : RVTTBuiltin<"sfpsetsgn_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpiadd_v : RVTTBuiltin<"sfpiadd_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpshft_v : RVTTBuiltin<"sfpshft_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
+
+// CC (lane-enable) stack control — void.
+def rvtt_sfpsetcc_i : RVTTBuiltin<"sfpsetcc_i", "void(_Constant unsigned int, _Constant unsigned int)">;
+def rvtt_sfpsetcc_v : RVTTBuiltin<"sfpsetcc_v", "void(_Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpencc : RVTTBuiltin<"sfpencc", "void(_Constant unsigned int, _Constant unsigned int)">;
+def rvtt_sfppushc : RVTTBuiltin<"sfppushc", "void(_Constant unsigned int)">;
+def rvtt_sfppopc : RVTTBuiltin<"sfppopc", "void(_Constant unsigned int)">;
+def rvtt_sfpcompc : RVTTBuiltin<"sfpcompc", "void()">;
