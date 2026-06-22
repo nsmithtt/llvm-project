@@ -335,4 +335,30 @@ def int_riscv_rvtt_sfpstore : Intrinsic<
     [IntrHasSideEffects, IntrWriteMem, IntrInaccessibleMemOnly,
      ImmArg<ArgIndex<1>>, ImmArg<ArgIndex<2>>, ImmArg<ArgIndex<3>>]>;
 
+// --- Float arithmetic (m2). Each op has a base form (fresh dest) and an _lv
+// form whose first operand is the prior dest value, tied to the result so a
+// CC-disabled lane keeps it (predicated update). SFPU datapath: mad = a*b+c;
+// mul = a*b (the +c term reads const Lreg9 == 0); add = a+b (the *a term reads
+// const Lreg10 == 1.0). Mode operands stay ImmArg.
+def int_riscv_rvtt_sfpmad : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty],
+    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
+    [IntrNoMem, ImmArg<ArgIndex<3>>]>;
+def int_riscv_rvtt_sfpmad_lv : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty],
+    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
+    [IntrNoMem, ImmArg<ArgIndex<4>>]>;
+def int_riscv_rvtt_sfpmul : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
+    [IntrNoMem, ImmArg<ArgIndex<2>>]>;
+def int_riscv_rvtt_sfpmul_lv : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
+    [IntrNoMem, ImmArg<ArgIndex<3>>]>;
+def int_riscv_rvtt_sfpadd : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
+    [IntrNoMem, ImmArg<ArgIndex<2>>]>;
+def int_riscv_rvtt_sfpadd_lv : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
+    [IntrNoMem, ImmArg<ArgIndex<3>>]>;
+
 } // TargetPrefix = "riscv"
