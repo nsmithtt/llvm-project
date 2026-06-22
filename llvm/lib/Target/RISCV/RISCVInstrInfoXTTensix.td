@@ -2142,6 +2142,69 @@ let Predicates = [HasVendorXTTensixWH, IsRV32] in {
 } // Predicates
 
 //===----------------------------------------------------------------------===//
+// SFPU value-semantics instructions (docs/tensix-backend.md §11)
+//
+// Same encodings as the instruction-level TT_SFP* forms above, but the Lreg
+// fields are SFPLReg register operands the allocator fills in, and the ops
+// carry SSA values (v32i32). isCodeGenOnly so they do not collide with the
+// immediate-form asm syntax; selected from the int_riscv_rvtt_sfp* value
+// intrinsics. This is the foundation slice (mov + store) of the SFPU value
+// path; arithmetic/predication/loads follow.
+//===----------------------------------------------------------------------===//
+let Predicates = [HasVendorXTTensixWH, IsRV32] in {
+
+def TT_SFPLOADI_V : TTInst<0x71, (outs SFPLReg:$VD),
+    (ins uimm16:$Imm16, uimm4:$Mod0),
+    "tt.sfploadi", "$Imm16, $Mod0, $VD"> {
+  bits<16> Imm16;
+  bits<4> Mod0;
+  bits<4> VD;
+  let tt_opr{15-0} = Imm16;
+  let tt_opr{19-16} = Mod0;
+  let tt_opr{23-20} = VD;
+  let hasSideEffects = 0;
+  let mayStore = 0;
+  let isCodeGenOnly = 1;
+}
+
+def TT_SFPMOV_V : TTInst<0x7C, (outs SFPLReg:$VD),
+    (ins uimm4:$Mod1, SFPLReg:$VC),
+    "tt.sfpmov", "$Mod1, $VD, $VC"> {
+  bits<4> Mod1;
+  bits<4> VD;
+  bits<4> VC;
+  let tt_opr{3-0} = Mod1;
+  let tt_opr{7-4} = VD;
+  let tt_opr{11-8} = VC;
+  let hasSideEffects = 0;
+  let mayStore = 0;
+  let isCodeGenOnly = 1;
+}
+
+def TT_SFPSTORE_V : TTInst<0x72, (outs),
+    (ins SFPLReg:$VD, uimm10:$Imm10, uimm2:$AddrMod, uimm4:$Mod0),
+    "tt.sfpstore", "$Imm10, $AddrMod, $Mod0, $VD"> {
+  bits<10> Imm10;
+  bits<2> AddrMod;
+  bits<4> Mod0;
+  bits<4> VD;
+  let tt_opr{9-0} = Imm10;
+  let tt_opr{15-14} = AddrMod;
+  let tt_opr{19-16} = Mod0;
+  let tt_opr{23-20} = VD;
+  let isCodeGenOnly = 1;
+}
+
+def : Pat<(int_riscv_rvtt_sfploadi timm:$Imm16, timm:$Mod0),
+          (TT_SFPLOADI_V timm:$Imm16, timm:$Mod0)>;
+def : Pat<(int_riscv_rvtt_sfpmov (v32i32 SFPLReg:$VC), timm:$Mod1),
+          (TT_SFPMOV_V timm:$Mod1, SFPLReg:$VC)>;
+def : Pat<(int_riscv_rvtt_sfpstore (v32i32 SFPLReg:$VD), timm:$Imm10,
+                                   timm:$AddrMod, timm:$Mod0),
+          (TT_SFPSTORE_V SFPLReg:$VD, timm:$Imm10, timm:$AddrMod, timm:$Mod0)>;
+} // Predicates, isCodeGenOnly
+
+//===----------------------------------------------------------------------===//
 // Blackhole-only instructions
 //
 // Gated on HasVendorXTTensixBH so they are rejected on the common/Wormhole

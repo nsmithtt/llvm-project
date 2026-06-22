@@ -155,6 +155,11 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
       addRegisterClass(MVT::f64, &RISCV::GPRPairRegClass);
   }
 
+  // Tenstorrent SFPU vector unit: __xtt_vector (v32i32) lives in an L-register.
+  // See docs/tensix-backend.md §11.
+  if (Subtarget.hasVendorXTTensixWH() || Subtarget.hasVendorXTTensixBH())
+    addRegisterClass(MVT::v32i32, &RISCV::SFPLRegRegClass);
+
   static const MVT::SimpleValueType BoolVecVTs[] = {
       MVT::nxv1i1,  MVT::nxv2i1,  MVT::nxv4i1, MVT::nxv8i1,
       MVT::nxv16i1, MVT::nxv32i1, MVT::nxv64i1};
@@ -298,6 +303,18 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
       addRegisterClass(MVT::v2i16, &RISCV::GPRRegClass);
       addRegisterClass(MVT::v4i8, &RISCV::GPRRegClass);
     }
+  }
+
+  // Tenstorrent SFPU: v32i32 is an opaque L-register type. Values flow through
+  // the SFPI __builtin_rvtt_sfp* intrinsics and copies; the generic vector
+  // building/shuffling paths do not apply. Expand them so the legalizer does
+  // not attempt to scalarize. See docs/tensix-backend.md §11.
+  if (Subtarget.hasVendorXTTensixWH() || Subtarget.hasVendorXTTensixBH()) {
+    for (unsigned Opc :
+         {ISD::BUILD_VECTOR, ISD::SCALAR_TO_VECTOR, ISD::VECTOR_SHUFFLE,
+          ISD::CONCAT_VECTORS, ISD::EXTRACT_SUBVECTOR, ISD::INSERT_SUBVECTOR,
+          ISD::EXTRACT_VECTOR_ELT, ISD::INSERT_VECTOR_ELT})
+      setOperationAction(Opc, MVT::v32i32, Expand);
   }
 
   // Compute derived properties from the register classes.

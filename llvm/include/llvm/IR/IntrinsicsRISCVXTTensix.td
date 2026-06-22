@@ -310,4 +310,29 @@ def int_riscv_tt_rmwcib1 : TTI3;
 def int_riscv_tt_rmwcib2 : TTI3;
 def int_riscv_tt_rmwcib3 : TTI3;
 
+//===----------------------------------------------------------------------===//
+// SFPU value-semantics intrinsics (docs/tensix-backend.md §11)
+//===----------------------------------------------------------------------===//
+// These back SFPI's __builtin_rvtt_sfp* over the 32-lane __xtt_vector (v32i32 =
+// one SFPU L-register). Unlike the instruction-level int_riscv_tt_sfp* forms
+// above (which take Lreg *indices* as immediates and are issued for side
+// effect), these produce/consume v32i32 SSA values; the register allocator
+// assigns the physical L-registers. Mode/immediate operands stay ImmArg.
+
+// d = sfploadi(imm16, mod0). Loads an immediate into a fresh L-register.
+def int_riscv_rvtt_sfploadi : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty], [llvm_i32_ty, llvm_i32_ty],
+    [IntrNoMem, ImmArg<ArgIndex<0>>, ImmArg<ArgIndex<1>>]>;
+
+// d = sfpmov(src, mod). Pure value transform.
+def int_riscv_rvtt_sfpmov : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_i32_ty],
+    [IntrNoMem, ImmArg<ArgIndex<1>>]>;
+
+// sfpstore(value, imm10, addrmod, mod0) — writes an L-register to L1/dest.
+def int_riscv_rvtt_sfpstore : Intrinsic<
+    [], [llvm_v32i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_i32_ty],
+    [IntrHasSideEffects, IntrWriteMem, IntrInaccessibleMemOnly,
+     ImmArg<ArgIndex<1>>, ImmArg<ArgIndex<2>>, ImmArg<ArgIndex<3>>]>;
+
 } // TargetPrefix = "riscv"
