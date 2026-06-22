@@ -318,16 +318,24 @@ def int_riscv_tt_rmwcib3 : TTI3;
 // above (which take Lreg *indices* as immediates and are issued for side
 // effect), these produce/consume v32i32 SSA values; the register allocator
 // assigns the physical L-registers. Mode/immediate operands stay ImmArg.
+//
+// Ordering: every SFPU lane op respects the implicit CC (lane-enable) stack, so
+// a value op may not be hoisted out of the CC region that gates it. We model
+// the CC stack as an abstract inaccessible-memory location: value ops *read* it
+// (IntrReadMem|IntrInaccessibleMemOnly) and the CC-control ops *write* it. That
+// orders value ops across CC writes while still allowing a dead value op to be
+// DCE'd. See docs/tensix-backend.md §11.
 
-// d = sfploadi(imm16, mod0). Loads an immediate into a fresh L-register.
+// d = sfploadi(imm16, mod0). Loads an immediate into the enabled lanes.
 def int_riscv_rvtt_sfploadi : DefaultAttrsIntrinsic<
     [llvm_v32i32_ty], [llvm_i32_ty, llvm_i32_ty],
-    [IntrNoMem, ImmArg<ArgIndex<0>>, ImmArg<ArgIndex<1>>]>;
+    [IntrReadMem, IntrInaccessibleMemOnly,
+     ImmArg<ArgIndex<0>>, ImmArg<ArgIndex<1>>]>;
 
-// d = sfpmov(src, mod). Pure value transform.
+// d = sfpmov(src, mod).
 def int_riscv_rvtt_sfpmov : DefaultAttrsIntrinsic<
     [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_i32_ty],
-    [IntrNoMem, ImmArg<ArgIndex<1>>]>;
+    [IntrReadMem, IntrInaccessibleMemOnly, ImmArg<ArgIndex<1>>]>;
 
 // sfpstore(value, imm10, addrmod, mod0) — writes an L-register to L1/dest.
 def int_riscv_rvtt_sfpstore : Intrinsic<
@@ -340,25 +348,41 @@ def int_riscv_rvtt_sfpstore : Intrinsic<
 // CC-disabled lane keeps it (predicated update). SFPU datapath: mad = a*b+c;
 // mul = a*b (the +c term reads const Lreg9 == 0); add = a+b (the *a term reads
 // const Lreg10 == 1.0). Mode operands stay ImmArg.
-def int_riscv_rvtt_sfpmad : DefaultAttrsIntrinsic<
-    [llvm_v32i32_ty],
-    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
-    [IntrNoMem, ImmArg<ArgIndex<3>>]>;
-def int_riscv_rvtt_sfpmad_lv : DefaultAttrsIntrinsic<
-    [llvm_v32i32_ty],
-    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
-    [IntrNoMem, ImmArg<ArgIndex<4>>]>;
-def int_riscv_rvtt_sfpmul : DefaultAttrsIntrinsic<
-    [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
-    [IntrNoMem, ImmArg<ArgIndex<2>>]>;
-def int_riscv_rvtt_sfpmul_lv : DefaultAttrsIntrinsic<
-    [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
-    [IntrNoMem, ImmArg<ArgIndex<3>>]>;
-def int_riscv_rvtt_sfpadd : DefaultAttrsIntrinsic<
-    [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
-    [IntrNoMem, ImmArg<ArgIndex<2>>]>;
-def int_riscv_rvtt_sfpadd_lv : DefaultAttrsIntrinsic<
-    [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty],
-    [IntrNoMem, ImmArg<ArgIndex<3>>]>;
+class SFPValue<list<LLVMType> args, int immidx>
+    : DefaultAttrsIntrinsic<[llvm_v32i32_ty], args,
+        [IntrReadMem, IntrInaccessibleMemOnly, ImmArg<ArgIndex<immidx>>]>;
+
+def int_riscv_rvtt_sfpmad : SFPValue<
+    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 3>;
+def int_riscv_rvtt_sfpmad_lv : SFPValue<
+    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 4>;
+def int_riscv_rvtt_sfpmul : SFPValue<
+    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 2>;
+def int_riscv_rvtt_sfpmul_lv : SFPValue<
+    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 3>;
+def int_riscv_rvtt_sfpadd : SFPValue<
+    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 2>;
+def int_riscv_rvtt_sfpadd_lv : SFPValue<
+    [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 3>;
+
+// --- CC (lane-enable) stack control (m3). These write the abstract CC state,
+// so they are barriers that order the value ops above. setcc_v reads a vector
+// to derive lane predicates; the rest are immediate-only. The abstract SFPI
+// "x"-condition system (sfpxicmp*/sfpxbool/sfpxcond*) that GCC lowers to these
+// via dedicated passes is a separate front/middle-end piece, not yet ported.
+class SFPCCVoid<list<LLVMType> args, list<IntrinsicProperty> imm>
+    : Intrinsic<[], args,
+        !listconcat([IntrHasSideEffects, IntrWriteMem, IntrInaccessibleMemOnly],
+                    imm)>;
+
+def int_riscv_rvtt_sfpsetcc_i : SFPCCVoid<[llvm_i32_ty, llvm_i32_ty],
+    [ImmArg<ArgIndex<0>>, ImmArg<ArgIndex<1>>]>;
+def int_riscv_rvtt_sfpsetcc_v : SFPCCVoid<[llvm_v32i32_ty, llvm_i32_ty],
+    [ImmArg<ArgIndex<1>>]>;
+def int_riscv_rvtt_sfpencc : SFPCCVoid<[llvm_i32_ty, llvm_i32_ty],
+    [ImmArg<ArgIndex<0>>, ImmArg<ArgIndex<1>>]>;
+def int_riscv_rvtt_sfppushc : SFPCCVoid<[llvm_i32_ty], [ImmArg<ArgIndex<0>>]>;
+def int_riscv_rvtt_sfppopc : SFPCCVoid<[llvm_i32_ty], [ImmArg<ArgIndex<0>>]>;
+def int_riscv_rvtt_sfpcompc : SFPCCVoid<[], []>;
 
 } // TargetPrefix = "riscv"

@@ -2164,6 +2164,7 @@ def TT_SFPLOADI_V : TTInst<0x71, (outs SFPLReg:$VD),
   let tt_opr{23-20} = VD;
   let hasSideEffects = 0;
   let mayStore = 0;
+  let mayLoad = 1;
   let isCodeGenOnly = 1;
 }
 
@@ -2178,6 +2179,7 @@ def TT_SFPMOV_V : TTInst<0x7C, (outs SFPLReg:$VD),
   let tt_opr{11-8} = VC;
   let hasSideEffects = 0;
   let mayStore = 0;
+  let mayLoad = 1;
   let isCodeGenOnly = 1;
 }
 
@@ -2217,7 +2219,7 @@ def TT_SFPMAD_V : TTInst<0x84, (outs SFPLReg:$VD),
   let tt_opr{11-8} = VC;
   let tt_opr{15-12} = VB;
   let tt_opr{19-16} = VA;
-  let hasSideEffects = 0; let mayStore = 0; let isCodeGenOnly = 1;
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
 }
 def TT_SFPMAD_LV : TTInst<0x84, (outs SFPLReg:$VD),
     (ins SFPLReg:$live, SFPLReg:$VA, SFPLReg:$VB, SFPLReg:$VC, uimm4:$Mod1),
@@ -2229,7 +2231,7 @@ def TT_SFPMAD_LV : TTInst<0x84, (outs SFPLReg:$VD),
   let tt_opr{15-12} = VB;
   let tt_opr{19-16} = VA;
   let Constraints = "$live = $VD";
-  let hasSideEffects = 0; let mayStore = 0; let isCodeGenOnly = 1;
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
 }
 
 def TT_SFPMUL_V : TTInst<0x86, (outs SFPLReg:$VD),
@@ -2241,7 +2243,7 @@ def TT_SFPMUL_V : TTInst<0x86, (outs SFPLReg:$VD),
   let tt_opr{11-8} = 9;     // const Lreg9 (== 0): mul = a*b + 0
   let tt_opr{15-12} = VB;
   let tt_opr{19-16} = VA;
-  let hasSideEffects = 0; let mayStore = 0; let isCodeGenOnly = 1;
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
 }
 def TT_SFPMUL_LV : TTInst<0x86, (outs SFPLReg:$VD),
     (ins SFPLReg:$live, SFPLReg:$VA, SFPLReg:$VB, uimm4:$Mod1),
@@ -2253,7 +2255,7 @@ def TT_SFPMUL_LV : TTInst<0x86, (outs SFPLReg:$VD),
   let tt_opr{15-12} = VB;
   let tt_opr{19-16} = VA;
   let Constraints = "$live = $VD";
-  let hasSideEffects = 0; let mayStore = 0; let isCodeGenOnly = 1;
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
 }
 
 def TT_SFPADD_V : TTInst<0x85, (outs SFPLReg:$VD),
@@ -2265,7 +2267,7 @@ def TT_SFPADD_V : TTInst<0x85, (outs SFPLReg:$VD),
   let tt_opr{11-8} = VC;
   let tt_opr{15-12} = VB;
   let tt_opr{19-16} = 10;    // const Lreg10 (== 1.0): add = 1.0*a + b
-  let hasSideEffects = 0; let mayStore = 0; let isCodeGenOnly = 1;
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
 }
 def TT_SFPADD_LV : TTInst<0x85, (outs SFPLReg:$VD),
     (ins SFPLReg:$live, SFPLReg:$VB, SFPLReg:$VC, uimm4:$Mod1),
@@ -2277,7 +2279,7 @@ def TT_SFPADD_LV : TTInst<0x85, (outs SFPLReg:$VD),
   let tt_opr{15-12} = VB;
   let tt_opr{19-16} = 10;
   let Constraints = "$live = $VD";
-  let hasSideEffects = 0; let mayStore = 0; let isCodeGenOnly = 1;
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
 }
 
 def : Pat<(int_riscv_rvtt_sfpmad (v32i32 SFPLReg:$VA), (v32i32 SFPLReg:$VB),
@@ -2300,6 +2302,61 @@ def : Pat<(int_riscv_rvtt_sfpadd (v32i32 SFPLReg:$VB), (v32i32 SFPLReg:$VC),
 def : Pat<(int_riscv_rvtt_sfpadd_lv (v32i32 SFPLReg:$live), (v32i32 SFPLReg:$VB),
                                     (v32i32 SFPLReg:$VC), timm:$Mod1),
           (TT_SFPADD_LV SFPLReg:$live, SFPLReg:$VB, SFPLReg:$VC, timm:$Mod1)>;
+
+// --- CC (lane-enable) stack control (m3). Side-effecting barriers (TTInst
+// defaults: hasSideEffects, mayStore) that fence the value ops above. Encodings
+// from docs/sfpu-encoding-reference.txt. setcc_i fixes the Lreg field to L0;
+// setcc_v reads a vector into it.
+def TT_SFPSETCC_I_V : TTInst<0x7B, (outs),
+    (ins uimm4:$Mod1, uimm12:$Imm12),
+    "tt.sfpsetcc", "$Mod1, L0, $Imm12"> {
+  bits<4> Mod1; bits<12> Imm12;
+  let tt_opr{3-0} = Mod1;
+  let tt_opr{11-8} = 0;       // L0
+  let tt_opr{23-12} = Imm12;
+  let isCodeGenOnly = 1;
+}
+def TT_SFPSETCC_VV : TTInst<0x7B, (outs),
+    (ins SFPLReg:$VC, uimm4:$Mod1),
+    "tt.sfpsetcc", "$Mod1, $VC"> {
+  bits<4> Mod1; bits<4> VC;
+  let tt_opr{3-0} = Mod1;
+  let tt_opr{11-8} = VC;
+  let isCodeGenOnly = 1;
+}
+def TT_SFPENCC_V : TTInst<0x8A, (outs),
+    (ins uimm4:$Mod1, uimm12:$Imm12),
+    "tt.sfpencc", "$Mod1, $Imm12"> {
+  bits<4> Mod1; bits<12> Imm12;
+  let tt_opr{3-0} = Mod1;
+  let tt_opr{23-12} = Imm12;
+  let isCodeGenOnly = 1;
+}
+def TT_SFPPUSHC_V : TTInst<0x87, (outs), (ins uimm4:$Mod1),
+    "tt.sfppushc", "$Mod1"> {
+  bits<4> Mod1;
+  let tt_opr{3-0} = Mod1;
+  let isCodeGenOnly = 1;
+}
+def TT_SFPPOPC_V : TTInst<0x88, (outs), (ins uimm4:$Mod1),
+    "tt.sfppopc", "$Mod1"> {
+  bits<4> Mod1;
+  let tt_opr{3-0} = Mod1;
+  let isCodeGenOnly = 1;
+}
+def TT_SFPCOMPC_V : TTInst<0x8B, (outs), (ins), "tt.sfpcompc", ""> {
+  let isCodeGenOnly = 1;
+}
+
+def : Pat<(int_riscv_rvtt_sfpsetcc_i timm:$Mod1, timm:$Imm12),
+          (TT_SFPSETCC_I_V timm:$Mod1, timm:$Imm12)>;
+def : Pat<(int_riscv_rvtt_sfpsetcc_v (v32i32 SFPLReg:$VC), timm:$Mod1),
+          (TT_SFPSETCC_VV SFPLReg:$VC, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpencc timm:$Mod1, timm:$Imm12),
+          (TT_SFPENCC_V timm:$Mod1, timm:$Imm12)>;
+def : Pat<(int_riscv_rvtt_sfppushc timm:$Mod1), (TT_SFPPUSHC_V timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfppopc timm:$Mod1), (TT_SFPPOPC_V timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpcompc), (TT_SFPCOMPC_V)>;
 } // Predicates, isCodeGenOnly
 
 //===----------------------------------------------------------------------===//
