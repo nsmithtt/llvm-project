@@ -901,3 +901,20 @@ let RegInfos = XLenRI in {
   def TRM2 : RISCVRegisterClass<[untyped], 32, (add (decimate TR, 2))>;
   def TRM4 : RISCVRegisterClass<[untyped], 32, (add (decimate TR, 4))>;
 }
+
+//===----------------------------------------------------------------------===//
+// XTTensix SFPU vector unit (Tenstorrent) — L-registers
+//===----------------------------------------------------------------------===//
+// The SFPU is a 32-lane SIMD unit; each L-register holds a v32i32 (32 x i32,
+// 1024 bits = 128 bytes). LReg0..7 are general-purpose; LReg8..15 hold
+// constants/specials on Wormhole/Blackhole. SFPI's __builtin_rvtt_sfp* value
+// ops produce and consume these registers; the allocator assigns them. See
+// docs/tensix-backend.md §11.
+def SFPLRegRI : RegInfoByHwMode<[RV32,                  RV64],
+                                [RegInfo<1024,1024,1024>, RegInfo<1024,1024,1024>]>;
+
+foreach Index = 0-15 in
+  def LReg#Index : RISCVReg<Index, "lreg"#Index, []>;
+
+let RegInfos = SFPLRegRI in
+def SFPLReg : RISCVRegisterClass<[v32i32], 1024, (sequence "LReg%u", 0, 15)>;
