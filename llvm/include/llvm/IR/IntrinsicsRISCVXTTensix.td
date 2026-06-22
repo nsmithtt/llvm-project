@@ -410,4 +410,22 @@ def int_riscv_rvtt_sfpnot   : DefaultAttrsIntrinsic<
     [llvm_v32i32_ty], [llvm_v32i32_ty],
     [IntrReadMem, IntrInaccessibleMemOnly]>;
 
+// --- 2-address value ops. The SFPU instruction modifies its destination in
+// place, so the first vector operand is both an input and the (tied) result;
+// disabled CC lanes naturally keep it. Logical ops (and/or/xor) take no mode;
+// the set-field ops take a mode and write a zero immediate field.
+class SFP2Addr<list<LLVMType> args>
+    : DefaultAttrsIntrinsic<[llvm_v32i32_ty], args,
+        [IntrReadMem, IntrInaccessibleMemOnly]>;
+class SFP2AddrM<list<LLVMType> args, int immidx>
+    : DefaultAttrsIntrinsic<[llvm_v32i32_ty], args,
+        [IntrReadMem, IntrInaccessibleMemOnly, ImmArg<ArgIndex<immidx>>]>;
+
+def int_riscv_rvtt_sfpand : SFP2Addr<[llvm_v32i32_ty, llvm_v32i32_ty]>;
+def int_riscv_rvtt_sfpor  : SFP2Addr<[llvm_v32i32_ty, llvm_v32i32_ty]>;
+def int_riscv_rvtt_sfpxor : SFP2Addr<[llvm_v32i32_ty, llvm_v32i32_ty]>;
+def int_riscv_rvtt_sfpsetexp_v : SFP2AddrM<[llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 2>;
+def int_riscv_rvtt_sfpsetman_v : SFP2AddrM<[llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 2>;
+def int_riscv_rvtt_sfpsetsgn_v : SFP2AddrM<[llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 2>;
+
 } // TargetPrefix = "riscv"

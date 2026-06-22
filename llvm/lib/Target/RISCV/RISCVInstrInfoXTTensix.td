@@ -2407,6 +2407,50 @@ def : Pat<(int_riscv_rvtt_sfpcast (v32i32 SFPLReg:$VC), timm:$Mod1),
           (TT_SFPCAST_V SFPLReg:$VC, timm:$Mod1)>;
 def : Pat<(int_riscv_rvtt_sfpnot (v32i32 SFPLReg:$VC)),
           (TT_SFPNOT_V SFPLReg:$VC)>;
+
+// --- 2-address value ops (m5 tail): the destination is modified in place, so
+// the first vector operand is tied to the result. Logical ops have no mode;
+// set-field ops take a mode and a zero immediate field (the _v vector form).
+class SFP2AddrLogicInst<bits<8> op, string mnem> : TTInst<op, (outs SFPLReg:$VD),
+    (ins SFPLReg:$a, SFPLReg:$VC), mnem, "$VD, $VC"> {
+  bits<4> VD; bits<4> VC;
+  let tt_opr{7-4} = VD;
+  let tt_opr{11-8} = VC;
+  let Constraints = "$a = $VD";
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+class SFP2AddrSetInst<bits<8> op, string mnem> : TTInst<op, (outs SFPLReg:$VD),
+    (ins SFPLReg:$value, SFPLReg:$VC, uimm4:$Mod1), mnem, "$Mod1, $VD, $VC, 0"> {
+  bits<4> Mod1; bits<4> VD; bits<4> VC;
+  let tt_opr{3-0} = Mod1;
+  let tt_opr{7-4} = VD;
+  let tt_opr{11-8} = VC;
+  // imm12 field (tt_opr{23-12}) is 0 for the _v (vector field) form.
+  let Constraints = "$value = $VD";
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+def TT_SFPAND_V : SFP2AddrLogicInst<0x7E, "tt.sfpand">;
+def TT_SFPOR_V  : SFP2AddrLogicInst<0x7F, "tt.sfpor">;
+def TT_SFPXOR_V : SFP2AddrLogicInst<0x8D, "tt.sfpxor">;
+def TT_SFPSETEXP_V : SFP2AddrSetInst<0x82, "tt.sfpsetexp">;
+def TT_SFPSETMAN_V : SFP2AddrSetInst<0x83, "tt.sfpsetman">;
+def TT_SFPSETSGN_V : SFP2AddrSetInst<0x89, "tt.sfpsetsgn">;
+
+def : Pat<(int_riscv_rvtt_sfpand (v32i32 SFPLReg:$a), (v32i32 SFPLReg:$VC)),
+          (TT_SFPAND_V SFPLReg:$a, SFPLReg:$VC)>;
+def : Pat<(int_riscv_rvtt_sfpor (v32i32 SFPLReg:$a), (v32i32 SFPLReg:$VC)),
+          (TT_SFPOR_V SFPLReg:$a, SFPLReg:$VC)>;
+def : Pat<(int_riscv_rvtt_sfpxor (v32i32 SFPLReg:$a), (v32i32 SFPLReg:$VC)),
+          (TT_SFPXOR_V SFPLReg:$a, SFPLReg:$VC)>;
+def : Pat<(int_riscv_rvtt_sfpsetexp_v (v32i32 SFPLReg:$value), (v32i32 SFPLReg:$VC),
+                                      timm:$Mod1),
+          (TT_SFPSETEXP_V SFPLReg:$value, SFPLReg:$VC, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpsetman_v (v32i32 SFPLReg:$value), (v32i32 SFPLReg:$VC),
+                                      timm:$Mod1),
+          (TT_SFPSETMAN_V SFPLReg:$value, SFPLReg:$VC, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpsetsgn_v (v32i32 SFPLReg:$value), (v32i32 SFPLReg:$VC),
+                                      timm:$Mod1),
+          (TT_SFPSETSGN_V SFPLReg:$value, SFPLReg:$VC, timm:$Mod1)>;
 } // Predicates, isCodeGenOnly
 
 //===----------------------------------------------------------------------===//
