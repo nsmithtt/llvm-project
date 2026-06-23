@@ -306,6 +306,17 @@ def rvtt_sfpsetsgn_v : RVTTBuiltin<"sfpsetsgn_v", "_Vector<32, unsigned int>(_Ve
 def rvtt_sfpiadd_v : RVTTBuiltin<"sfpiadd_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
 def rvtt_sfpshft_v : RVTTBuiltin<"sfpshft_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
 
+// Memory ops. SFPI's headers wrap these in macros that inject the instruction-
+// buffer pointer and the runtime-address placeholders, so the builtins carry the
+// full tensix_builtins.def signature: loadi(buf, imm, 0, 0, mod0),
+// load(buf, addr, 0, 0, mod0, mode), store(buf, src, addr, 0, 0, mod0, mode).
+// CodeGen drops the ptr/placeholders and reorders to the compile-time-address
+// intrinsics. (A runtime address would not be an ICE here — that path is the
+// deferred post-RA synthesis; see §11.4.)
+def rvtt_sfploadi : RVTTBuiltin<"sfploadi", "_Vector<32, unsigned int>(void volatile *, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def rvtt_sfpload : RVTTBuiltin<"sfpload", "_Vector<32, unsigned int>(void volatile *, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def rvtt_sfpstore : RVTTBuiltin<"sfpstore", "void(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+
 // CC (lane-enable) stack control — void.
 def rvtt_sfpsetcc_i : RVTTBuiltin<"sfpsetcc_i", "void(_Constant unsigned int, _Constant unsigned int)">;
 def rvtt_sfpsetcc_v : RVTTBuiltin<"sfpsetcc_v", "void(_Vector<32, unsigned int>, _Constant unsigned int)">;

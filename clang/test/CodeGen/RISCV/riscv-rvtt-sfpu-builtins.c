@@ -50,3 +50,17 @@ void predicated(__xtt_vector x) {
 __xtt_vector const_mode(__xtt_vector a) {
   return __builtin_rvtt_sfpmov(a, 7);
 }
+
+// Memory ops carry the full SFPI signature (instruction-buffer ptr + runtime-
+// address placeholders, as the SFPI macros produce). CodeGen drops the ptr and
+// the placeholders and reorders the two mode fields (J16<-mod0, J14<-mode).
+// CHECK-LABEL: @memops
+// CHECK: call <32 x i32> @llvm.riscv.rvtt.sfploadi(i32 1, i32 0)
+// CHECK: call <32 x i32> @llvm.riscv.rvtt.sfpload(i32 4, i32 0, i32 0)
+// CHECK: call void @llvm.riscv.rvtt.sfpstore(<32 x i32> %{{.*}}, i32 8, i32 3, i32 0)
+void memops(void volatile *buf) {
+  __xtt_vector v = __builtin_rvtt_sfploadi(buf, 1, 0, 0, 0);
+  __xtt_vector w = __builtin_rvtt_sfpload(buf, 4, 0, 0, 0, 0);
+  __xtt_vector m = __builtin_rvtt_sfpmov(w, 0);
+  __builtin_rvtt_sfpstore(buf, m, 8, 0, 0, 0, 3);
+}

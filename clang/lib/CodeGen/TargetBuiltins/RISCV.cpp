@@ -1567,6 +1567,24 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   RVTT_BUILTIN(sfpcompc)
 #undef RVTT_BUILTIN
 
+  // SFPU memory ops: drop the instruction-buffer ptr (Ops[0]) and the runtime
+  // placeholders, and reorder to the compile-time-address intrinsics. The two
+  // mode operands map to the J16 (mod0) and J14 (mode) instruction fields,
+  // i.e. the intrinsic's (Mod0, AddrMod) -- see docs/tensix-backend.md §11.
+  // loadi(buf, imm, 0, 0, mod0) -> sfploadi(imm, mod0)
+  case RISCV::BI__builtin_rvtt_sfploadi:
+    return Builder.CreateCall(
+        CGM.getIntrinsic(Intrinsic::riscv_rvtt_sfploadi), {Ops[1], Ops[4]});
+  // load(buf, addr, 0, 0, mod0, mode) -> sfpload(addr, AddrMod=mode, Mod0=mod0)
+  case RISCV::BI__builtin_rvtt_sfpload:
+    return Builder.CreateCall(CGM.getIntrinsic(Intrinsic::riscv_rvtt_sfpload),
+                              {Ops[1], Ops[5], Ops[4]});
+  // store(buf, src, addr, 0, 0, mod0, mode)
+  //   -> sfpstore(src, addr, AddrMod=mode, Mod0=mod0)
+  case RISCV::BI__builtin_rvtt_sfpstore:
+    return Builder.CreateCall(CGM.getIntrinsic(Intrinsic::riscv_rvtt_sfpstore),
+                              {Ops[1], Ops[2], Ops[6], Ops[5]});
+
     // Vector builtins are handled from here.
 #include "clang/Basic/riscv_vector_builtin_cg.inc"
 
