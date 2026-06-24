@@ -708,7 +708,19 @@ public:
   static bool isAddressSpaceSupersetOf(LangAS A, LangAS B,
                                        const ASTContext &Ctx) {
     // Address spaces must match exactly.
-    return A == B || isTargetAddressSpaceSupersetOf(A, B, Ctx);
+    if (A == B || isTargetAddressSpaceSupersetOf(A, B, Ctx))
+      return true;
+    // The Tenstorrent rvtt logical address spaces (rvtt_l1_ptr / rvtt_reg_ptr)
+    // lower to ordinary pointers, so they are mutually compatible and compatible
+    // with the default address space -- matching the sfpi GCC fork (e.g. binding
+    // a tt_reg_ptr reference to a plain array in ckernel.h, or passing a plain
+    // pointer where an rvtt-qualified one is expected).
+    if (isRvttAddressSpace(A) &&
+        (isRvttAddressSpace(B) || B == LangAS::Default))
+      return true;
+    if (A == LangAS::Default && isRvttAddressSpace(B))
+      return true;
+    return false;
   }
 
   static bool isTargetAddressSpaceSupersetOf(LangAS A, LangAS B,
