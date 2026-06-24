@@ -286,30 +286,39 @@ class RVTTBuiltin<string name, string proto> : TargetBuiltin {
   let Features = "experimental-xttensixwh,32bit";
 }
 
-// __xtt_vector is _Vector<32, unsigned int>; mode operands are ICE (_Constant).
-def rvtt_sfpmov : RVTTBuiltin<"sfpmov", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int)">;
-// Tied loadi (build a 32-bit constant from two 16-bit halves): (prev, imm, mod).
-def rvtt_sfploadi_lv : RVTTBuiltin<"sfploadi_lv", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int)">;
+// __xtt_vector is _Vector<32, unsigned int>. Mode/immediate operands are plain
+// `unsigned int` (NOT _Constant): the signatures must match SFPI's
+// tensix_builtins.def exactly so that #include'ing the stock sfpi headers does
+// not raise "conflicting types", and SFPI's inline vFloat/vInt methods pass
+// (compile-time-constant, but non-ICE-at-parse) function parameters to them.
+// Selection still requires a constant: the isel patterns match `timm`, so a
+// constant-folded argument is encoded and a genuinely-runtime one fails to
+// select (the deferred post-RA synthesis path; see docs/tensix-backend.md §11).
+def rvtt_sfpmov : RVTTBuiltin<"sfpmov", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, unsigned int)">;
+// Tied loadi (build a 32-bit constant from two 16-bit halves). Full SFPI
+// signature (instr-buffer ptr + placeholders); CodeGen drops the ptr/placeholders
+// and reorders to the intrinsic's (live, imm, mod).
+def rvtt_sfploadi_lv : RVTTBuiltin<"sfploadi_lv", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, unsigned int, unsigned int, unsigned int, unsigned int)">;
 // Predication merge marker (folded by the RISCVRVTTLive pass): result is the
 // 2nd arg in CC-enabled lanes, the 1st (live) arg in disabled ones.
 def rvtt_sfpassign_lv : RVTTBuiltin<"sfpassign_lv", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>)">;
-def rvtt_sfpmad : RVTTBuiltin<"sfpmad", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
-def rvtt_sfpmul : RVTTBuiltin<"sfpmul", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
-def rvtt_sfpadd : RVTTBuiltin<"sfpadd", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
-def rvtt_sfpabs : RVTTBuiltin<"sfpabs", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int)">;
-def rvtt_sfplz : RVTTBuiltin<"sfplz", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int)">;
-def rvtt_sfpexexp : RVTTBuiltin<"sfpexexp", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int)">;
-def rvtt_sfpexman : RVTTBuiltin<"sfpexman", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int)">;
-def rvtt_sfpcast : RVTTBuiltin<"sfpcast", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpmad : RVTTBuiltin<"sfpmad", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Vector<32, unsigned int>, unsigned int)">;
+def rvtt_sfpmul : RVTTBuiltin<"sfpmul", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, unsigned int)">;
+def rvtt_sfpadd : RVTTBuiltin<"sfpadd", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, unsigned int)">;
+def rvtt_sfpabs : RVTTBuiltin<"sfpabs", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, unsigned int)">;
+def rvtt_sfplz : RVTTBuiltin<"sfplz", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, unsigned int)">;
+def rvtt_sfpexexp : RVTTBuiltin<"sfpexexp", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, unsigned int)">;
+def rvtt_sfpexman : RVTTBuiltin<"sfpexman", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, unsigned int)">;
+def rvtt_sfpcast : RVTTBuiltin<"sfpcast", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, unsigned int)">;
 def rvtt_sfpnot : RVTTBuiltin<"sfpnot", "_Vector<32, unsigned int>(_Vector<32, unsigned int>)">;
 def rvtt_sfpand : RVTTBuiltin<"sfpand", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>)">;
 def rvtt_sfpor : RVTTBuiltin<"sfpor", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>)">;
 def rvtt_sfpxor : RVTTBuiltin<"sfpxor", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>)">;
-def rvtt_sfpsetexp_v : RVTTBuiltin<"sfpsetexp_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
-def rvtt_sfpsetman_v : RVTTBuiltin<"sfpsetman_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
-def rvtt_sfpsetsgn_v : RVTTBuiltin<"sfpsetsgn_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
-def rvtt_sfpiadd_v : RVTTBuiltin<"sfpiadd_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
-def rvtt_sfpshft_v : RVTTBuiltin<"sfpshft_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
+def rvtt_sfpsetexp_v : RVTTBuiltin<"sfpsetexp_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, unsigned int)">;
+def rvtt_sfpsetman_v : RVTTBuiltin<"sfpsetman_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, unsigned int)">;
+def rvtt_sfpsetsgn_v : RVTTBuiltin<"sfpsetsgn_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, unsigned int)">;
+def rvtt_sfpiadd_v : RVTTBuiltin<"sfpiadd_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, unsigned int)">;
+def rvtt_sfpshft_v : RVTTBuiltin<"sfpshft_v", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, unsigned int)">;
 
 // Memory ops. SFPI's headers wrap these in macros that inject the instruction-
 // buffer pointer and the runtime-address placeholders, so the builtins carry the
@@ -318,24 +327,24 @@ def rvtt_sfpshft_v : RVTTBuiltin<"sfpshft_v", "_Vector<32, unsigned int>(_Vector
 // CodeGen drops the ptr/placeholders and reorders to the compile-time-address
 // intrinsics. (A runtime address would not be an ICE here — that path is the
 // deferred post-RA synthesis; see §11.4.)
-def rvtt_sfploadi : RVTTBuiltin<"sfploadi", "_Vector<32, unsigned int>(void volatile *, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
-def rvtt_sfpload : RVTTBuiltin<"sfpload", "_Vector<32, unsigned int>(void volatile *, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
-def rvtt_sfpstore : RVTTBuiltin<"sfpstore", "void(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def rvtt_sfploadi : RVTTBuiltin<"sfploadi", "_Vector<32, unsigned int>(void volatile *, unsigned int, unsigned int, unsigned int, unsigned int)">;
+def rvtt_sfpload : RVTTBuiltin<"sfpload", "_Vector<32, unsigned int>(void volatile *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)">;
+def rvtt_sfpstore : RVTTBuiltin<"sfpstore", "void(void volatile *, _Vector<32, unsigned int>, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)">;
 
 // Immediate-operand value ops. Full SFPI signature (instr-buffer ptr +
 // placeholders); CodeGen drops the ptr and reorders to (vec, imm, mode).
-def rvtt_sfpiadd_i : RVTTBuiltin<"sfpiadd_i", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
-def rvtt_sfpsetexp_i : RVTTBuiltin<"sfpsetexp_i", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
-def rvtt_sfpsetman_i : RVTTBuiltin<"sfpsetman_i", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
-def rvtt_sfpsetsgn_i : RVTTBuiltin<"sfpsetsgn_i", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
-def rvtt_sfpmuli : RVTTBuiltin<"sfpmuli", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
-def rvtt_sfpaddi : RVTTBuiltin<"sfpaddi", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def rvtt_sfpiadd_i : RVTTBuiltin<"sfpiadd_i", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, unsigned int, unsigned int, unsigned int, unsigned int)">;
+def rvtt_sfpsetexp_i : RVTTBuiltin<"sfpsetexp_i", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, unsigned int, unsigned int, unsigned int, unsigned int)">;
+def rvtt_sfpsetman_i : RVTTBuiltin<"sfpsetman_i", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, unsigned int, unsigned int, unsigned int, unsigned int)">;
+def rvtt_sfpsetsgn_i : RVTTBuiltin<"sfpsetsgn_i", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, unsigned int, unsigned int, unsigned int, unsigned int)">;
+def rvtt_sfpmuli : RVTTBuiltin<"sfpmuli", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, unsigned int, unsigned int, unsigned int, unsigned int)">;
+def rvtt_sfpaddi : RVTTBuiltin<"sfpaddi", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, unsigned int, unsigned int, unsigned int, unsigned int)">;
 def rvtt_sfpnop : RVTTBuiltin<"sfpnop", "void()">;
 
 // CC (lane-enable) stack control — void.
-def rvtt_sfpsetcc_i : RVTTBuiltin<"sfpsetcc_i", "void(_Constant unsigned int, _Constant unsigned int)">;
-def rvtt_sfpsetcc_v : RVTTBuiltin<"sfpsetcc_v", "void(_Vector<32, unsigned int>, _Constant unsigned int)">;
-def rvtt_sfpencc : RVTTBuiltin<"sfpencc", "void(_Constant unsigned int, _Constant unsigned int)">;
-def rvtt_sfppushc : RVTTBuiltin<"sfppushc", "void(_Constant unsigned int)">;
-def rvtt_sfppopc : RVTTBuiltin<"sfppopc", "void(_Constant unsigned int)">;
+def rvtt_sfpsetcc_i : RVTTBuiltin<"sfpsetcc_i", "void(unsigned int, unsigned int)">;
+def rvtt_sfpsetcc_v : RVTTBuiltin<"sfpsetcc_v", "void(_Vector<32, unsigned int>, unsigned int)">;
+def rvtt_sfpencc : RVTTBuiltin<"sfpencc", "void(unsigned int, unsigned int)">;
+def rvtt_sfppushc : RVTTBuiltin<"sfppushc", "void(unsigned int)">;
+def rvtt_sfppopc : RVTTBuiltin<"sfppopc", "void(unsigned int)">;
 def rvtt_sfpcompc : RVTTBuiltin<"sfpcompc", "void()">;

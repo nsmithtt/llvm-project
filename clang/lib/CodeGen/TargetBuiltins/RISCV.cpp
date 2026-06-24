@@ -1542,7 +1542,6 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
     ID = Intrinsic::riscv_rvtt_##name;                                         \
     break;
   RVTT_BUILTIN(sfpmov)
-  RVTT_BUILTIN(sfploadi_lv)
   RVTT_BUILTIN(sfpassign_lv)
   RVTT_BUILTIN(sfpmad)
   RVTT_BUILTIN(sfpmul)
@@ -1592,6 +1591,11 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   case RISCV::BI__builtin_rvtt_sfploadi:
     return Builder.CreateCall(
         CGM.getIntrinsic(Intrinsic::riscv_rvtt_sfploadi), {Ops[1], Ops[4]});
+  // loadi_lv(buf, live, imm, 0, 0, mod0) -> sfploadi_lv(live, imm, mod0)
+  case RISCV::BI__builtin_rvtt_sfploadi_lv:
+    return Builder.CreateCall(
+        CGM.getIntrinsic(Intrinsic::riscv_rvtt_sfploadi_lv),
+        {Ops[1], Ops[2], Ops[5]});
   // load(buf, addr, 0, 0, mod0, mode) -> sfpload(addr, AddrMod=mode, Mod0=mod0)
   case RISCV::BI__builtin_rvtt_sfpload:
     return Builder.CreateCall(CGM.getIntrinsic(Intrinsic::riscv_rvtt_sfpload),

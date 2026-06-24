@@ -44,7 +44,10 @@ void predicated(__xtt_vector x) {
   __builtin_rvtt_sfppopc(0);
 }
 
-// The immediate (mode) operand must be a constant — exercises the ICE marker.
+// Mode/immediate operands are plain `unsigned int` (not _Constant): the builtin
+// signatures match SFPI's tensix_builtins.def so the stock sfpi headers parse.
+// A constant-folded operand is still encoded; selection (timm) is covered by the
+// llvm/test/CodeGen/RISCV/xttensix-sfpu-*.ll tests.
 // CHECK-LABEL: @const_mode
 // CHECK: call <32 x i32> @llvm.riscv.rvtt.sfpmov(<32 x i32> %{{.*}}, i32 7)
 __xtt_vector const_mode(__xtt_vector a) {
@@ -63,4 +66,12 @@ void memops(void volatile *buf) {
   __xtt_vector w = __builtin_rvtt_sfpload(buf, 4, 0, 0, 0, 0);
   __xtt_vector m = __builtin_rvtt_sfpmov(w, 0);
   __builtin_rvtt_sfpstore(buf, m, 8, 0, 0, 0, 3);
+}
+
+// sfploadi_lv carries the full SFPI signature (buf, live, imm, 0, 0, mod0);
+// CodeGen drops the ptr/placeholders -> sfploadi_lv(live, imm, mod0).
+// CHECK-LABEL: @loadi_lv
+// CHECK: call <32 x i32> @llvm.riscv.rvtt.sfploadi.lv(<32 x i32> %{{.*}}, i32 5, i32 2)
+__xtt_vector loadi_lv(void volatile *buf, __xtt_vector live) {
+  return __builtin_rvtt_sfploadi_lv(buf, live, 5, 0, 0, 2);
 }
