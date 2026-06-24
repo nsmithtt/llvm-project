@@ -135,7 +135,15 @@ def int_riscv_tt_insn_rt : Intrinsic<[], [llvm_i32_ty],
 def int_riscv_tt_nop        : TTI0;
 def int_riscv_tt_mop        : TTI3;
 def int_riscv_tt_mop_cfg    : TTI1;
-def int_riscv_tt_replay     : TTI4;
+// replay: no ImmArg. SFPI's lltt record/replay and dst_reg operators issue this
+// from inline functions whose immediate argument is a parameter; clang emits
+// those bodies standalone (pre-inline) where the arg is non-constant, so ImmArg
+// would fail the IR verifier ("immarg operand has non-immediate parameter").
+// Selection still requires a constant via the `timm` pattern below; after
+// always-inlining the constant folds in and the standalone copy is DCE'd.
+def int_riscv_tt_replay : Intrinsic<[],
+    [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_i32_ty],
+    [IntrHasSideEffects, IntrWriteMem, IntrInaccessibleMemOnly]>;
 
 // Matrix Unit (FPU)
 def int_riscv_tt_mvmul      : TTI5;
@@ -164,7 +172,14 @@ def int_riscv_tt_clrexphist : TTI0;
 def int_riscv_tt_gatesrcrst : TTI2;
 def int_riscv_tt_cleardvalid : TTI4;
 def int_riscv_tt_setrwc     : TTI13;
-def int_riscv_tt_incrwc     : TTI6;
+// incrwc: no ImmArg (see int_riscv_tt_replay). sfpi's dst_reg `operator+=(int)`
+// passes the increment as a parameter, so the standalone (pre-inline) body would
+// fail the immarg verifier; `timm` in the pattern still requires a constant at
+// selection, satisfied after inlining `dst_reg++`.
+def int_riscv_tt_incrwc : Intrinsic<[],
+    [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_i32_ty, llvm_i32_ty,
+     llvm_i32_ty],
+    [IntrHasSideEffects, IntrWriteMem, IntrInaccessibleMemOnly]>;
 
 // Packer/Unpacker
 def int_riscv_tt_xmov           : TTI0;

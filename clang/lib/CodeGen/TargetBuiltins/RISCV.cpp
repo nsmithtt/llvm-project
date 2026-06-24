@@ -1606,6 +1606,28 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
     return Builder.CreateCall(CGM.getIntrinsic(Intrinsic::riscv_rvtt_sfpstore),
                               {Ops[1], Ops[2], Ops[6], Ops[5]});
 
+  // ttreplay(buf, length, 0, 0, start, exec, record) -> tt.replay. The replay
+  // instruction operands are (Load=load_mode, Exec=exec, Count=len, Index=start)
+  // = (record, exec, length, start) = (Ops[6], Ops[5], Ops[1], Ops[4]).
+  case RISCV::BI__builtin_rvtt_ttreplay:
+    return Builder.CreateCall(CGM.getIntrinsic(Intrinsic::riscv_tt_replay),
+                              {Ops[6], Ops[5], Ops[1], Ops[4]});
+
+  // ttincrwc(rwc_cr, rwc_d, rwc_b, rwc_a) -> tt.incrwc. The instruction takes
+  // (SrcAInc, SrcBInc, DstInc, SrcACr, SrcBCr, DstCr); rwc_cr packs the carries
+  // (SrcACr=bit0, SrcBCr=bit1, DstCr=bit2). Operands are compile-time constants,
+  // so the bit extraction constant-folds.
+  case RISCV::BI__builtin_rvtt_ttincrwc: {
+    Value *Cr = Ops[0];
+    Value *One = llvm::ConstantInt::get(Cr->getType(), 1);
+    Value *SrcACr = Builder.CreateAnd(Cr, One);
+    Value *SrcBCr = Builder.CreateAnd(Builder.CreateLShr(Cr, 1), One);
+    Value *DstCr = Builder.CreateAnd(Builder.CreateLShr(Cr, 2), One);
+    return Builder.CreateCall(
+        CGM.getIntrinsic(Intrinsic::riscv_tt_incrwc),
+        {Ops[3], Ops[2], Ops[1], SrcACr, SrcBCr, DstCr});
+  }
+
     // Vector builtins are handled from here.
 #include "clang/Basic/riscv_vector_builtin_cg.inc"
 

@@ -348,3 +348,17 @@ def rvtt_sfpencc : RVTTBuiltin<"sfpencc", "void(unsigned int, unsigned int)">;
 def rvtt_sfppushc : RVTTBuiltin<"sfppushc", "void(unsigned int)">;
 def rvtt_sfppopc : RVTTBuiltin<"sfppopc", "void(unsigned int)">;
 def rvtt_sfpcompc : RVTTBuiltin<"sfpcompc", "void()">;
+
+// Replay-buffer control (lltt.h record/replay). SFPI's macro injects the
+// instruction-buffer ptr + placeholders:
+//   ttreplay(start, length, exec, record)
+//     -> __builtin_rvtt_ttreplay(buf, length, 0, 0, start, exec, record)
+// CodeGen drops the ptr/placeholders and maps to the tt.replay instruction via
+// int_riscv_tt_replay(Load=record, Exec=exec, Count=length, Index=start).
+def rvtt_ttreplay : RVTTBuiltin<"ttreplay", "void(void volatile *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)">;
+
+// Increment register-write counters (sfpi dst_reg advance). No instr-buffer ptr.
+//   __builtin_rvtt_ttincrwc(rwc_cr, rwc_d, rwc_b, rwc_a) -> tt.incrwc.
+// rwc_cr packs the three carry bits (SrcACr|SrcBCr<<1|DstCr<<2); CodeGen splits
+// them out to the instruction's (SrcAInc, SrcBInc, DstInc, SrcACr, SrcBCr, DstCr).
+def rvtt_ttincrwc : RVTTBuiltin<"ttincrwc", "void(int, int, int, int)">;

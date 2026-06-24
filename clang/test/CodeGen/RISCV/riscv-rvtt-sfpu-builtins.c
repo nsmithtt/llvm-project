@@ -75,3 +75,16 @@ void memops(void volatile *buf) {
 __xtt_vector loadi_lv(void volatile *buf, __xtt_vector live) {
   return __builtin_rvtt_sfploadi_lv(buf, live, 5, 0, 0, 2);
 }
+
+// Replay-buffer + register-write-counter control (lltt.h / sfpi dst_reg). These
+// drop the instr-buffer ptr/placeholders and map to the tt.replay / tt.incrwc
+// instructions. ttreplay(buf, len, 0, 0, start, exec, record) ->
+// tt.replay(record, exec, len, start); ttincrwc(cr, d, b, a) splits cr's carry
+// bits -> tt.incrwc(a, b, d, cr&1, cr>>1&1, cr>>2&1).
+// CHECK-LABEL: @replay_ctl
+// CHECK: call void @llvm.riscv.tt.replay(i32 1, i32 0, i32 16, i32 0)
+// CHECK: call void @llvm.riscv.tt.incrwc(i32 0, i32 0, i32 2, i32 0, i32 0, i32 0)
+void replay_ctl(void volatile *buf) {
+  __builtin_rvtt_ttreplay(buf, 16, 0, 0, 0, 0, 1);
+  __builtin_rvtt_ttincrwc(0, 2, 0, 0);
+}

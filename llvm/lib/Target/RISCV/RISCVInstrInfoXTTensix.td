@@ -1867,8 +1867,12 @@ let Predicates = [HasVendorXTTensixWH, IsRV32] in {
             (TT_MOP timm:$a, timm:$b, timm:$c)>;
   def : Pat<(int_riscv_tt_mop_cfg timm:$a),
             (TT_MOP_CFG timm:$a)>;
-  def : Pat<(int_riscv_tt_replay timm:$a, timm:$b, timm:$c, timm:$d),
-            (TT_REPLAY timm:$a, timm:$b, timm:$c, timm:$d)>;
+  // replay/incrwc carry no ImmArg (their SFPI callers pass parameters from inline
+  // bodies; see IntrinsicsRISCVXTTensix.td), so the operands arrive as ISD::Constant
+  // -> match with `imm`. Selection still requires a constant; runtime operands stay
+  // unselected (deferred synth).
+  def : Pat<(int_riscv_tt_replay imm:$a, imm:$b, imm:$c, imm:$d),
+            (TT_REPLAY imm:$a, imm:$b, imm:$c, imm:$d)>;
 
   // Matrix Unit (FPU)
   def : Pat<(int_riscv_tt_mvmul timm:$a, timm:$b, timm:$c, timm:$d, timm:$e),
@@ -1921,8 +1925,8 @@ let Predicates = [HasVendorXTTensixWH, IsRV32] in {
             (TT_SETRWC timm:$a, timm:$b, timm:$c, timm:$d,
              timm:$e, timm:$f, timm:$g, timm:$h, timm:$i, timm:$j,
              timm:$k, timm:$l, timm:$m)>;
-  def : Pat<(int_riscv_tt_incrwc timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f),
-            (TT_INCRWC timm:$a, timm:$b, timm:$c, timm:$d, timm:$e, timm:$f)>;
+  def : Pat<(int_riscv_tt_incrwc imm:$a, imm:$b, imm:$c, imm:$d, imm:$e, imm:$f),
+            (TT_INCRWC imm:$a, imm:$b, imm:$c, imm:$d, imm:$e, imm:$f)>;
 
   // Packer/Unpacker
   def : Pat<(int_riscv_tt_xmov), (TT_XMOV)>;
