@@ -288,6 +288,9 @@ class RVTTBuiltin<string name, string proto> : TargetBuiltin {
 
 // __xtt_vector is _Vector<32, unsigned int>; mode operands are ICE (_Constant).
 def rvtt_sfpmov : RVTTBuiltin<"sfpmov", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Constant unsigned int)">;
+// Predication merge marker (folded by the RISCVRVTTLive pass): result is the
+// 2nd arg in CC-enabled lanes, the 1st (live) arg in disabled ones.
+def rvtt_sfpassign_lv : RVTTBuiltin<"sfpassign_lv", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>)">;
 def rvtt_sfpmad : RVTTBuiltin<"sfpmad", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
 def rvtt_sfpmul : RVTTBuiltin<"sfpmul", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;
 def rvtt_sfpadd : RVTTBuiltin<"sfpadd", "_Vector<32, unsigned int>(_Vector<32, unsigned int>, _Vector<32, unsigned int>, _Constant unsigned int)">;

@@ -1542,6 +1542,7 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
     ID = Intrinsic::riscv_rvtt_##name;                                         \
     break;
   RVTT_BUILTIN(sfpmov)
+  RVTT_BUILTIN(sfpassign_lv)
   RVTT_BUILTIN(sfpmad)
   RVTT_BUILTIN(sfpmul)
   RVTT_BUILTIN(sfpadd)
