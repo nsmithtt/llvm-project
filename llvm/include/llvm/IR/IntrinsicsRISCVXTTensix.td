@@ -393,6 +393,25 @@ def int_riscv_rvtt_sfpadd : SFPValue<
 def int_riscv_rvtt_sfpadd_lv : SFPValue<
     [llvm_v32i32_ty, llvm_v32i32_ty, llvm_v32i32_ty, llvm_i32_ty], 3>;
 
+// --- Immediate-operand value ops (vec, imm, mode) -> vec. The compile-time
+// form; the mode carries the op's "immediate" select bit (the header supplies
+// it). iadd_i/setexp_i/setman_i/setsgn_i write a fresh dest (value in VC, imm in
+// the field); muli/addi are 2-address (value tied to dest, 16-bit imm).
+// Both the immediate value (arg 1) and the mode (arg 2) are encoded fields.
+class SFPImmV : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_i32_ty, llvm_i32_ty],
+    [IntrReadMem, IntrInaccessibleMemOnly, ImmArg<ArgIndex<1>>, ImmArg<ArgIndex<2>>]>;
+def int_riscv_rvtt_sfpiadd_i   : SFPImmV;
+def int_riscv_rvtt_sfpsetexp_i : SFPImmV;
+def int_riscv_rvtt_sfpsetman_i : SFPImmV;
+def int_riscv_rvtt_sfpsetsgn_i : SFPImmV;
+def int_riscv_rvtt_sfpmuli     : SFPImmV;
+def int_riscv_rvtt_sfpaddi     : SFPImmV;
+
+// sfpnop: a placed SFPU no-op (kept; ordered with the CC/value stream).
+def int_riscv_rvtt_sfpnop : Intrinsic<[], [],
+    [IntrHasSideEffects, IntrInaccessibleMemOnly]>;
+
 // --- CC (lane-enable) stack control (m3). These write the abstract CC state,
 // so they are barriers that order the value ops above. setcc_v reads a vector
 // to derive lane predicates; the rest are immediate-only. The abstract SFPI

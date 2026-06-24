@@ -1567,7 +1567,22 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
   RVTT_BUILTIN(sfppushc)
   RVTT_BUILTIN(sfppopc)
   RVTT_BUILTIN(sfpcompc)
+  RVTT_BUILTIN(sfpnop)
 #undef RVTT_BUILTIN
+
+  // Immediate-operand value ops: drop the instr-buffer ptr (Ops[0]) and the
+  // placeholders, reorder to (vec, imm, mode) = (Ops[1], Ops[2], Ops[5]).
+#define RVTT_IMM(name)                                                          \
+  case RISCV::BI__builtin_rvtt_##name:                                          \
+    return Builder.CreateCall(CGM.getIntrinsic(Intrinsic::riscv_rvtt_##name),   \
+                              {Ops[1], Ops[2], Ops[5]});
+  RVTT_IMM(sfpiadd_i)
+  RVTT_IMM(sfpsetexp_i)
+  RVTT_IMM(sfpsetman_i)
+  RVTT_IMM(sfpsetsgn_i)
+  RVTT_IMM(sfpmuli)
+  RVTT_IMM(sfpaddi)
+#undef RVTT_IMM
 
   // SFPU memory ops: drop the instruction-buffer ptr (Ops[0]) and the runtime
   // placeholders, and reorder to the compile-time-address intrinsics. The two

@@ -2551,6 +2551,66 @@ def : Pat<(int_riscv_rvtt_sfplut (v32i32 SFPLReg0:$a), (v32i32 SFPLReg1:$b),
 def : Pat<(int_riscv_rvtt_sfptransp (v32i32 SFPLReg0:$a), (v32i32 SFPLReg1:$b),
                                     (v32i32 SFPLReg2:$c), (v32i32 SFPLReg3:$d)),
           (TT_SFPTRANSP_V SFPLReg0:$a, SFPLReg1:$b, SFPLReg2:$c, SFPLReg3:$d)>;
+
+// --- Immediate-operand value ops. Fresh-dest forms (value in VC, imm in the
+// field): iadd_i/setexp_i/setman_i/setsgn_i. The mode carries the op's
+// immediate-select bit (supplied by the caller).
+def TT_SFPIADD_I_V : TTInst<0x79, (outs SFPLReg:$VD),
+    (ins SFPLReg:$VC, simm12:$Imm12, uimm4:$Mod1), "tt.sfpiadd", "$Mod1, $VD, $VC, $Imm12"> {
+  bits<4> Mod1; bits<4> VD; bits<4> VC; bits<12> Imm12;
+  let tt_opr{3-0} = Mod1; let tt_opr{7-4} = VD; let tt_opr{11-8} = VC; let tt_opr{23-12} = Imm12;
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+def TT_SFPSETEXP_I_V : TTInst<0x82, (outs SFPLReg:$VD),
+    (ins SFPLReg:$VC, uimm8:$Imm8, uimm4:$Mod1), "tt.sfpsetexp", "$Mod1, $VD, $VC, $Imm8"> {
+  bits<4> Mod1; bits<4> VD; bits<4> VC; bits<8> Imm8;
+  let tt_opr{3-0} = Mod1; let tt_opr{7-4} = VD; let tt_opr{11-8} = VC; let tt_opr{19-12} = Imm8;
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+def TT_SFPSETMAN_I_V : TTInst<0x83, (outs SFPLReg:$VD),
+    (ins SFPLReg:$VC, uimm12:$Imm12, uimm4:$Mod1), "tt.sfpsetman", "$Mod1, $VD, $VC, $Imm12"> {
+  bits<4> Mod1; bits<4> VD; bits<4> VC; bits<12> Imm12;
+  let tt_opr{3-0} = Mod1; let tt_opr{7-4} = VD; let tt_opr{11-8} = VC; let tt_opr{23-12} = Imm12;
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+def TT_SFPSETSGN_I_V : TTInst<0x89, (outs SFPLReg:$VD),
+    (ins SFPLReg:$VC, uimm1:$Imm1, uimm4:$Mod1), "tt.sfpsetsgn", "$Mod1, $VD, $VC, $Imm1"> {
+  bits<4> Mod1; bits<4> VD; bits<4> VC; bits<1> Imm1;
+  let tt_opr{3-0} = Mod1; let tt_opr{7-4} = VD; let tt_opr{11-8} = VC; let tt_opr{12} = Imm1;
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+// 2-address immediate ops: value tied to dest, 16-bit immediate.
+def TT_SFPMULI_V : TTInst<0x74, (outs SFPLReg:$VD),
+    (ins SFPLReg:$value, uimm16:$Imm16, uimm4:$Mod1), "tt.sfpmuli", "$Mod1, $VD, $Imm16"> {
+  bits<4> Mod1; bits<4> VD; bits<16> Imm16;
+  let tt_opr{3-0} = Mod1; let tt_opr{7-4} = VD; let tt_opr{23-8} = Imm16;
+  let Constraints = "$value = $VD";
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+def TT_SFPADDI_V : TTInst<0x75, (outs SFPLReg:$VD),
+    (ins SFPLReg:$value, uimm16:$Imm16, uimm4:$Mod1), "tt.sfpaddi", "$Mod1, $VD, $Imm16"> {
+  bits<4> Mod1; bits<4> VD; bits<16> Imm16;
+  let tt_opr{3-0} = Mod1; let tt_opr{7-4} = VD; let tt_opr{23-8} = Imm16;
+  let Constraints = "$value = $VD";
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+def TT_SFPNOP_V : TTInst<0x8F, (outs), (ins), "tt.sfpnop", ""> {
+  let mayLoad = 1; let isCodeGenOnly = 1;
+}
+
+def : Pat<(int_riscv_rvtt_sfpiadd_i (v32i32 SFPLReg:$VC), timm:$Imm, timm:$Mod1),
+          (TT_SFPIADD_I_V SFPLReg:$VC, timm:$Imm, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpsetexp_i (v32i32 SFPLReg:$VC), timm:$Imm, timm:$Mod1),
+          (TT_SFPSETEXP_I_V SFPLReg:$VC, timm:$Imm, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpsetman_i (v32i32 SFPLReg:$VC), timm:$Imm, timm:$Mod1),
+          (TT_SFPSETMAN_I_V SFPLReg:$VC, timm:$Imm, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpsetsgn_i (v32i32 SFPLReg:$VC), timm:$Imm, timm:$Mod1),
+          (TT_SFPSETSGN_I_V SFPLReg:$VC, timm:$Imm, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpmuli (v32i32 SFPLReg:$value), timm:$Imm, timm:$Mod1),
+          (TT_SFPMULI_V SFPLReg:$value, timm:$Imm, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpaddi (v32i32 SFPLReg:$value), timm:$Imm, timm:$Mod1),
+          (TT_SFPADDI_V SFPLReg:$value, timm:$Imm, timm:$Mod1)>;
+def : Pat<(int_riscv_rvtt_sfpnop), (TT_SFPNOP_V)>;
 } // Predicates, isCodeGenOnly
 
 //===----------------------------------------------------------------------===//

@@ -322,6 +322,16 @@ def rvtt_sfploadi : RVTTBuiltin<"sfploadi", "_Vector<32, unsigned int>(void vola
 def rvtt_sfpload : RVTTBuiltin<"sfpload", "_Vector<32, unsigned int>(void volatile *, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
 def rvtt_sfpstore : RVTTBuiltin<"sfpstore", "void(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
 
+// Immediate-operand value ops. Full SFPI signature (instr-buffer ptr +
+// placeholders); CodeGen drops the ptr and reorders to (vec, imm, mode).
+def rvtt_sfpiadd_i : RVTTBuiltin<"sfpiadd_i", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def rvtt_sfpsetexp_i : RVTTBuiltin<"sfpsetexp_i", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def rvtt_sfpsetman_i : RVTTBuiltin<"sfpsetman_i", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def rvtt_sfpsetsgn_i : RVTTBuiltin<"sfpsetsgn_i", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def rvtt_sfpmuli : RVTTBuiltin<"sfpmuli", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def rvtt_sfpaddi : RVTTBuiltin<"sfpaddi", "_Vector<32, unsigned int>(void volatile *, _Vector<32, unsigned int>, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int, _Constant unsigned int)">;
+def rvtt_sfpnop : RVTTBuiltin<"sfpnop", "void()">;
+
 // CC (lane-enable) stack control — void.
 def rvtt_sfpsetcc_i : RVTTBuiltin<"sfpsetcc_i", "void(_Constant unsigned int, _Constant unsigned int)">;
 def rvtt_sfpsetcc_v : RVTTBuiltin<"sfpsetcc_v", "void(_Vector<32, unsigned int>, _Constant unsigned int)">;
