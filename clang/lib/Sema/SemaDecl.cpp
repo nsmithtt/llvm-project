@@ -4167,7 +4167,14 @@ bool Sema::MergeFunctionDecl(FunctionDecl *New, NamedDecl *&OldD, Scope *S,
     // types again after this. Because this updates the type, we do this before
     // any of the other checks below, which may update the "de facto" NewQType
     // but do not necessarily update the type of New.
-    if (CheckEquivalentExceptionSpec(Old, New))
+    //
+    // GCC accepts redeclaring a builtin with an explicit exception
+    // specification (e.g. a header declaring `T __builtin_foo(...) noexcept`);
+    // the builtin's own spec is authoritative. Skip the equivalence check for
+    // builtins to stay compatible -- the SFPI tensix_builtins.def header relies
+    // on this. (Calling-convention mismatches on builtins are likewise relaxed
+    // below.)
+    if (!Old->getBuiltinID() && CheckEquivalentExceptionSpec(Old, New))
       return true;
 
     // C++11 [dcl.attr.noreturn]p1:
