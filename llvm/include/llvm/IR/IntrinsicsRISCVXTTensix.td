@@ -332,6 +332,13 @@ def int_riscv_rvtt_sfploadi : DefaultAttrsIntrinsic<
     [IntrReadMem, IntrInaccessibleMemOnly,
      ImmArg<ArgIndex<0>>, ImmArg<ArgIndex<1>>]>;
 
+// d = sfploadi_lv(prev, imm16, mod0): load a 16-bit immediate into part of an
+// L-register, preserving the rest (UPPER/LOWER half modes). Used to build a
+// 32-bit constant from two halves; the result is tied to `prev`.
+def int_riscv_rvtt_sfploadi_lv : DefaultAttrsIntrinsic<
+    [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_i32_ty, llvm_i32_ty],
+    [IntrReadMem, IntrInaccessibleMemOnly, ImmArg<ArgIndex<1>>, ImmArg<ArgIndex<2>>]>;
+
 // d = sfpmov(src, mod).
 def int_riscv_rvtt_sfpmov : DefaultAttrsIntrinsic<
     [llvm_v32i32_ty], [llvm_v32i32_ty, llvm_i32_ty],

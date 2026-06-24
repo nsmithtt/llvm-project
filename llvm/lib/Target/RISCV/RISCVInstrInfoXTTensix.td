@@ -2216,6 +2216,19 @@ def TT_SFPLOAD_VV : TTInst<0x70, (outs SFPLReg:$VD),
   let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
 }
 
+// Tied loadi: load a 16-bit immediate into part of the dest (UPPER/LOWER half),
+// preserving the rest (prior value tied to dest). Builds 32-bit constants.
+def TT_SFPLOADI_LV : TTInst<0x71, (outs SFPLReg:$VD),
+    (ins SFPLReg:$live, uimm16:$Imm16, uimm4:$Mod0),
+    "tt.sfploadi", "$Imm16, $Mod0, $VD"> {
+  bits<16> Imm16; bits<4> Mod0; bits<4> VD;
+  let tt_opr{15-0} = Imm16;
+  let tt_opr{19-16} = Mod0;
+  let tt_opr{23-20} = VD;
+  let Constraints = "$live = $VD";
+  let hasSideEffects = 0; let mayStore = 0; let mayLoad = 1; let isCodeGenOnly = 1;
+}
+
 // Predicated move: same encoding as sfpmov, live value tied to the dest.
 def TT_SFPMOV_LV : TTInst<0x7C, (outs SFPLReg:$VD),
     (ins SFPLReg:$live, uimm4:$Mod1, SFPLReg:$VC),
@@ -2230,6 +2243,8 @@ def TT_SFPMOV_LV : TTInst<0x7C, (outs SFPLReg:$VD),
 
 def : Pat<(int_riscv_rvtt_sfploadi timm:$Imm16, timm:$Mod0),
           (TT_SFPLOADI_V timm:$Imm16, timm:$Mod0)>;
+def : Pat<(int_riscv_rvtt_sfploadi_lv (v32i32 SFPLReg:$live), timm:$Imm16, timm:$Mod0),
+          (TT_SFPLOADI_LV SFPLReg:$live, timm:$Imm16, timm:$Mod0)>;
 def : Pat<(int_riscv_rvtt_sfpmov (v32i32 SFPLReg:$VC), timm:$Mod1),
           (TT_SFPMOV_V timm:$Mod1, SFPLReg:$VC)>;
 def : Pat<(int_riscv_rvtt_sfpmov_lv (v32i32 SFPLReg:$live), (v32i32 SFPLReg:$VC),
