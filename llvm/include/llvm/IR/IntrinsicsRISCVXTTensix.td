@@ -391,10 +391,13 @@ def int_riscv_rvtt_sfpadd_lv : SFPValue<
 // to derive lane predicates; the rest are immediate-only. The abstract SFPI
 // "x"-condition system (sfpxicmp*/sfpxbool/sfpxcond*) that GCC lowers to these
 // via dedicated passes is a separate front/middle-end piece, not yet ported.
+// The CC ops read *and* write the abstract CC state: read so that consecutive
+// identical-operand ops (e.g. two `sfppushc 0` from nested/elseif regions) are
+// not CSE-merged or dead-store-eliminated (each observes the prior CC state),
+// write so the value ops above (which read it) stay ordered across them.
 class SFPCCVoid<list<LLVMType> args, list<IntrinsicProperty> imm>
     : Intrinsic<[], args,
-        !listconcat([IntrHasSideEffects, IntrWriteMem, IntrInaccessibleMemOnly],
-                    imm)>;
+        !listconcat([IntrHasSideEffects, IntrInaccessibleMemOnly], imm)>;
 
 def int_riscv_rvtt_sfpsetcc_i : SFPCCVoid<[llvm_i32_ty, llvm_i32_ty],
     [ImmArg<ArgIndex<0>>, ImmArg<ArgIndex<1>>]>;

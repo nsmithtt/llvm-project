@@ -2350,6 +2350,7 @@ def TT_SFPSETCC_I_V : TTInst<0x7B, (outs),
   let tt_opr{3-0} = Mod1;
   let tt_opr{11-8} = 0;       // L0
   let tt_opr{23-12} = Imm12;
+  let mayLoad = 1;
   let isCodeGenOnly = 1;
 }
 def TT_SFPSETCC_VV : TTInst<0x7B, (outs),
@@ -2358,6 +2359,7 @@ def TT_SFPSETCC_VV : TTInst<0x7B, (outs),
   bits<4> Mod1; bits<4> VC;
   let tt_opr{3-0} = Mod1;
   let tt_opr{11-8} = VC;
+  let mayLoad = 1;
   let isCodeGenOnly = 1;
 }
 def TT_SFPENCC_V : TTInst<0x8A, (outs),
@@ -2366,21 +2368,25 @@ def TT_SFPENCC_V : TTInst<0x8A, (outs),
   bits<4> Mod1; bits<12> Imm12;
   let tt_opr{3-0} = Mod1;
   let tt_opr{23-12} = Imm12;
+  let mayLoad = 1;
   let isCodeGenOnly = 1;
 }
 def TT_SFPPUSHC_V : TTInst<0x87, (outs), (ins uimm4:$Mod1),
     "tt.sfppushc", "$Mod1"> {
   bits<4> Mod1;
   let tt_opr{3-0} = Mod1;
+  let mayLoad = 1;
   let isCodeGenOnly = 1;
 }
 def TT_SFPPOPC_V : TTInst<0x88, (outs), (ins uimm4:$Mod1),
     "tt.sfppopc", "$Mod1"> {
   bits<4> Mod1;
   let tt_opr{3-0} = Mod1;
+  let mayLoad = 1;
   let isCodeGenOnly = 1;
 }
 def TT_SFPCOMPC_V : TTInst<0x8B, (outs), (ins), "tt.sfpcompc", ""> {
+  let mayLoad = 1;
   let isCodeGenOnly = 1;
 }
 
