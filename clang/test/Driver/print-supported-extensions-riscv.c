@@ -273,6 +273,8 @@
 // CHECK-NEXT:     xqccmt               0.1       'Xqccmt' (Qualcomm 16-bit Table Jump)
 // CHECK-NEXT:     xsfmclic             0.1       'XSfmclic' (SiFive CLIC Machine-mode CSRs)
 // CHECK-NEXT:     xsfsclic             0.1       'XSfsclic' (SiFive CLIC Supervisor-mode CSRs)
+// CHECK-NEXT:     xttensixbh           0.1       'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)
+// CHECK-NEXT:     xttensixwh           0.1       'XTTensixWH' (Tenstorrent Tensix accelerator interface, Wormhole)
 // CHECK-EMPTY:
 // CHECK-NEXT: Supported Profiles
 // CHECK-NEXT:     rva20s64
