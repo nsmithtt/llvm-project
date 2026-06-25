@@ -764,7 +764,10 @@ public:
   bool isUImm9() const { return isUImm<9>(); }
   bool isUImm10() const { return isUImm<10>(); }
   bool isUImm11() const { return isUImm<11>(); }
+  bool isUImm12() const { return isUImm<12>(); }
+  bool isUImm15() const { return isUImm<15>(); }
   bool isUImm16() const { return isUImm<16>(); }
+  bool isUImm18() const { return isUImm<18>(); }
 
   // Tenstorrent Tensix instruction word: a 32-bit value whose top two bits are
   // not 0b11 (i.e. < 0xC0000000 when viewed as unsigned). The word may be
@@ -1608,8 +1611,14 @@ bool RISCVAsmParser::matchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode,
     return generateImmOutOfRangeError(Operands, ErrorInfo, 0, (1 << 8) - 1);
   case Match_InvalidUImm8GE32:
     return generateImmOutOfRangeError(Operands, ErrorInfo, 32, (1 << 8) - 1);
+  case Match_InvalidUImm12:
+    return generateImmOutOfRangeError(Operands, ErrorInfo, 0, (1 << 12) - 1);
+  case Match_InvalidUImm15:
+    return generateImmOutOfRangeError(Operands, ErrorInfo, 0, (1 << 15) - 1);
   case Match_InvalidUImm16:
     return generateImmOutOfRangeError(Operands, ErrorInfo, 0, (1 << 16) - 1);
+  case Match_InvalidUImm18:
+    return generateImmOutOfRangeError(Operands, ErrorInfo, 0, (1 << 18) - 1);
   case Match_InvalidSImm5:
     return generateImmOutOfRangeError(Operands, ErrorInfo, -(1 << 4),
                                       (1 << 4) - 1);
