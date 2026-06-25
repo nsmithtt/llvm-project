@@ -123,3 +123,127 @@ def TT_REPLAY : TTInst<0x04, (outs),
   let tt_opr{9-4} = Count;
   let tt_opr{18-14} = Index;
 }
+
+//===----------------------------------------------------------------------===//
+// Data Movement Instructions
+//===----------------------------------------------------------------------===//
+
+// MOVD2A / MOVD2B / MOVA2D share an operand layout. On Blackhole the address
+// mode widens from 2 to 3 bits (claiming bit 14), so the Blackhole variants are
+// defined separately below.
+class TTMov<bits<8> opcode, string mnemonic>
+    : TTInst<opcode, (outs),
+             (ins uimm10:$DstRow, uimm2:$InstrMod, uimm2:$AddrMod,
+                  uimm6:$SrcRow, uimm1:$UseDst32bLo),
+             mnemonic, "$DstRow, $InstrMod, $AddrMod, $SrcRow, $UseDst32bLo"> {
+  bits<10> DstRow;
+  bits<2> InstrMod;
+  bits<2> AddrMod;
+  bits<6> SrcRow;
+  bits<1> UseDst32bLo;
+  let tt_opr{9-0} = DstRow;
+  let tt_opr{13-12} = InstrMod;
+  let tt_opr{16-15} = AddrMod;
+  let tt_opr{22-17} = SrcRow;
+  let tt_opr{23} = UseDst32bLo;
+}
+
+def TT_MOVD2A : TTMov<0x08, "tt.movd2a">;
+def TT_MOVD2B : TTMov<0x0A, "tt.movd2b">;
+def TT_MOVA2D : TTMov<0x12, "tt.mova2d">;
+
+def TT_MOVB2A : TTInst<0x0B, (outs),
+    (ins uimm6:$SrcBRow, uimm2:$InstrMod, uimm2:$AddrMod, uimm6:$SrcARow),
+    "tt.movb2a", "$SrcBRow, $InstrMod, $AddrMod, $SrcARow"> {
+  bits<6> SrcBRow;
+  bits<2> InstrMod;
+  bits<2> AddrMod;
+  bits<6> SrcARow;
+  let tt_opr{5-0} = SrcBRow;
+  let tt_opr{13-12} = InstrMod;
+  let tt_opr{16-15} = AddrMod;
+  let tt_opr{22-17} = SrcARow;
+}
+
+def TT_MOVB2D : TTInst<0x13, (outs),
+    (ins uimm10:$DstRow, uimm1:$BroadcastCol0, uimm1:$Broadcast1RowTo8,
+         uimm1:$Move4Rows, uimm2:$AddrMod, uimm6:$SrcRow, uimm1:$UseDst32bLo),
+    "tt.movb2d",
+    "$DstRow, $BroadcastCol0, $Broadcast1RowTo8, $Move4Rows, $AddrMod, $SrcRow, $UseDst32bLo"> {
+  bits<10> DstRow;
+  bits<1> BroadcastCol0;
+  bits<1> Broadcast1RowTo8;
+  bits<1> Move4Rows;
+  bits<2> AddrMod;
+  bits<6> SrcRow;
+  bits<1> UseDst32bLo;
+  let tt_opr{9-0} = DstRow;
+  let tt_opr{12} = BroadcastCol0;
+  let tt_opr{13} = Broadcast1RowTo8;
+  let tt_opr{14} = Move4Rows;
+  let tt_opr{16-15} = AddrMod;
+  let tt_opr{22-17} = SrcRow;
+  let tt_opr{23} = UseDst32bLo;
+}
+
+//===----------------------------------------------------------------------===//
+// Data Movement Instructions -- Blackhole variants
+//===----------------------------------------------------------------------===//
+//
+// These instructions have a different operand layout on Blackhole (a wider
+// address mode, and MOVB2D a wider instruction-mode field). They are gated on
+// XTTensixBH and decoded from a Blackhole-specific table.
+
+let Predicates = [HasVendorXTTensixBH, IsRV32], DecoderNamespace = "XTTensixBH" in {
+
+class TTMovBH<bits<8> opcode, string mnemonic>
+    : TTInst<opcode, (outs),
+             (ins uimm10:$DstRow, uimm2:$InstrMod, uimm3:$AddrMod,
+                  uimm6:$SrcRow, uimm1:$UseDst32bLo),
+             mnemonic, "$DstRow, $InstrMod, $AddrMod, $SrcRow, $UseDst32bLo"> {
+  bits<10> DstRow;
+  bits<2> InstrMod;
+  bits<3> AddrMod;
+  bits<6> SrcRow;
+  bits<1> UseDst32bLo;
+  let tt_opr{9-0} = DstRow;
+  let tt_opr{13-12} = InstrMod;
+  let tt_opr{16-14} = AddrMod;
+  let tt_opr{22-17} = SrcRow;
+  let tt_opr{23} = UseDst32bLo;
+}
+
+def TT_MOVD2A_BH : TTMovBH<0x08, "tt.movd2a">;
+def TT_MOVD2B_BH : TTMovBH<0x0A, "tt.movd2b">;
+def TT_MOVA2D_BH : TTMovBH<0x12, "tt.mova2d">;
+
+def TT_MOVB2A_BH : TTInst<0x0B, (outs),
+    (ins uimm6:$SrcBRow, uimm2:$InstrMod, uimm3:$AddrMod, uimm6:$SrcARow),
+    "tt.movb2a", "$SrcBRow, $InstrMod, $AddrMod, $SrcARow"> {
+  bits<6> SrcBRow;
+  bits<2> InstrMod;
+  bits<3> AddrMod;
+  bits<6> SrcARow;
+  let tt_opr{5-0} = SrcBRow;
+  let tt_opr{13-12} = InstrMod;
+  let tt_opr{16-14} = AddrMod;
+  let tt_opr{22-17} = SrcARow;
+}
+
+def TT_MOVB2D_BH : TTInst<0x13, (outs),
+    (ins uimm10:$DstRow, uimm3:$InstrMod, uimm3:$AddrMod, uimm6:$SrcRow,
+         uimm1:$UseDst32bLo),
+    "tt.movb2d", "$DstRow, $InstrMod, $AddrMod, $SrcRow, $UseDst32bLo"> {
+  bits<10> DstRow;
+  bits<3> InstrMod;
+  bits<3> AddrMod;
+  bits<6> SrcRow;
+  bits<1> UseDst32bLo;
+  let tt_opr{9-0} = DstRow;
+  let tt_opr{13-11} = InstrMod;
+  let tt_opr{16-14} = AddrMod;
+  let tt_opr{22-17} = SrcRow;
+  let tt_opr{23} = UseDst32bLo;
+}
+
+} // Predicates = [HasVendorXTTensixBH, IsRV32], DecoderNamespace = "XTTensixBH"
