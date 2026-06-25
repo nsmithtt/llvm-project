@@ -235,6 +235,22 @@
 // MCPU-TT-ASCALON-X-SAME: "-target-feature" "+svpbmt"
 // MCPU-TT-ASCALON-X-SAME: "-target-abi" "lp64d"
 
+// RUN: %clang --target=riscv32 -### -c %s 2>&1 -menable-experimental-extensions -mcpu=tt-wh-brisc | FileCheck -check-prefix=MCPU-TT-WH-BRISC %s
+// MCPU-TT-WH-BRISC: "-target-cpu" "tt-wh-brisc"
+// MCPU-TT-WH-BRISC-SAME: "-target-feature" "+m"
+// MCPU-TT-WH-BRISC-SAME: "-target-feature" "+zicsr"
+// MCPU-TT-WH-BRISC-SAME: "-target-feature" "+zmmul"
+// MCPU-TT-WH-BRISC-SAME: "-target-feature" "+experimental-xttensixwh"
+// MCPU-TT-WH-BRISC-SAME: "-target-abi" "ilp32"
+
+// RUN: %clang --target=riscv32 -### -c %s 2>&1 -mtune=tt-wh-brisc | FileCheck -check-prefix=MTUNE-TT-WH-BRISC %s
+// MTUNE-TT-WH-BRISC: "-tune-cpu" "tt-wh-brisc"
+
+// RUN: %clang --target=riscv32 -### -c %s 2>&1 -menable-experimental-extensions -mcpu=tt-bh-brisc | FileCheck -check-prefix=MCPU-TT-BH-BRISC %s
+// MCPU-TT-BH-BRISC: "-target-cpu" "tt-bh-brisc"
+// MCPU-TT-BH-BRISC-SAME: "-target-feature" "+experimental-xttensixbh"
+// MCPU-TT-BH-BRISC-SAME: "-target-abi" "ilp32"
+
 // RUN: %clang --target=riscv64 -### -c %s 2>&1 -mcpu=veyron-v1 | FileCheck -check-prefix=MCPU-VEYRON-V1 %s
 // MCPU-VEYRON-V1: "-target-cpu" "veyron-v1"
 // MCPU-VEYRON-V1: "-target-feature" "+m"

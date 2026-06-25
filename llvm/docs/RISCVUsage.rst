@@ -385,6 +385,9 @@ The primary goal of experimental support is to assist in the process of ratifica
 ``experimental-zvqwbdota8i``, ``experimental-zvqwbdota16i``, ``experimental-zvfqwbdota8f``, ``experimental-zvfwbdota16bf``, ``experimental-zvfbdota32f``
   LLVM implements the `0.2 draft specification <https://github.com/aswaterman/riscv-misc/blob/main/isa/ldot-bdot/ldot-bdot.adoc>`__.
 
+``experimental-xttensixwh``, ``experimental-xttensixbh``
+  LLVM implements version 0.1 of the Tenstorrent Tensix accelerator interface (see the ``XTTensixWH``/``XTTensixBH`` entries under `Vendor Extensions`_).
+
 To use an experimental extension from `clang`, you must add `-menable-experimental-extensions` to the command line, and specify the exact version of the experimental extension you are using.  To use an experimental extension with LLVM's internal developer tools (e.g. `llc`, `llvm-objdump`, `llvm-mc`), you must prefix the extension name with `experimental-`.  Note that you don't need to specify the version with internal tools, and shouldn't include the `experimental-` prefix with `clang`.
 
 Vendor Extensions
@@ -433,6 +436,9 @@ The current vendor extensions supported are:
 
 ``XTHeadVdot``
   LLVM implements `version 1.0.0 of the THeadV-family custom instructions specification <https://github.com/T-head-Semi/thead-extension-spec/releases/download/2.2.0/xthead-2022-12-04-2.2.0.pdf>`__ by T-HEAD of Alibaba.  All instructions are prefixed with `th.` as described in the specification, and the riscv-toolchain-convention document linked above.
+
+``XTTensixWH``, ``XTTensixBH``
+  LLVM implements version 0.1 of the Tenstorrent Tensix accelerator interface by Tenstorrent.  These extensions describe the instructions that the Tensix "Baby RISC-V" cores issue to the Tensix accelerator.  ``XTTensixWH`` targets the Wormhole architecture and ``XTTensixBH`` targets Blackhole, which is a superset of Wormhole (so ``XTTensixBH`` implies ``XTTensixWH``).  All instructions are prefixed with `tt.` as described in the specification, and the riscv-toolchain-convention document linked above.  These instructions are only available for riscv32 at this time.
 
 ``XVentanaCondOps``
   LLVM implements `version 1.0.0 of the VTx-family custom instructions specification <https://github.com/ventanamicro/ventana-custom-extensions/releases/download/v1.0.0/ventana-custom-extensions-v1.0.0.pdf>`__ by Ventana Micro Systems.  All instructions are prefixed with `vt.` as described in the specification, and the riscv-toolchain-convention document linked above.  These instructions are only available for riscv64 at this time.

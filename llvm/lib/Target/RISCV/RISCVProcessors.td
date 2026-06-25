@@ -760,6 +760,24 @@ def TENSTORRENT_ASCALON_X : RISCVProcessorModel<"tt-ascalon-x",
                                                  TuneOptimizedZeroStrideLoad,
                                                  TunePostRAScheduler]>;
 
+// Wormhole BRISC: drives the Wormhole Tensix accelerator.
+def TENSTORRENT_WH_BRISC : RISCVProcessorModel<"tt-wh-brisc",
+                                               NoSchedModel,
+                                               [Feature32Bit,
+                                                FeatureStdExtI,
+                                                FeatureStdExtZicsr,
+                                                FeatureStdExtM,
+                                                FeatureVendorXTTensixWH]>;
+
+// Blackhole BRISC: drives the Blackhole Tensix accelerator (a Wormhole superset).
+def TENSTORRENT_BH_BRISC : RISCVProcessorModel<"tt-bh-brisc",
+                                               NoSchedModel,
+                                               [Feature32Bit,
+                                                FeatureStdExtI,
+                                                FeatureStdExtZicsr,
+                                                FeatureStdExtM,
+                                                FeatureVendorXTTensixBH]>;
+
 def VENTANA_VEYRON_V1 : RISCVProcessorModel<"veyron-v1",
                                             NoSchedModel,
                                             [Feature64Bit,

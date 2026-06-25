@@ -244,6 +244,7 @@ class RISCVAsmParser : public MCTargetAsmParser {
   bool parseDirectiveAttribute();
   bool parseDirectiveInsn(SMLoc L);
   bool parseDirectiveVariantCC();
+  bool parseDirectiveTTInsn(SMLoc L);
 
   /// Helper to reset target features for a new arch string. It
   /// also records the new arch string that is expanded by RISCVISAInfo
@@ -764,6 +765,19 @@ public:
   bool isUImm10() const { return isUImm<10>(); }
   bool isUImm11() const { return isUImm<11>(); }
   bool isUImm16() const { return isUImm<16>(); }
+
+  // Tenstorrent Tensix instruction word: a 32-bit value whose top two bits are
+  // not 0b11 (i.e. < 0xC0000000 when viewed as unsigned). The word may be
+  // written either as an unsigned value or as its signed-int32 spelling --
+  // Tensix opcodes with bit 31 set are negative when written as 'int'. Both are
+  // accepted; the code emitter truncates to 32 bits.
+  bool isTTensixImm32() const {
+    return isUImmPred([](int64_t Imm) {
+      if (!isUInt<32>(Imm) && !isInt<32>(Imm))
+        return false;
+      return (uint32_t)Imm < 0xC0000000U;
+    });
+  }
   bool isUImm20() const { return isUImm<20>(); }
   bool isUImm32() const { return isUImm<32>(); }
   bool isUImm48() const { return isUImm<48>(); }
@@ -1594,6 +1608,8 @@ bool RISCVAsmParser::matchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode,
     return generateImmOutOfRangeError(Operands, ErrorInfo, 0, (1 << 8) - 1);
   case Match_InvalidUImm8GE32:
     return generateImmOutOfRangeError(Operands, ErrorInfo, 32, (1 << 8) - 1);
+  case Match_InvalidUImm16:
+    return generateImmOutOfRangeError(Operands, ErrorInfo, 0, (1 << 16) - 1);
   case Match_InvalidSImm5:
     return generateImmOutOfRangeError(Operands, ErrorInfo, -(1 << 4),
                                       (1 << 4) - 1);
@@ -3124,6 +3140,8 @@ ParseStatus RISCVAsmParser::parseDirective(AsmToken DirectiveID) {
     return parseDirectiveInsn(DirectiveID.getLoc());
   if (IDVal == ".variant_cc")
     return parseDirectiveVariantCC();
+  if (IDVal == ".ttinsn")
+    return parseDirectiveTTInsn(DirectiveID.getLoc());
 
   return ParseStatus::NoMatch;
 }
@@ -3580,6 +3598,40 @@ bool RISCVAsmParser::parseDirectiveInsn(SMLoc L) {
   return matchAndEmitInstruction(L, Opcode, Operands, Parser.getStreamer(),
                                  ErrorInfo,
                                  /*MatchingInlineAsm=*/false);
+}
+
+/// parseDirectiveTTInsn
+///  ::= .ttinsn value
+/// Emits a 32-bit Tenstorrent Tensix instruction word -- the same encoding as
+/// the `ttinsn` instruction. Provided for source compatibility with code that
+/// injects raw Tensix instruction words.
+bool RISCVAsmParser::parseDirectiveTTInsn(SMLoc L) {
+  MCAsmParser &Parser = getParser();
+  SMLoc ErrorLoc = Parser.getTok().getLoc();
+
+  if (!getSTI().hasFeature(RISCV::FeatureVendorXTTensixWH))
+    return Error(ErrorLoc,
+                 "'.ttinsn' requires 'XTTensixWH' (Tenstorrent Tensix "
+                 "accelerator interface, Wormhole)");
+
+  int64_t Value = 0;
+  if (Parser.parseAbsoluteExpression(Value))
+    return true;
+
+  // The word may be written as an unsigned value or as its signed-int32
+  // spelling (Tensix opcodes with bit 31 set are negative as 'int'). The top
+  // two bits must not be 0b11, i.e. the uint32 value must be < 0xC0000000, so
+  // the rotated encoding never collides with the 0b11 (32-bit) opcode space.
+  if ((!isUInt<32>(Value) && !isInt<32>(Value)) ||
+      (uint32_t)Value >= 0xC0000000U)
+    return Error(ErrorLoc,
+                 "operand must be a valid Tensix immediate (< 0xC0000000)");
+
+  if (Parser.parseEOL())
+    return true;
+
+  emitToStreamer(getStreamer(), MCInstBuilder(RISCV::TTINSN).addImm(Value));
+  return false;
 }
 
 /// parseDirectiveVariantCC

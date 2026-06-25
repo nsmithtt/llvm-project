@@ -1869,6 +1869,29 @@ def HasCheriot
     : Predicate<"Subtarget->hasVendorXCheriot()">,
       AssemblerPredicate<(all_of FeatureVendorXCheriot), "'XCheriot' (CHERIoT Extension)">;
 
+// Tenstorrent Tensix accelerator interface.
+//
+// The interface is versioned per architecture. Wormhole (XTTensixWH) is the
+// baseline; Blackhole (XTTensixBH) is a superset and so implies XTTensixWH.
+// There is intentionally no generic "XTTensix" -- each architecture is named
+// explicitly.
+def FeatureVendorXTTensixWH
+    : RISCVExperimentalExtension<0, 1,
+                                 "Tenstorrent Tensix accelerator interface, Wormhole">;
+def HasVendorXTTensixWH
+    : Predicate<"Subtarget->hasVendorXTTensixWH()">,
+      AssemblerPredicate<(all_of FeatureVendorXTTensixWH),
+                         "'XTTensixWH' (Tenstorrent Tensix accelerator interface, Wormhole)">;
+
+def FeatureVendorXTTensixBH
+    : RISCVExperimentalExtension<0, 1,
+                                 "Tenstorrent Tensix accelerator interface, Blackhole",
+                                 [FeatureVendorXTTensixWH]>;
+def HasVendorXTTensixBH
+    : Predicate<"Subtarget->hasVendorXTTensixBH()">,
+      AssemblerPredicate<(all_of FeatureVendorXTTensixBH),
+                         "'XTTensixBH' (Tenstorrent Tensix accelerator interface, Blackhole)">;
+
 //===----------------------------------------------------------------------===//
 // LLVM specific features and extensions
 //===----------------------------------------------------------------------===//

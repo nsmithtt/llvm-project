@@ -679,6 +679,24 @@ DecodeStatus RISCVDisassembler::getInstruction(MCInst &MI, uint64_t &Size,
                                                uint64_t Address,
                                                raw_ostream &CS) const {
   CommentStream = &CS;
+
+  // Tensix instructions are 32 bits wide but, after the left-rotate-by-2
+  // encoding, their low two bits are never 0b11, so they share the encoding
+  // space the standard dispatcher would otherwise treat as 16-bit. Try the
+  // Tensix table first when the extension is enabled and four bytes are
+  // available.
+  if ((Bytes[0] & 0b11) != 0b11 && Bytes.size() >= 4 &&
+      STI.hasFeature(RISCV::FeatureVendorXTTensixWH)) {
+    uint32_t Insn = support::endian::read32le(Bytes.data());
+    LLVM_DEBUG(dbgs() << "Trying XTTensix table (32-bit instruction):\n");
+    DecodeStatus Result =
+        decodeInstruction(DecoderTableXTTensix32, MI, Insn, Address, this, STI);
+    if (Result != MCDisassembler::Fail) {
+      Size = 4;
+      return Result;
+    }
+  }
+
   // It's a 16 bit instruction if bit 0 and 1 are not 0b11.
   if ((Bytes[0] & 0b11) != 0b11)
     return getInstruction16(MI, Size, Bytes, Address, CS);
