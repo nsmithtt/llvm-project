@@ -261,6 +261,9 @@ Makes programs 10x faster by doing Special New Thing.
 * Adds experimental assembler support for dot-product extensions(Zvqwdota8i, Zvqwdota16i, Zvfwdota16bf and Zvfqwdota8f).
 * `-mtune=generic` now uses the scheduling model from SpacemiT X60 instead of an empty scheduling model.
 * The Xqcilo pseudos now emit sequences that can be relaxed.
+* Adds experimental assembler and disassembler support for the `XTTensixWH` and
+  `XTTensixBH` (Tenstorrent Tensix accelerator interface) vendor extensions, and
+  the `tt-wh-brisc` and `tt-bh-brisc` CPUs.
 
 ### Changes to the WebAssembly Backend
 

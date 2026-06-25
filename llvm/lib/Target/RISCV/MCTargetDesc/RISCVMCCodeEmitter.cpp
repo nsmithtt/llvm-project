@@ -117,6 +117,10 @@ public:
                                SmallVectorImpl<MCFixup> &Fixups,
                                const MCSubtargetInfo &STI) const;
 
+  uint64_t getTTensixImm32OpValue(const MCInst &MI, unsigned OpNo,
+                                  SmallVectorImpl<MCFixup> &Fixups,
+                                  const MCSubtargetInfo &STI) const;
+
   unsigned getVMaskReg(const MCInst &MI, unsigned OpNo,
                        SmallVectorImpl<MCFixup> &Fixups,
                        const MCSubtargetInfo &STI) const;
@@ -992,6 +996,17 @@ RISCVMCCodeEmitter::getRlistS0OpValue(const MCInst &MI, unsigned OpNo,
   assert(Imm >= 4 && "EABI is currently not implemented");
   assert(Imm != RISCVZC::RA && "Rlist operand must include s0");
   return Imm;
+}
+
+uint64_t
+RISCVMCCodeEmitter::getTTensixImm32OpValue(const MCInst &MI, unsigned OpNo,
+                                           SmallVectorImpl<MCFixup> &Fixups,
+                                           const MCSubtargetInfo &STI) const {
+  const MCOperand &MO = MI.getOperand(OpNo);
+  assert(MO.isImm() && "TTensix immediate operand must be an immediate");
+  // The left-rotate-by-2 placement is described by the TableGen encoding, so
+  // the raw 32-bit word is emitted unchanged here.
+  return static_cast<uint32_t>(MO.getImm());
 }
 
 #include "RISCVGenMCCodeEmitter.inc"
